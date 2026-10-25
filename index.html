@@ -154,15 +154,15 @@ EQUIPE.forEach(e=>{
     item(e.nome,e.id+'_nome','Nome completo',e.completo),
     item(e.nome,e.id+'_funcao','Função',e.funcao),
     item(e.nome,e.id+'_reg','Registrado em carteira',e.reg===true?'Sim':e.reg===false?'Não (sem holerite no grupo)':null),
-    item(e.nome,e.id+'_ent','Data de entrada',null),
-    item(e.nome,e.id+'_sal','Salário cheio',e.sal?F(e.sal):null),
+    item(e.nome,e.id+'_ent','Data de entrada',e.ent||null),
+    item(e.nome,e.id+'_sal','Salário cheio',e.salnota||(e.sal?F(e.sal):null)),
     item(e.nome,e.id+'_adi','Adiantamento / vale de 20/10',e.adi?F(e.adi):null),
-    item(e.nome,e.id+'_pago','Pagamento visto no grupo',e.pago),
+    item(e.nome,e.id+'_pago','Pagamento visto no grupo',e.pago||null),
     ...e.extra.map((x,i)=>item(e.nome,e.id+'_x'+i,'Outro pagamento',x)),
     item(e.nome,e.id+'_desc','Descontos',e.desc||'Nenhum desconto visto'),
-    item(e.nome,e.id+'_vt','Vale-transporte',null),
-    item(e.nome,e.id+'_com','Comissão de outubro',null),
-    item(e.nome,e.id+'_hor','Horário de trabalho',null),
+    item(e.nome,e.id+'_vt','Vale-transporte',e.vt||null),
+    item(e.nome,e.id+'_com','Comissão de outubro',e.com||null),
+    item(e.nome,e.id+'_hor','Horário de trabalho',e.hor||null),
     item(e.nome,e.id+'_at','Atestado em outubro',e.atest||'Nenhum atestado no grupo'),
   ];
 });
@@ -194,7 +194,7 @@ let filtro='todos';
 function render(){
   const reg=EQUIPE.filter(e=>e.reg===true).length;
   document.getElementById('tiles').innerHTML=[
-    [EQUIPE.length,'Funcionários ativos'],[reg,'Com registro (holerite)'],[EQUIPE.length-reg,'Sem holerite no grupo'],[3,'Atestados em outubro']
+    [EQUIPE.length,'Funcionários ativos'],[reg,'Com registro (holerite)'],[EQUIPE.length-reg,'Sem holerite no grupo'],[EQUIPE.filter(e=>e.atest).length,'Atestados em outubro']
   ].map(([n,l])=>`<div class="tile"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
 
   document.getElementById('totals').innerHTML='<tr><th>Item</th><th style="text-align:right">Valor</th></tr>'+
