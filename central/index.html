@@ -116,6 +116,21 @@ a.app:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .empty { color: var(--muted); }
 footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 16px; }
 
+
+/* ---------- Fornecedores ---------- */
+.divida { border: 1px solid var(--line); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 12px; background: var(--bg); }
+.dtop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.divida h2 { margin: 0; font: 800 .8rem var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.dtop span { font-size: .8rem; color: var(--muted); }
+.dtotal { font: 900 clamp(2rem, 9vw, 2.8rem)/1 var(--display); font-stretch: 110%; letter-spacing: -0.02em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.dlinhas { display: flex; flex-direction: column; }
+.dl { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.dl b { font-weight: 700; }
+.dl strong { font: 800 1.05rem var(--display); font-variant-numeric: tabular-nums; text-align: right; }
+.dl small { grid-column: 1 / -1; color: var(--muted); font-size: .82rem; }
+.dl small em { font-style: normal; font-weight: 700; color: var(--gold); }
+.dvazio { margin: 0; color: var(--muted); font-size: .9rem; }
+
 /* ---------- Emoção ---------- */
 .fl { font: 900 1rem/1 var(--display); font-stretch: 85%; letter-spacing: -0.04em; color: #fff; }
 .seal .fl { font-size: 1.9rem; }
@@ -200,6 +215,11 @@ a.app:hover .ico, a.app:focus-visible .ico { background: linear-gradient(145deg,
       <p class="frase" id="frase"><b>Frase do dia</b><span></span><cite></cite></p>
       <div class="stats" id="stats"></div>
     </div>
+    <section class="divida" id="divida" aria-labelledby="div-t">
+      <div class="dtop"><h2 id="div-t">Quanto eu devo aos fornecedores</h2><span id="div-quando"></span></div>
+      <div class="dtotal" id="div-total">R$ —</div>
+      <div class="dlinhas" id="div-linhas"><p class="dvazio">Carregando os acertos…</p></div>
+    </section>
     <div class="chips" id="chips"></div>
     <div id="areas"></div>
     <p id="nada" class="empty" hidden>Nada encontrado com esse nome.</p>
@@ -264,10 +284,6 @@ var AREAS = [
   { id: 'dinheiro', c: '#1f8a55', t: 'Dinheiro', apps: [
     ['Painel de Vendas', 'f4f0aeeb-d0bd-4abe-9d52-af34078d3b6a', 'grafico'],
     ['Contas a Pagar', '024dfe6a-f715-4b7c-857d-80005bb728ac', 'boleto'],
-    ['Conta Chines', 'dcf1fc1e-7fab-4479-a609-cd1c5f092943', 'moeda'],
-    ['Conta Corrente', 'a1dfe38f-469b-408f-a2d9-91fdca72f461', 'moeda'],
-    ['Compras', 'e6a9a659-1cd9-4828-8094-0e5ae4c7de26', 'sacola'],
-    ['Compras (set)', '12094488-126f-4d67-bee3-cc5064ef34c0', 'sacola'],
     ['Raio-X Bagy', '8b677bfa-8b87-4c78-bafd-3199c0ad50f0', 'raiox']
   ]},
   { id: 'loja', c: '#c8102e', t: 'Loja e equipe', apps: [
@@ -296,6 +312,12 @@ var AREAS = [
     ['O que o robô não sabe', '2f0df2d0-2c42-4603-89ce-b76ae483847f', 'robo'],
     ['Ponte de Vídeos', '19f8d9cd-d252-467a-8e2b-ab60e06f2384', 'video']
   ]},
+  { id: 'maicon', c: '#8a7f78', t: 'Contas do Maicon', apps: [
+    ['Conta Chines', 'dcf1fc1e-7fab-4479-a609-cd1c5f092943', 'moeda'],
+    ['Conta Corrente', 'a1dfe38f-469b-408f-a2d9-91fdca72f461', 'moeda'],
+    ['Compras', 'e6a9a659-1cd9-4828-8094-0e5ae4c7de26', 'sacola'],
+    ['Compras (set)', '12094488-126f-4d67-bee3-cc5064ef34c0', 'sacola']
+  ]},
   { id: 'documentos', c: '#5b5f6b', t: 'Documentos', apps: [
     ['Retirada CT-e', '79795f40-c4f2-4091-aedd-6b711dc6d37a', 'caminhao']
   ]}
@@ -313,15 +335,15 @@ function hash(s) {
     return Array.from(new Uint8Array(b)).map(function (n) { return n.toString(16).padStart(2, '0'); }).join('');
   });
 }
-function abrir() { document.getElementById('lock').hidden = true; document.getElementById('site').hidden = false; }
-function fechar() { store(false, null); document.getElementById('site').hidden = true; document.getElementById('lock').hidden = false; var s = document.getElementById('senha'); s.value = ''; s.focus(); }
+function abrir() { document.getElementById('lock').hidden = true; document.getElementById('site').hidden = false; setTimeout(function () { if (window.carregaForn) carregaForn(); }, 0); }
+function fechar() { store(false, null); try { localStorage.removeItem('cc-pw'); } catch (x) {} document.getElementById('site').hidden = true; document.getElementById('lock').hidden = false; var s = document.getElementById('senha'); s.value = ''; s.focus(); }
 var salvo = parseInt(store(true) || '0', 10);
 if (salvo && Date.now() - salvo < 12 * 3600 * 1000) abrir(); else setTimeout(function () { document.getElementById('senha').focus(); }, 50);
 document.getElementById('lockform').addEventListener('submit', function (e) {
   e.preventDefault();
   var box = this, err = document.getElementById('err');
   hash(norm(document.getElementById('senha').value)).then(function (h) {
-    if (h === SENHA) { err.textContent = ''; store(false, String(Date.now())); abrir(); }
+    if (h === SENHA) { err.textContent = ''; store(false, String(Date.now())); try { localStorage.setItem('cc-pw', norm(document.getElementById('senha').value)); } catch (x) {} abrir(); }
     else { err.textContent = 'Senha errada. Tente de novo.'; box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
   });
 });
@@ -335,6 +357,33 @@ document.getElementById('sair').addEventListener('click', fechar);
   var dt = d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
   document.getElementById('hoje').textContent = dt + ' · SP Grifes';
 })();
+
+
+/* ---------- Fornecedores (vem do banco, com a mesma senha) ---------- */
+var FORN_FOTO = /*FOTO*/[];
+function brl(v) { return Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }); }
+function dataBR(d) { var p = String(d).slice(0, 10).split('-'); return p[2] + '/' + p[1]; }
+function mostraForn(lista, aoVivo) {
+  if (!lista.length) { document.getElementById('div-total').textContent = 'R$ —'; document.getElementById('div-linhas').innerHTML = '<p class="dvazio">Para ver os valores, toque em Bloquear e entre de novo com a senha.</p>'; document.getElementById('div-quando').textContent = ''; return; }
+  var tot = lista.reduce(function (s, f) { return s + Number(f.saldo); }, 0);
+  document.getElementById('div-total').textContent = brl(tot);
+  var hoje = Date.now();
+  document.getElementById('div-linhas').innerHTML = lista.map(function (f) {
+    var dias = Math.floor((hoje - new Date(String(f.data).slice(0, 10) + 'T12:00:00')) / 864e5);
+    var velho = dias > 7 ? ' · <em>conferido há ' + dias + ' dias</em>' : '';
+    return '<div class="dl"><b>' + f.nome + '</b><strong>' + brl(f.saldo) + '</strong><small>Conferido em ' + dataBR(f.data) + velho + '. ' + (f.detalhe || '') + '</small></div>';
+  }).join('');
+  document.getElementById('div-quando').textContent = aoVivo ? 'Atualizado pelos acertos' : 'Última foto salva';
+}
+function carregaForn() {
+  var pw = ''; try { pw = localStorage.getItem('cc-pw') || ''; } catch (e) {}
+  mostraForn(FORN_FOTO, false);
+  if (!pw) return;
+  fetch('https://hkhbyeygzfdhwxsdgaxl.supabase.co/rest/v1/rpc/cc_fornecedores_get', { method: 'POST', headers: { apikey: 'sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1', 'Content-Type': 'application/json' }, body: JSON.stringify({ p_senha: pw }) })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (d) { if (d && d.length) mostraForn(d, true); })
+    .catch(function () {});
+}
 
 /* ---------- Relógio, frase e números ---------- */
 (function () {
