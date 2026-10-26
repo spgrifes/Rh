@@ -174,7 +174,7 @@ document.addEventListener('click',e=>{
 });
 
 function render(){
-  const list=rows.filter(r=>filtro==='todas'||r.tipo===filtro);
+  const list=rows.filter(r=>r.status!=='cancelada'&&(filtro==='todas'||r.tipo===filtro));
   const open=list.filter(r=>r.status!=='paga');
   const g={late:[],week:[],month:[],later:[],nodate:[],paid:[]};
   for(const r of list){
