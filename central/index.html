@@ -117,6 +117,16 @@ a.app:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 16px; }
 
 
+/* ---------- Arquivo ---------- */
+section.arquivo { opacity: .85; border-top: 1px dashed var(--line); padding-top: 18px; }
+.arq summary { list-style: none; cursor: pointer; }
+.arq summary::-webkit-details-marker { display: none; }
+.arq summary h2::after { content: "Mostrar"; margin-left: auto; font: 600 .75rem var(--body); letter-spacing: 0; text-transform: none; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+.arq[open] summary h2::after { content: "Esconder"; }
+.arq[open] .grid { margin-top: 14px; }
+.arq-dica { font: 500 .75rem var(--body); letter-spacing: 0; text-transform: none; color: var(--muted); }
+section.arquivo .ico { filter: saturate(.4); }
+
 /* ---------- Fornecedores ---------- */
 #forn-fundo { position: fixed; inset: 0; z-index: 40; background: var(--shade); }
 #forn { position: fixed; z-index: 41; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(30rem, calc(100% - 32px)); max-height: 85vh; overflow-y: auto; }
@@ -279,7 +289,7 @@ var AREAS = [
     ['SIDOS 360', 'https://sidos360.com.br/spg', 'caixareg'],
     ['Site SP Grifes', 'https://spgrifes.com.br', 'globo']
   ]},
-  { id: 'vida', c: '#b8892b', t: 'Minha vida', v: true, apps: [
+  { id: 'vida', c: '#b8892b', t: 'Minha vida', apps: [
     ['Painel de Vida', 'ffe5a2c2-3bd2-49dd-ba08-86f2ef8c7d9b', 'vida'],
     ['Segundo Cérebro', '17bbfb85-ed3d-4d1f-877c-345e03450661', 'cerebro'],
     ['Biblioteca de Vida', 'ce62fc99-f1ad-4a81-9192-f56f33d4a2b7', 'livro'],
@@ -289,43 +299,39 @@ var AREAS = [
   { id: 'dinheiro', c: '#1f8a55', t: 'Dinheiro', apps: [
     ['Painel de Vendas', 'f4f0aeeb-d0bd-4abe-9d52-af34078d3b6a', 'grafico'],
     ['Contas a Pagar', '024dfe6a-f715-4b7c-857d-80005bb728ac', 'boleto'],
-    ['Fornecedores', '#fornecedores', 'pessoas'],
-    ['Raio-X Bagy', '8b677bfa-8b87-4c78-bafd-3199c0ad50f0', 'raiox']
+    ['Fornecedores', '#fornecedores', 'pessoas']
   ]},
   { id: 'loja', c: '#c8102e', t: 'Loja e equipe', apps: [
     ['RH SP Grifes', '38ca6bad-4ac5-4b11-ac33-12b8cc545309', 'pessoas'],
     ['Contagem CD', 'a01e49f6-bbf4-4124-8bba-78bfff0b7896', 'caixa'],
-    ['Contagem Perfumes', '56c75e4e-4e6a-43dd-a05b-061be87feed9', 'frasco'],
-    ['Cadastro Clientes', 'b79015a6-79b4-4416-bc8e-e053f04938f6', 'cliente'],
+    ['Contagem de Perfumes', '56c75e4e-4e6a-43dd-a05b-061be87feed9', 'frasco']
+  ]},
+  { id: 'projetos', c: '#d9741c', t: 'Projetos da loja', apps: [
     ['Estante Colmeia', '92809226-76d8-4f8e-a61d-6412e1a739bd', 'estante'],
     ['Parede VM', '7c3376d8-bb63-4740-9338-79e76c81c29d', 'parede'],
     ['Pia da Loja', '51a01afa-4748-482e-83d6-bc820971b8fb', 'cano']
   ]},
-  { id: 'marketing', c: '#8a3fd1', t: 'Marketing e marca', apps: [
+  { id: 'marca', c: '#8a3fd1', t: 'Marca', apps: [
     ['Kit da Marca', '8bb14002-63dc-4e3d-8752-aec849198224', 'marca'],
-    ['Apresentação', '46148cb6-d09c-4964-9ccf-7e5105cc465d', 'apresentacao'],
-    ['SP Exclusive', 'ae550013-9baa-4282-bd1a-cb45f195c203', 'loja'],
+    ['Apresentação SP Grifes', '46148cb6-d09c-4964-9ccf-7e5105cc465d', 'apresentacao'],
+    ['SP Exclusive', 'ae550013-9baa-4282-bd1a-cb45f195c203', 'loja']
+  ]},
+  { id: 'arquivo', c: '#8a7f78', t: 'Arquivo e estudos', arquivo: true, apps: [
+    ['Raio-X Bagy', '8b677bfa-8b87-4c78-bafd-3199c0ad50f0', 'raiox'],
     ['Banco de Material', 'b5890fa1-fcba-402b-96fb-9f677bdb0f37', 'pasta'],
+    ['Lulu', 'c0085ba9-5476-4d88-b0d2-f10488a98390', 'robo'],
+    ['Dossiê do Robô', '4c8b448b-be9e-4a1b-ad9e-5a5f41635f39', 'doc'],
+    ['O que o robô não sabe', '2f0df2d0-2c42-4603-89ce-b76ae483847f', 'robo'],
+    ['Cadastro de Clientes', 'b79015a6-79b4-4416-bc8e-e053f04938f6', 'cliente'],
     ['Ciclo de Palavras', '6ce88c5c-d903-4377-8382-a79dfe9fea6a', 'palavras'],
     ['Cueca Performance', '9a32e477-892b-4e0c-9368-6d86c7a09115', 'camiseta'],
     ['Plaquinha Google', '7c3e7b32-6cfc-4043-812e-c65a32a58fce', 'estrela'],
-    ['Monograma FL', 'b2688097-7b4f-416a-95c0-f8d6a926255e', 'monograma']
-  ]},
-  { id: 'robos', c: '#0f9fb3', t: 'Robôs e automação', apps: [
-    ['Lulu Automações', 'c0085ba9-5476-4d88-b0d2-f10488a98390', 'robo'],
-    ['Fluxos da Lulu', '84f8d6ee-6740-4cbe-857e-3043062b5ecd', 'fluxo'],
-    ['Dossiê do Robô', '4c8b448b-be9e-4a1b-ad9e-5a5f41635f39', 'doc'],
-    ['O que o robô não sabe', '2f0df2d0-2c42-4603-89ce-b76ae483847f', 'robo'],
-    ['Ponte de Vídeos', '19f8d9cd-d252-467a-8e2b-ab60e06f2384', 'video']
-  ]},
-  { id: 'maicon', c: '#8a7f78', t: 'Contas do Maicon', apps: [
-    ['Conta Chines', 'dcf1fc1e-7fab-4479-a609-cd1c5f092943', 'moeda'],
-    ['Conta Corrente', 'a1dfe38f-469b-408f-a2d9-91fdca72f461', 'moeda'],
-    ['Compras', 'e6a9a659-1cd9-4828-8094-0e5ae4c7de26', 'sacola'],
-    ['Compras (set)', '12094488-126f-4d67-bee3-cc5064ef34c0', 'sacola']
-  ]},
-  { id: 'documentos', c: '#5b5f6b', t: 'Documentos', apps: [
-    ['Retirada CT-e', '79795f40-c4f2-4091-aedd-6b711dc6d37a', 'caminhao']
+    ['Monograma FL', 'b2688097-7b4f-416a-95c0-f8d6a926255e', 'monograma'],
+    ['Retirada CT-e', '79795f40-c4f2-4091-aedd-6b711dc6d37a', 'caminhao'],
+    ['Conta Chines (Maicon)', 'dcf1fc1e-7fab-4479-a609-cd1c5f092943', 'moeda'],
+    ['Conta Corrente (Maicon)', 'a1dfe38f-469b-408f-a2d9-91fdca72f461', 'moeda'],
+    ['Compras (Maicon)', 'e6a9a659-1cd9-4828-8094-0e5ae4c7de26', 'sacola'],
+    ['Compras set. (Maicon)', '12094488-126f-4d67-bee3-cc5064ef34c0', 'sacola']
   ]}
 ];
 
@@ -448,7 +454,7 @@ document.getElementById('brand').addEventListener('click', function () { irPara(
 function irPara(id) {
   document.getElementById('busca').value = ''; render('');
   if (id === 'topo') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-  var el = document.getElementById('area-' + id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  var el = document.getElementById('area-' + id); var dt = el && el.querySelector('details'); if (dt) dt.open = true; if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /* ---------- Grade ---------- */
@@ -463,9 +469,10 @@ function render(q) {
     var list = a.apps.filter(function (x) { return !q || norm(x[0]).indexOf(q) > -1 || norm(a.t).indexOf(q) > -1; });
     if (!list.length) return;
     total += list.length;
-    html += '<section class="area" id="area-' + a.id + '" style="--c:' + a.c + '"><h2><i></i>' + a.t + ' <em>' + list.length + '</em></h2><div class="grid">' +
+    var abre = a.arquivo ? '<details class="arq"' + (q ? ' open' : '') + '><summary><h2><i></i>' + a.t + ' <em>' + list.length + '</em><span class="arq-dica">material antigo, para consulta</span></h2></summary><div class="grid">' : '<h2><i></i>' + a.t + ' <em>' + list.length + '</em></h2><div class="grid">';
+    html += '<section class="area' + (a.arquivo ? ' arquivo' : '') + '" id="area-' + a.id + '" style="--c:' + a.c + '">' + abre +
       list.map(function (x) { return '<a class="app" style="--i:' + (n++) + '" href="' + url(x[1]) + '" target="_blank" rel="noopener"><span class="ico">' + svg(x[2]) + '</span><span class="name">' + x[0] + '</span></a>'; }).join('') +
-      '</div></section>';
+      '</div>' + (a.arquivo ? '</details>' : '') + '</section>';
   });
   root.innerHTML = html;
   document.getElementById('nada').hidden = total > 0;
