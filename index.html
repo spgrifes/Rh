@@ -289,12 +289,13 @@ function render(){
     ['k-violet','Atestados no mês',at,at?eq.filter(e=>e.atest).map(e=>e.nome).join(', '):'nenhum'],
   ].map(([c,l,n,s])=>`<div class="kpi ${c}"><div class="l">${l}</div><div class="n num">${n}</div><div class="s">${esc(s)}</div></div>`).join('');
   // ranking
-  const vend=eq.filter(e=>e.setor==='Vendas').sort((a,b)=>(b.comval||0)-(a.comval||0));
-  const max=Math.max(1,...vend.map(e=>e.comval||0));
-  $('rank').innerHTML=vend.map((e,i)=>`<div class="rk"><div class="p">${i+1}º</div><div><b>${esc(e.nome)}</b>
+  const vend=eq.filter(e=>e.comval!=null||e.setor==='Vendas').sort((a,b)=>(b.comval||0)-(a.comval||0));
+  const max=Math.max(1,...vend.map(e=>e.comval||0)); const CM=D.COMISSOES||{};
+  $('rank').innerHTML=(CM.total?`<div class="rk" style="grid-template-columns:1fr auto"><div><b>Total da equipe</b><div style="font-size:.8rem;color:var(--soft)">Vendido: ${F(CM.base)}</div></div><div class="v num">${F(CM.total)}</div></div>`:'')+
+    vend.map((e,i)=>`<div class="rk"><div class="p">${i+1}º</div><div><b>${esc(e.nome)}</b>${e.combase?` <span style="font-size:.78rem;color:var(--soft)">vendeu ${F(e.combase)}</span>`:''}
      <div class="bar"><i style="width:${Math.round((e.comval||0)/max*100)}%"></i></div></div>
      <div class="v num ${e.comval?'':'zero'}">${e.comval?F(e.comval):'a calcular'}</div></div>`).join('')+
-    `<div class="note">Comissão de 1% sobre as vendas de cada vendedora. ${vend.some(e=>e.comref)?'Valores do período '+esc(vend.find(e=>e.comref).comref)+'. ':''}Atualizado todo dia junto com o caixa (SIDOS 360).</div>`;
+    `<div class="note">Comissão de 1% sobre as vendas de cada vendedora${CM.ref?', período '+esc(CM.ref):''}. Fonte: ${esc(CM.fonte||'SIDOS 360')}. Valores ainda pendentes de pagamento. Atualizado junto com o caixa.</div>`;
   // filtros
   const fs=[['todos','Todos'],['alerta','Com alerta'],['falta','Falta informação'],['reg','Registrados'],['nreg','Sem registro'],['Vendas','Vendas'],['Site','Site']];
   $('chips').innerHTML=fs.map(([k,l])=>`<button type="button" data-f="${k}" aria-pressed="${filtro===k}">${l}</button>`).join('');
