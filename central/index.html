@@ -134,6 +134,7 @@ footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--lin
 .hero .clock { font: 900 clamp(3rem, 14vw, 5.2rem)/0.9 var(--display); font-stretch: 115%; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .hero .clock small { font-size: .35em; opacity: .6; margin-left: 6px; }
 .hero .frase { margin: 0; font-size: 1.02rem; color: #f1e7e5; max-width: 34rem; border-left: 3px solid #f0c76a; padding-left: 12px; }
+.hero .frase cite { display: block; margin-top: 6px; font-style: normal; font-weight: 700; font-size: .85rem; color: #f0c76a; }
 .hero .frase b { display: block; font: 700 .7rem var(--display); letter-spacing: .14em; text-transform: uppercase; color: #f0c76a; margin-bottom: 3px; }
 .stats { display: flex; gap: 8px; flex-wrap: wrap; }
 .stats span { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 6px 12px; font-size: .82rem; font-weight: 600; backdrop-filter: blur(6px); }
@@ -188,17 +189,17 @@ a.app:hover .ico, a.app:focus-visible .ico { background: linear-gradient(145deg,
   </aside>
 
   <main class="gutter">
-    <div class="hero">
-      <span class="eyebrow" id="hoje">Fábio · SP Grifes</span>
-      <h1 id="saudacao">Boa noite, <span>Boss</span></h1>
-      <div class="clock" id="relogio">00:00</div>
-      <p class="frase" id="frase"><b>Frase do dia</b><span></span></p>
-      <div class="stats" id="stats"></div>
-    </div>
     <label class="search" for="busca">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="busca" type="search" placeholder="Procurar (ex.: caixa, RH, Lulu)" autocomplete="off">
     </label>
+    <div class="hero">
+      <span class="eyebrow" id="hoje">Fábio · SP Grifes</span>
+      <h1 id="saudacao">Boa noite, <span>Boss</span></h1>
+      <div class="clock" id="relogio">00:00</div>
+      <p class="frase" id="frase"><b>Frase do dia</b><span></span><cite></cite></p>
+      <div class="stats" id="stats"></div>
+    </div>
     <div class="chips" id="chips"></div>
     <div id="areas"></div>
     <p id="nada" class="empty" hidden>Nada encontrado com esse nome.</p>
@@ -339,22 +340,11 @@ document.getElementById('sair').addEventListener('click', fechar);
 (function () {
   function tick() { var d = new Date(); document.getElementById('relogio').innerHTML = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
   tick(); setInterval(tick, 15000);
-  var F = [
-    'Quem começou no dropshipping em 2016 não tem medo de recomeço.',
-    'Cada cliente bem atendido hoje é propaganda de graça amanhã.',
-    'Disciplina é fazer o certo mesmo quando ninguém está olhando.',
-    'O Brás não espera ninguém. Quem chega primeiro, vende primeiro.',
-    'Organizar o dinheiro hoje é comprar liberdade para depois.',
-    'Equipe boa é treinada, cobrada e valorizada, nessa ordem.',
-    'Vale a pena lutar pelo que você acredita.',
-    'Pequenos passos todo dia constroem a loja dos sonhos.',
-    'Quem mede, melhora. Quem não mede, adivinha.',
-    'Hoje é dia de fazer melhor do que ontem.'
-  ];
+  var F = [["Ganhar não é tudo, querer ganhar é tudo.", "Joel Jota"], ["Onde você coloca seu tempo, está o seu resultado.", "Joel Jota"], ["Nós não estamos no jogo do esforço, estamos no jogo da performance.", "Joel Jota"], ["Vocês não precisam de oportunidade, ela já está aqui.", "Joel Jota"], ["Empreender é liberdade, é sair da gaiola, arriscar.", "Flávio Augusto"], ["Estabilidade não existe.", "Flávio Augusto"], ["Ninguém vai ficar rico guardando dinheiro na poupança.", "Flávio Augusto"], ["Não peça a Deus para guiar seus passos se você não está disposto a mover seus pés.", "Caio Carneiro"], ["O oposto do fracasso é desistir.", "Thiago Nigro, o Primo Rico"], ["Fracassar não te torna um fracassado.", "Thiago Nigro, o Primo Rico"], ["Você não é pobre, você pode estar pobre.", "Thiago Nigro, o Primo Rico"], ["Planejamento não pode ter pressa e precisa ter lençol financeiro.", "Geraldo Rufino"], ["Voltei para minha origem, coloquei o pé no chão e comecei a batalhar para reconstruir.", "Geraldo Rufino"], ["Faça o teu melhor, na condição que você tem, enquanto você não tem condições melhores, para fazer melhor ainda.", "Mario Sergio Cortella"], ["Se você quer ser bem-sucedido, precisa ter dedicação total, buscar seu último limite e dar o melhor de si.", "Ayrton Senna"], ["A vontade de se preparar tem que ser maior do que a vontade de vencer.", "Bernardinho"], ["O sucesso não é acidente. É trabalho duro, perseverança, aprendizado, sacrifício e amor pelo que você faz.", "Pelé"], ["A única maneira de fazer um excelente trabalho é amar o que você faz.", "Steve Jobs"], ["Continue com fome. Continue ousado.", "Steve Jobs"], ["Se você acha que pode ou acha que não pode, você está certo.", "Henry Ford"], ["Disciplina é a ponte entre metas e realizações.", "Jim Rohn"], ["Preço é o que você paga. Valor é o que você leva.", "Warren Buffett"], ["Leva 20 anos para construir uma reputação e cinco minutos para destruí-la.", "Warren Buffett"], ["Sua marca é o que as pessoas dizem sobre você quando você não está na sala.", "Jeff Bezos"], ["Eu falhei de novo e de novo na minha vida. E é por isso que eu tenho sucesso.", "Michael Jordan"], ["Não desista. Sofra agora e viva o resto da sua vida como um campeão.", "Muhammad Ali"], ["Para ser insubstituível, é preciso ser diferente.", "Coco Chanel"], ["Elegância não é ser notado, é ser lembrado.", "Giorgio Armani"], ["Eu não crio roupas. Eu crio sonhos.", "Ralph Lauren"], ["Há apenas um chefe: o cliente. Ele pode demitir todo mundo na empresa, simplesmente gastando o dinheiro dele em outro lugar.", "Sam Walton"], ["A melhor forma de prever o futuro é criá-lo.", "Peter Drucker"], ["Tudo o que é negativo, pressão e desafio, é uma oportunidade para eu crescer.", "Kobe Bryant"], ["Você não precisa ser ótimo para começar, mas precisa começar para ser ótimo.", "Zig Ziglar"], ["Tudo o que a mente pode conceber e acreditar, ela pode realizar.", "Napoleon Hill"], ["O nome de uma pessoa é, para ela, o som mais doce em qualquer idioma.", "Dale Carnegie"], ["Quando algo é importante o suficiente, você faz, mesmo que as chances não estejam a seu favor.", "Elon Musk"], ["Faça o que puder, com o que tiver, onde estiver.", "Theodore Roosevelt"], ["Eu não falhei. Apenas descobri 10 mil maneiras que não funcionam.", "Thomas Edison"], ["O segredo para progredir é começar.", "Mark Twain"], ["Os covardes nunca começaram e os fracos morreram pelo caminho.", "Phil Knight, fundador da Nike"], ["Sorte é o dividendo do suor. Quanto mais você sua, mais sorte você tem.", "Ray Kroc, McDonald's"], ["Hoje é difícil, amanhã é pior, mas depois de amanhã é ensolarado.", "Jack Ma"], ["Mudanças são difíceis no começo, bagunçadas no meio e lindas no final.", "Robin Sharma"], ["As pessoas não compram o que você faz, elas compram o porquê de você fazer.", "Simon Sinek"]];
   var dia = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 864e5);
-  document.querySelector('#frase span').textContent = F[dia % F.length];
+  var fr = F[dia % F.length]; document.querySelector('#frase span').textContent = fr[0]; document.querySelector('#frase cite').textContent = fr[1];
   var total = AREAS.reduce(function (s, a) { return s + a.apps.length; }, 0);
-  document.getElementById('stats').innerHTML = '<span><b>' + total + '</b>painéis</span><span><b>' + AREAS.length + '</b>áreas</span><span><b>1</b>senha só</span>';
+  document.getElementById('stats').innerHTML = '<span><b>' + total + '</b>painéis</span><span><b>' + AREAS.length + '</b>áreas</span>';
 })();
 
 /* ---------- Menus ---------- */
