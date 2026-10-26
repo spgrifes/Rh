@@ -117,6 +117,35 @@ a.app:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 16px; }
 
 
+
+/* ---------- Secretária ---------- */
+.novo { display: flex; flex-direction: column; gap: 10px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.novo textarea { width: 100%; min-height: 84px; resize: vertical; font: 500 1rem/1.4 var(--body); color: var(--fg); background: var(--tile); border: 1px solid var(--line); border-radius: 12px; padding: 12px; outline: none; }
+.novo textarea:focus { border-color: var(--accent); }
+.linha { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pill { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 8px 12px; font: 600 .85rem var(--body); cursor: pointer; }
+.pill[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.novo input[type=date], .novo input[type=time] { font: 600 .9rem var(--body); color: var(--fg); background: var(--tile); border: 1px solid var(--line); border-radius: 10px; padding: 7px 9px; }
+.btmic { display: inline-flex; align-items: center; gap: 8px; border: 0; background: var(--accent); color: #fff; border-radius: 999px; padding: 10px 16px; font: 700 .9rem var(--body); cursor: pointer; }
+.btmic svg { width: 18px; height: 18px; }
+.btmic.on { background: var(--fg); color: var(--bg); }
+.btsalva { border: 0; background: var(--fg); color: var(--bg); border-radius: 999px; padding: 10px 18px; font: 700 .9rem var(--body); cursor: pointer; margin-left: auto; }
+.msg { font-size: .85rem; color: var(--muted); min-height: 1.2em; }
+.grupo { margin-top: 14px; }
+.grupo h3 { margin: 0 0 4px; font: 800 .72rem var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.grupo h3.atr { color: var(--accent); }
+.comp { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line); }
+.comp input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--accent); margin: 1px 0 0; }
+.comp .tx { min-width: 0; overflow-wrap: anywhere; }
+.comp .tx small { display: block; color: var(--muted); font-size: .8rem; }
+.comp.feito .tx span { text-decoration: line-through; color: var(--muted); }
+.lixo { border: 0; background: none; color: var(--muted); font-size: .8rem; cursor: pointer; padding: 2px 4px; }
+.nt { padding: 10px 0; border-top: 1px solid var(--line); }
+.nt .cab { display: flex; gap: 8px; align-items: baseline; font-size: .78rem; color: var(--muted); }
+.nt .cab b { color: var(--c, var(--accent)); text-transform: uppercase; letter-spacing: .08em; font: 800 .7rem var(--display); }
+.nt p { margin: 4px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.hoje-pill { background: rgba(255,255,255,.16) !important; border-color: rgba(255,255,255,.35) !important; cursor: pointer; color: #fff; font: inherit; }
+
 /* ---------- Arquivo ---------- */
 section.arquivo { opacity: .85; border-top: 1px dashed var(--line); padding-top: 18px; }
 .arq summary { list-style: none; cursor: pointer; }
@@ -128,8 +157,8 @@ section.arquivo { opacity: .85; border-top: 1px dashed var(--line); padding-top:
 section.arquivo .ico { filter: saturate(.4); }
 
 /* ---------- Fornecedores ---------- */
-#comb-fundo, #forn-fundo { position: fixed; inset: 0; z-index: 40; background: var(--shade); }
-#comb, #forn { position: fixed; z-index: 41; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(30rem, calc(100% - 32px)); max-height: 85vh; overflow-y: auto; }
+#sec-fundo, #comb-fundo, #forn-fundo { position: fixed; inset: 0; z-index: 40; background: var(--shade); }
+#sec, #comb, #forn { position: fixed; z-index: 41; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(30rem, calc(100% - 32px)); max-height: 85vh; overflow-y: auto; }
 .fechar-forn { border: 1px solid var(--line); background: var(--tile); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: .82rem; cursor: pointer; }
 .divida { box-shadow: 0 24px 60px rgba(0,0,0,.3); border: 1px solid var(--line); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 12px; background: var(--bg); }
 .dtop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
@@ -235,7 +264,14 @@ a.app:hover .ico, a.app:focus-visible .ico { background: linear-gradient(145deg,
     <p id="nada" class="empty" hidden>Nada encontrado com esse nome.</p>
     <footer>Dica: no Claude você pode só falar "abre a Central de Comando".</footer>
   </main>
-<div id="comb-fundo" hidden></div>
+<div id="sec-fundo" hidden></div>
+  <div id="sec" role="dialog" aria-modal="true" aria-labelledby="sec-t" hidden>
+    <section class="divida">
+      <div class="dtop"><h2 id="sec-t">Agenda</h2><button type="button" class="fechar-forn" id="sec-x">Fechar</button></div>
+      <div id="sec-corpo"></div>
+    </section>
+  </div>
+  <div id="comb-fundo" hidden></div>
   <div id="comb" role="dialog" aria-modal="true" aria-labelledby="comb-t" hidden>
     <section class="divida">
       <div class="dtop"><h2 id="comb-t">Combinados e rotinas</h2><button type="button" class="fechar-forn" id="comb-x">Fechar</button></div>
@@ -287,11 +323,21 @@ var I = {
   cano: '<path d="M4 4v6h10v10h6M4 10h4"/>',
   caminhao: '<path d="M2 6h12v10H2zM14 10h4l3 3v3h-7M6 19a2 2 0 1 0 0-.1M17 19a2 2 0 1 0 0-.1"/>',
   casa: '<path d="M3 11l9-7 9 7M5 10v10h14V10"/>',
+  calendario: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h2M14 14h2M8 17h2"/>',
+  nota: '<path d="M5 3h10l4 4v14H5zM9 11h6M9 15h6M12 3v4h7"/><circle cx="12" cy="18" r="0"/>',
+  relatorio: '<path d="M4 4h16v16H4zM8 15v-3M12 15V8M16 15v-5"/>',
+  mic: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/>',
   globo: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
   caixareg: '<path d="M4 10h16v10H4zM6 10V5h8v5M8 14h2M12 14h2M16 14h0M8 17h8"/>',
   seta: '<path d="M6 9l6 6 6-6"/>'
 };
 var AREAS = [
+  { id: 'secretaria', c: '#e0243f', t: 'Secretária', apps: [
+    ['Agenda', '#agenda', 'calendario'],
+    ['Anotações', '#anotacoes', 'nota'],
+    ['Relatórios', '#relatorios', 'relatorio'],
+    ['Combinados', '#combinados', 'check']
+  ]},
   { id: 'sistemas', c: '#2f6fde', t: 'Sistemas da loja', apps: [
     ['RH (site)', 'https://spgrifes.github.io/Rh/', 'pessoas'],
     ['Contas a Pagar (site)', 'https://spgrifes.github.io/Rh/contas/', 'boleto'],
@@ -304,7 +350,6 @@ var AREAS = [
     ['Segundo Cérebro', '17bbfb85-ed3d-4d1f-877c-345e03450661', 'cerebro'],
     ['Biblioteca de Vida', 'ce62fc99-f1ad-4a81-9192-f56f33d4a2b7', 'livro'],
     ['Revisão do Boss', 'e090c225-71c1-4148-8b63-400168b02b5d', 'check'],
-    ['Combinados', '#combinados', 'check'],
     ['Comandos do Boss', '4c4145d0-5a63-417c-ab05-aecb0a8b6d82', 'comando']
   ]},
   { id: 'dinheiro', c: '#1f8a55', t: 'Dinheiro', apps: [
@@ -358,7 +403,7 @@ function hash(s) {
     return Array.from(new Uint8Array(b)).map(function (n) { return n.toString(16).padStart(2, '0'); }).join('');
   });
 }
-function abrir() { document.getElementById('lock').hidden = true; document.getElementById('site').hidden = false; }
+function abrir() { document.getElementById('lock').hidden = true; document.getElementById('site').hidden = false; setTimeout(function () { if (window.carregaCC) carregaCC().catch(function () {}); }, 50); }
 function fechar() { store(false, null); try { localStorage.removeItem('cc-pw'); } catch (x) {} document.getElementById('site').hidden = true; document.getElementById('lock').hidden = false; var s = document.getElementById('senha'); s.value = ''; s.focus(); }
 var salvo = parseInt(store(true) || '0', 10);
 if (salvo && Date.now() - salvo < 12 * 3600 * 1000) abrir(); else setTimeout(function () { document.getElementById('senha').focus(); }, 50);
@@ -432,6 +477,155 @@ document.addEventListener('click', function (e) {
 document.getElementById('comb-x').addEventListener('click', function () { abreComb(false); });
 document.getElementById('comb-fundo').addEventListener('click', function () { abreComb(false); });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') abreComb(false); });
+
+
+/* ---------- Secretária: agenda, anotações e relatórios ---------- */
+var SB = 'https://hkhbyeygzfdhwxsdgaxl.supabase.co/rest/v1/rpc/', SBK = 'sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1';
+var SITE = 'https://spgrifes.github.io/Rh/central/';
+var CC = null, secAba = 'agenda', notaAssunto = 'Loja', agDia = 'hoje';
+var ASSUNTOS = ['Loja', 'Estudos', 'Reunião', 'Ideias', 'Dinheiro', 'Vida'];
+function pw() { try { return localStorage.getItem('cc-pw') || ''; } catch (e) { return ''; } }
+function rpc(fn, body) {
+  return fetch(SB + fn, { method: 'POST', headers: { apikey: SBK, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    .then(function (r) { return r.text().then(function (t) { if (!r.ok) throw new Error(t); return t ? JSON.parse(t) : null; }); });
+}
+function hojeISO(add) { var d = new Date(); d.setDate(d.getDate() + (add || 0)); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function diaBR(iso) { var d = new Date(iso + 'T12:00:00'); return d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }); }
+function carregaCC() {
+  if (!pw()) return Promise.reject(new Error('sem senha'));
+  return rpc('cc_get', { p_senha: pw() }).then(function (d) { CC = d; pillHoje(); return d; });
+}
+function pillHoje() {
+  var st = document.getElementById('stats'); if (!st || !CC) return;
+  var h = hojeISO(), n = CC.compromissos.filter(function (c) { return c.quando === h && !c.feito; }).length;
+  var atr = CC.compromissos.filter(function (c) { return c.quando < h && !c.feito; }).length;
+  var old = document.getElementById('pill-hoje'); if (old) old.remove();
+  var b = document.createElement('button'); b.type = 'button'; b.id = 'pill-hoje'; b.className = 'hoje-pill';
+  b.innerHTML = '<b>' + n + '</b>' + (n === 1 ? 'compromisso hoje' : 'compromissos hoje') + (atr ? ' · ' + atr + ' atrasado' + (atr > 1 ? 's' : '') : '');
+  b.style.cssText = 'border-radius:999px;padding:6px 12px;font-size:.82rem;font-weight:600;border:1px solid';
+  b.addEventListener('click', function () { abreSec('agenda'); });
+  st.prepend(b);
+}
+
+/* microfone */
+var rec = null;
+function ligaMic(btn, area) {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var msg = btn.closest('.novo').querySelector('.msg');
+  var pc = !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var dica = pc ? 'Clique na caixa e aperte Windows + H para ditar (no Mac, Fn duas vezes).' : 'Toque na caixa e use o microfone do teclado.';
+  if (rec) { try { rec.stop(); } catch (e) {} return; }
+  if (!SR) { area.focus(); msg.textContent = dica; return; }
+  var ouviu = false, base = area.value ? area.value.trim() + ' ' : '';
+  try { rec = new SR(); } catch (e) { rec = null; area.focus(); msg.textContent = dica; return; }
+  rec.lang = 'pt-BR'; rec.continuous = true; rec.interimResults = true;
+  rec.onresult = function (e) { ouviu = true; var t = ''; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; area.value = base + t; };
+  var fim = function () { rec = null; btn.classList.remove('on'); btn.lastChild.textContent = 'Falar'; };
+  var vigia = setTimeout(function () { if (!ouviu && rec) { try { rec.abort(); } catch (e) {} fim(); area.focus(); msg.textContent = 'O microfone não respondeu. ' + dica; } }, 7000);
+  rec.onend = function () { clearTimeout(vigia); fim(); if (ouviu) msg.textContent = 'Confira o texto e toque em Salvar.'; };
+  rec.onerror = function (ev) { clearTimeout(vigia); fim(); if (ev.error !== 'no-speech') { area.focus(); msg.textContent = 'O microfone foi bloqueado. ' + dica; } };
+  try { rec.start(); } catch (e) { clearTimeout(vigia); fim(); area.focus(); msg.textContent = dica; return; }
+  btn.classList.add('on'); btn.lastChild.textContent = 'Parar'; msg.textContent = 'Pode falar…';
+}
+function blocoNovo(ph, extra) {
+  return '<div class="novo"><textarea id="sec-txt" placeholder="' + ph + '"></textarea>' + extra +
+    '<div class="linha"><button type="button" class="btmic" id="sec-mic">' + svg('mic', 2) + '<span>Falar</span></button><button type="button" class="btsalva" id="sec-salva">Salvar</button></div><div class="msg" id="sec-msg"></div></div>';
+}
+
+function telaAgenda() {
+  var h = hojeISO(), am = hojeISO(1);
+  var dataSel = agDia === 'hoje' ? h : agDia === 'amanha' ? am : agDia;
+  var extra = '<div class="linha"><button type="button" class="pill" data-dia="hoje" aria-pressed="' + (agDia === 'hoje') + '">Hoje</button><button type="button" class="pill" data-dia="amanha" aria-pressed="' + (agDia === 'amanha') + '">Amanhã</button><input type="date" id="ag-data" value="' + dataSel + '" aria-label="Data"><input type="time" id="ag-hora" aria-label="Hora"></div>';
+  var lista = CC.compromissos.slice();
+  var grupos = [
+    ['Atrasados', 'atr', lista.filter(function (c) { return c.quando < h && !c.feito; })],
+    ['Hoje · ' + diaBR(h), '', lista.filter(function (c) { return c.quando === h; })],
+    ['Amanhã · ' + diaBR(am), '', lista.filter(function (c) { return c.quando === am; })],
+    ['Próximos dias', '', lista.filter(function (c) { return c.quando > am; })]
+  ];
+  var html = blocoNovo('Fale o compromisso. Ex.: reunião com a equipe às 10h', extra);
+  grupos.forEach(function (g) {
+    if (!g[2].length && g[1] === 'atr') return;
+    html += '<div class="grupo"><h3 class="' + g[1] + '">' + g[0] + '</h3>' + (g[2].length ? g[2].map(function (c) {
+      var info = (g[0].indexOf('Próximos') === 0 || g[1] === 'atr' ? diaBR(c.quando) : '') + (c.hora ? (g[0].indexOf('Próximos') === 0 || g[1] === 'atr' ? ' · ' : '') + c.hora : '');
+      return '<div class="comp' + (c.feito ? ' feito' : '') + '"><input type="checkbox" data-id="' + c.id + '" ' + (c.feito ? 'checked' : '') + ' aria-label="Feito"><div class="tx"><span>' + esc(c.texto) + '</span>' + (info ? '<small>' + esc(info) + '</small>' : '') + '</div><button type="button" class="lixo" data-del="' + c.id + '">Apagar</button></div>';
+    }).join('') : '<p class="dvazio">Nada marcado.</p>') + '</div>';
+  });
+  return html;
+}
+function telaNotas() {
+  var extra = '<div class="linha">' + ASSUNTOS.map(function (a) { return '<button type="button" class="pill" data-ass="' + a + '" aria-pressed="' + (a === notaAssunto) + '">' + a + '</button>'; }).join('') + '</div>';
+  var html = blocoNovo('Fale o que você quer anotar…', extra);
+  var porDia = {};
+  CC.notas.forEach(function (n) { var d = n.criado.slice(0, 10); (porDia[d] = porDia[d] || []).push(n); });
+  Object.keys(porDia).sort().reverse().forEach(function (d) {
+    html += '<div class="grupo"><h3>' + diaBR(d) + '</h3>' + porDia[d].map(function (n) {
+      var hr = new Date(n.criado).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      return '<div class="nt"><div class="cab"><b>' + esc(n.assunto) + '</b><span>' + hr + '</span><button type="button" class="lixo" data-delnota="' + n.id + '">Apagar</button></div><p>' + esc(n.texto) + '</p></div>';
+    }).join('') + '</div>';
+  });
+  if (!CC.notas.length) html += '<p class="dvazio" style="margin-top:12px">Nenhuma anotação ainda.</p>';
+  return html;
+}
+function telaRelatorios() {
+  if (!CC.relatorios.length) return '<p class="dvazio">Os relatórios das rotinas vão aparecer aqui, por data e por área, a partir das próximas execuções.</p>';
+  return CC.relatorios.map(function (r) {
+    var dt = new Date(r.criado).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    return '<div class="nt"><div class="cab"><b>' + esc(r.area) + '</b><span>' + dt + '</span></div><p><strong>' + esc(r.titulo) + '</strong>\n' + esc(r.texto) + '</p></div>';
+  }).join('');
+}
+function desenhaSec() {
+  var corpo = document.getElementById('sec-corpo');
+  document.getElementById('sec-t').textContent = { agenda: 'Agenda', anotacoes: 'Anotações', relatorios: 'Relatórios' }[secAba];
+  if (!CC) { corpo.innerHTML = '<p class="dvazio">Carregando…</p>'; return; }
+  corpo.innerHTML = secAba === 'agenda' ? telaAgenda() : secAba === 'anotacoes' ? telaNotas() : telaRelatorios();
+}
+function abreSec(aba) {
+  secAba = aba; document.getElementById('sec').hidden = false; document.getElementById('sec-fundo').hidden = false;
+  desenhaSec();
+  carregaCC().then(desenhaSec).catch(function (e) {
+    var corpo = document.getElementById('sec-corpo');
+    if (!pw()) corpo.innerHTML = '<p class="dvazio">Toque em Bloquear e entre de novo com a senha para usar a ' + (aba === 'agenda' ? 'Agenda' : aba === 'anotacoes' ? 'área de Anotações' : 'área de Relatórios') + '.</p>';
+    else corpo.innerHTML = '<p class="dvazio">Aqui dentro do Claude a Central não consegue salvar. Abra pelo endereço da Central: <a class="onde" href="' + SITE + '" target="_blank" rel="noopener">' + SITE.replace('https://', '') + '</a></p>';
+  });
+}
+function fechaSec() { document.getElementById('sec').hidden = true; document.getElementById('sec-fundo').hidden = true; if (rec) { try { rec.stop(); } catch (e) {} } }
+document.getElementById('sec-x').addEventListener('click', fechaSec);
+document.getElementById('sec-fundo').addEventListener('click', fechaSec);
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fechaSec(); });
+document.addEventListener('click', function (e) {
+  var a = e.target.closest('a[href="#agenda"], a[href="#anotacoes"], a[href="#relatorios"]');
+  if (a) { e.preventDefault(); if (window.gaveta) gaveta(false); abreSec(a.getAttribute('href').slice(1)); }
+});
+document.getElementById('sec-corpo').addEventListener('click', function (e) {
+  var t = e.target, msg = document.getElementById('sec-msg');
+  var mic = t.closest('#sec-mic'); if (mic) { ligaMic(mic, document.getElementById('sec-txt')); return; }
+  var dia = t.closest('[data-dia]'); if (dia) { agDia = dia.dataset.dia; document.getElementById('ag-data').value = agDia === 'hoje' ? hojeISO() : hojeISO(1); document.querySelectorAll('[data-dia]').forEach(function (b) { b.setAttribute('aria-pressed', b === dia); }); return; }
+  var ass = t.closest('[data-ass]'); if (ass) { notaAssunto = ass.dataset.ass; document.querySelectorAll('[data-ass]').forEach(function (b) { b.setAttribute('aria-pressed', b === ass); }); return; }
+  var del = t.closest('[data-del], [data-delnota]');
+  if (del) {
+    if (del.dataset.ok !== '1') { del.dataset.ok = '1'; del.textContent = 'Toque de novo'; return; }
+    rpc('cc_salvar', { p_senha: pw(), p_tipo: del.dataset.del ? 'apagar_compromisso' : 'apagar_nota', p_dados: { id: del.dataset.del || del.dataset.delnota } }).then(carregaCC).then(desenhaSec);
+    return;
+  }
+  if (t.closest('#sec-salva')) {
+    var txt = document.getElementById('sec-txt').value.trim();
+    if (!txt) { msg.textContent = 'Fale ou escreva primeiro.'; return; }
+    if (rec) { try { rec.stop(); } catch (x) {} }
+    var tipo = secAba === 'agenda' ? 'compromisso' : 'nota';
+    var dados = tipo === 'compromisso' ? { quando: document.getElementById('ag-data').value || hojeISO(), hora: document.getElementById('ag-hora').value, texto: txt } : { assunto: notaAssunto, texto: txt };
+    msg.textContent = 'Salvando…';
+    rpc('cc_salvar', { p_senha: pw(), p_tipo: tipo, p_dados: dados }).then(carregaCC).then(function () { desenhaSec(); var m = document.getElementById('sec-msg'); if (m) m.textContent = 'Salvo.'; })
+      .catch(function () { msg.textContent = 'Não salvou. Confira a internet e tente de novo.'; });
+  }
+});
+document.getElementById('sec-corpo').addEventListener('change', function (e) {
+  if (e.target.id === 'ag-data') { agDia = e.target.value; document.querySelectorAll('[data-dia]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); return; }
+  var cb = e.target.closest('input[type=checkbox][data-id]'); if (!cb) return;
+  cb.closest('.comp').classList.toggle('feito', cb.checked);
+  rpc('cc_salvar', { p_senha: pw(), p_tipo: 'feito', p_dados: { id: cb.dataset.id, feito: cb.checked } }).then(carregaCC).then(function () {}).catch(function () { cb.checked = !cb.checked; });
+});
 
 /* ---------- Relógio, frase e números ---------- */
 (function () {

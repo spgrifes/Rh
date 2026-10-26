@@ -798,9 +798,22 @@ async function carregar(){const d=await rpc('rh_get',{p_senha:SENHA,p_mes:MESATU
   D.AGENDA=(d.agenda||{}).AGENDA;D.ALERTAS=(d.agenda||{}).ALERTAS||[];AGEQ=d.agenda_eq||D.EQUIPE;AGEQ.forEach(e=>{e.setor=e.setor||'Equipe'});
   QUEM=d.quem;MESATUAL=d.mes;MESES=d.meses||[];REGS=d.registros||[];LOG=d.log||[];
   REV={};Object.entries(d.revisao||{}).forEach(([k,v])=>REV[k]={s:v.s||'',n:v.n||'',a:v.a||'',p:v.p||''});}
+function saudar(){
+  if(!QUEM||document.getElementById('saudacao'))return;
+  const h=new Date().getHours(), cump=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
+  const frases=QUEM==='Fábio'?['Bem-vindo de volta, Boss. A equipe está aqui embaixo.','Bora cuidar do time hoje.','Tudo pronto para você conferir.']:['Que bom te ver por aqui! Bom trabalho hoje.','Obrigado por cuidar da equipe com a gente.','Tudo pronto para você atualizar.'];
+  const f=frases[new Date().getDate()%frases.length];
+  const b=document.createElement('div');b.id='saudacao';
+  b.style.cssText='margin:12px 16px 0;padding:14px 16px;border-radius:14px;background:#141212;color:#fff;display:flex;gap:12px;align-items:center;justify-content:space-between;box-sizing:border-box';
+  b.innerHTML='<div><div style="font-weight:800;font-size:1.15rem">'+cump+', '+esc(QUEM)+'!</div><div style="opacity:.8;font-size:.9rem;margin-top:2px">'+f+'</div></div><button type="button" aria-label="Fechar" style="border:0;background:rgba(255,255,255,.15);color:#fff;border-radius:999px;padding:6px 12px;font:600 .8rem inherit;cursor:pointer">Ok</button>';
+  b.querySelector('button').addEventListener('click',()=>b.remove());
+  const app=$('app');app.insertBefore(b,app.children[1]||null);
+  setTimeout(()=>{if(b.isConnected)b.remove();},12000);
+}
 async function entrar(p){
   SENHA=p; await carregar();
   $('lock').hidden=true;$('app').hidden=false;render();sync('Atualizado · '+hora());
+  saudar();
   setInterval(async()=>{if(document.activeElement&&(document.activeElement.classList.contains('nt')||document.activeElement.closest('.frm')))return;if(regEdit||$('formf').innerHTML)return;try{await carregar();render();sync('Atualizado · '+hora());}catch(e){}},30000);
 }
 $('lockForm').addEventListener('submit',async ev=>{
