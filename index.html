@@ -66,6 +66,13 @@ h2 .count{font-family:var(--body);font-size:.75rem;font-weight:700;background:va
 .al.done{opacity:.55;background:rgba(0,0,0,.12)}
 .al.done .x{text-decoration:line-through}
 .al.done button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+.al .abtn{display:flex;flex-direction:column;gap:6px;flex:none}
+.al .abtn .sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.6)}
+.al .cm{margin-top:6px;background:rgba(255,255,255,.16);border-radius:8px;padding:6px 9px;font-size:.88rem}
+.aled{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.aled input{flex:1;min-width:180px;font:inherit;font-size:.92rem;padding:9px 11px;border-radius:10px;border:0;color:var(--ink);background:#fff}
+.aled button{background:var(--ink)!important;color:#fff!important}
+.al.done .abtn .sec{display:none}
 .alerts .ok{background:rgba(255,255,255,.14);border-radius:12px;padding:12px 14px;font-weight:600}
 
 /* números */
@@ -238,7 +245,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const $=id=>document.getElementById(id);
 const SETOR_COR={Vendas:'#12895a',Caixa:'#2563eb',Site:'#7048e8',Loja:'#d97706',Apoio:'#475569',CD:'#0e7490',RH:'#be185d','Mídia':'#c026d3'};
 
-let D=null, REV={}, SENHA='', filtro='todos', editando=null;
+let D=null, REV={}, SENHA='', filtro='todos', editando=null, editAl=null;
 
 function campos(e){
   const L=[];
@@ -266,8 +273,11 @@ function render(){
   const A=D.ALERTAS||[], abertos=A.filter(a=>(REV['alerta_'+a.id]||{}).s!=='ok');
   $('alerts').innerHTML=`<h2>Alertas <span class="count">${abertos.length}</span></h2>`+
     (A.length?A.map(a=>{const done=(REV['alerta_'+a.id]||{}).s==='ok';
-      return `<div class="al ${a.nivel==='alto'?'alto':''} ${done?'done':''}"><div class="t"><div class="q">${esc(a.quem)}</div><div class="x">${esc(a.texto)}</div></div>
-      <button type="button" data-al="${a.id}">${done?'Reabrir':'Resolvido'}</button></div>`}).join(''):'<div class="ok">Nenhum alerta.</div>');
+      const r=REV['alerta_'+a.id]||{}, ed=editAl===a.id;
+      return `<div class="al ${a.nivel==='alto'?'alto':''} ${done?'done':''}"><div class="t"><div class="q">${esc(a.quem)}</div><div class="x">${esc(a.texto)}</div>
+        ${r.n&&!ed?`<div class="cm">Comentário: ${esc(r.n)}</div>`:''}
+        ${ed?`<div class="aled"><input class="nt" id="n_alerta_${a.id}" data-id="alerta_${a.id}" placeholder="Ex.: isso não está certo, o valor é outro... (pode ditar)" value="${esc(r.n||'')}"><button type="button" data-alok="${a.id}">Pronto</button></div>`:''}</div>
+      <div class="abtn"><button type="button" data-al="${a.id}">${done?'Reabrir':'Resolvido'}</button><button type="button" class="sec" data-aled="${a.id}">${r.n?'Editar comentário':'Comentar'}</button></div></div>`}).join(''):'<div class="ok">Nenhum alerta.</div>');
   // números
   const eq=D.EQUIPE, folha=eq.reduce((s,e)=>s+(e.sal||0),0), semSal=eq.filter(e=>!e.sal).length;
   const reg=eq.filter(e=>e.reg===true).length, at=eq.filter(e=>e.atest).length;
@@ -339,6 +349,8 @@ function toast(t){const el=$('toast');el.textContent=t;el.hidden=false;clearTime
 document.addEventListener('click',ev=>{
   const al=ev.target.closest('[data-al]');
   if(al){const id='alerta_'+al.dataset.al;REV[id]=REV[id]||{};REV[id].s=REV[id].s==='ok'?'':'ok';salvar(id);render();toast(REV[id].s?'Alerta marcado como resolvido':'Alerta reaberto');return;}
+  const ae=ev.target.closest('[data-aled]'); if(ae){editAl=editAl===ae.dataset.aled?null:ae.dataset.aled;render();const i=$('n_alerta_'+editAl);if(i)i.focus();return;}
+  const ao=ev.target.closest('[data-alok]'); if(ao){const id='alerta_'+ao.dataset.alok;clearTimeout(tm[id]);salvar(id);editAl=null;render();toast('Comentário salvo');return;}
   const f=ev.target.closest('[data-f]'); if(f){filtro=f.dataset.f;render();return;}
   const ed=ev.target.closest('[data-ed]'); if(ed){ev.preventDefault();editando=editando===ed.dataset.ed?null:ed.dataset.ed;render();const i=$('n_'+editando);if(i)i.focus({preventScroll:true});return;}
   const sb=ev.target.closest('.st button');
@@ -354,6 +366,8 @@ function correcoes(){
   const out=['*Correções do RH – '+(D.MES||'')+'*'];
   D.EQUIPE.forEach(e=>{const cs=campos(e).filter(c=>{const r=REV[c.id];return r&&(r.s==='bad'||r.s==='miss'||r.n)});
     if(cs.length){out.push('','*'+e.nome+'*');cs.forEach(c=>{const r=REV[c.id];out.push(`- ${c.k}: ${r.s==='bad'?'ERRADO':r.s==='miss'?'FALTA':'OBS'}${r.n?' → '+r.n:''}`)})}});
+  const ac=(D.ALERTAS||[]).filter(a=>(REV['alerta_'+a.id]||{}).n);
+  if(ac.length){out.push('','*Comentários nos alertas*');ac.forEach(a=>out.push(`- ${a.quem}: ${REV['alerta_'+a.id].n}`));}
   return out.length>1?out.join('\n'):'Nenhuma correção anotada ainda.';
 }
 $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(correcoes());toast('Correções copiadas. Cole no grupo RH.');}catch(e){toast('Não deu para copiar neste aparelho');}});
