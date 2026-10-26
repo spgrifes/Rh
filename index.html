@@ -564,15 +564,26 @@ function renderNews(){
 let rec=null;
 function micSetup(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition; const b=$('nmic');
-  if(!SR){b.textContent='Ditar pelo teclado';b.addEventListener('click',()=>{$('ntxt').focus();toast('Toque no microfone do teclado para falar');});return;}
+  const pc=!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const dica=pc?(/Mac/i.test(navigator.platform)?'Clique na caixa e aperte a tecla Fn duas vezes para ditar.':'Clique na caixa e aperte as teclas Windows + H para ditar.'):'Toque na caixa e use o microfone do teclado.';
+  const plano=msg=>{$('ntxt').focus();$('nst').textContent=msg+' '+dica;toast(dica);};
+  if(!SR){b.textContent='Falar';b.addEventListener('click',()=>plano('Este navegador não tem microfone próprio.'));return;}
   b.addEventListener('click',()=>{
-    if(rec){rec.stop();return;}
-    rec=new SR();rec.lang='pt-BR';rec.continuous=true;rec.interimResults=true;
+    if(rec){try{rec.stop()}catch(e){}return;}
+    let ouviu=false;
+    try{rec=new SR();}catch(e){rec=null;plano('O microfone não abriu.');return;}
+    rec.lang='pt-BR';rec.continuous=true;rec.interimResults=true;
     const base=$('ntxt').value?$('ntxt').value.trim()+' ':'';
-    rec.onresult=e=>{let t='';for(const r of e.results)t+=r[0].transcript;$('ntxt').value=base+t;};
-    rec.onend=()=>{rec=null;b.classList.remove('on');b.textContent='Falar';};
-    rec.onerror=()=>{$('nst').textContent='Microfone bloqueado: use o microfone do teclado.';};
-    rec.start();b.classList.add('on');b.textContent='Parar';$('nst').textContent='Ouvindo... fale à vontade.';
+    rec.onaudiostart=()=>{ouviu=true;};
+    rec.onresult=e=>{ouviu=true;let t='';for(const r of e.results)t+=r[0].transcript;$('ntxt').value=base+t;$('nst').textContent='Ouvindo... clique em Parar quando terminar.';};
+    const fim=()=>{rec=null;b.classList.remove('on');b.textContent='Falar';};
+    const vigia=setTimeout(()=>{if(!ouviu&&rec){try{rec.abort()}catch(e){}fim();plano('O microfone não respondeu.');}},6000);
+    rec.onend=()=>{clearTimeout(vigia);fim();if(ouviu&&$('nst').textContent.startsWith('Ouvindo'))$('nst').textContent='Pronto. Confira o texto e clique em Enviar novidade.';};
+    rec.onerror=ev=>{clearTimeout(vigia);fim();const c=ev&&ev.error;
+      if(c==='no-speech'){$('nst').textContent='Não ouvi nada. Clique em Falar e fale de novo.';return;}
+      plano(c==='not-allowed'||c==='service-not-allowed'?'O navegador bloqueou o microfone. Clique no cadeado ao lado do endereço e permita o microfone, ou:':c==='network'?'O ditado precisa de internet e falhou.':'O microfone deu erro.');};
+    try{rec.start();}catch(e){clearTimeout(vigia);fim();plano('O microfone não abriu.');return;}
+    b.classList.add('on');b.textContent='Parar';$('nst').textContent='Pode falar...';
   });
 }
 
