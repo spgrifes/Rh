@@ -508,6 +508,49 @@ function pillHoje() {
   st.prepend(b);
 }
 
+
+/* entende data e hora faladas: "terça 8h da noite", "amanhã às 10h30", "dia 30 às 15h" */
+function entendeData(txt) {
+  var t = ' ' + txt.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '') + ' ';
+  var hoje = new Date(); hoje.setHours(12, 0, 0, 0);
+  var dia = null, hora = null, m;
+  if (/depois de amanha/.test(t)) { dia = new Date(hoje); dia.setDate(dia.getDate() + 2); }
+  else if (/\bamanha\b/.test(t)) { dia = new Date(hoje); dia.setDate(dia.getDate() + 1); }
+  else if (/\bhoje\b/.test(t)) { dia = new Date(hoje); }
+  if (!dia) {
+    var sem = [['domingo'], ['segunda'], ['terca'], ['quarta'], ['quinta'], ['sexta'], ['sabado']];
+    for (var i = 0; i < 7; i++) if (new RegExp('\\b' + sem[i][0]).test(t)) {
+      dia = new Date(hoje); var dif = (i - hoje.getDay() + 7) % 7; if (dif === 0 && !/\bhoje\b/.test(t)) dif = 7;
+      if (/(proxima|que vem)/.test(t) && dif < 7 && false) dif += 7;
+      dia.setDate(dia.getDate() + dif); break;
+    }
+  }
+  if (!dia && (m = t.match(/\b(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?/))) {
+    var a = m[3] ? (m[3].length === 2 ? 2000 + +m[3] : +m[3]) : hoje.getFullYear();
+    dia = new Date(a, +m[2] - 1, +m[1], 12); if (!m[3] && dia < hoje) dia.setFullYear(a + 1);
+  }
+  if (!dia && (m = t.match(/\bdia\s+(\d{1,2})\b/))) {
+    dia = new Date(hoje.getFullYear(), hoje.getMonth(), +m[1], 12); if (dia < hoje) dia.setMonth(dia.getMonth() + 1);
+  }
+  if (/meio[ -]dia/.test(t)) hora = [12, 0];
+  else if (/meia[ -]noite/.test(t)) hora = [0, 0];
+  else if ((m = t.match(/\b(\d{1,2})\s*(?:h|:|horas?\b)\s*(\d{2})?/)) || (m = t.match(/\bas\s+(\d{1,2})(?:\s*e\s*(\d{1,2}))?\b/))) {
+    var h = +m[1], mi = m[2] ? +m[2] : 0;
+    if (/(da noite|a noite|de noite|da tarde|a tarde|de tarde)/.test(t) && h < 12) h += 12;
+    if (h <= 23 && mi <= 59) hora = [h, mi];
+  }
+  var iso = dia ? dia.getFullYear() + '-' + String(dia.getMonth() + 1).padStart(2, '0') + '-' + String(dia.getDate()).padStart(2, '0') : null;
+  return { data: iso, hora: hora ? String(hora[0]).padStart(2, '0') + ':' + String(hora[1]).padStart(2, '0') : null };
+}
+function aplicaEntendido() {
+  var tx = document.getElementById('sec-txt'), d = document.getElementById('ag-data'), h = document.getElementById('ag-hora'), msg = document.getElementById('sec-msg');
+  if (!tx || !d) return;
+  var r = entendeData(tx.value);
+  if (r.data) { d.value = r.data; agDia = r.data; document.querySelectorAll('[data-dia]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); }
+  if (r.hora) h.value = r.hora;
+  if (r.data || r.hora) msg.textContent = 'Entendi: ' + diaBR(d.value) + (h.value ? ' às ' + h.value.replace(':', 'h') : '') + '. Se estiver certo, toque em Salvar.';
+}
+
 /* microfone */
 var rec = null;
 function ligaMic(btn, area) {
@@ -520,7 +563,7 @@ function ligaMic(btn, area) {
   var ouviu = false, base = area.value ? area.value.trim() + ' ' : '';
   try { rec = new SR(); } catch (e) { rec = null; area.focus(); msg.textContent = dica; return; }
   rec.lang = 'pt-BR'; rec.continuous = true; rec.interimResults = true;
-  rec.onresult = function (e) { ouviu = true; var t = ''; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; area.value = base + t; };
+  rec.onresult = function (e) { ouviu = true; var t = ''; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; area.value = base + t; if (secAba === 'agenda') aplicaEntendido(); };
   var fim = function () { rec = null; btn.classList.remove('on'); btn.lastChild.textContent = 'Falar'; };
   var vigia = setTimeout(function () { if (!ouviu && rec) { try { rec.abort(); } catch (e) {} fim(); area.focus(); msg.textContent = 'O microfone não respondeu. ' + dica; } }, 7000);
   rec.onend = function () { clearTimeout(vigia); fim(); if (ouviu) msg.textContent = 'Confira o texto e toque em Salvar.'; };
@@ -614,12 +657,14 @@ document.getElementById('sec-corpo').addEventListener('click', function (e) {
     if (!txt) { msg.textContent = 'Fale ou escreva primeiro.'; return; }
     if (rec) { try { rec.stop(); } catch (x) {} }
     var tipo = secAba === 'agenda' ? 'compromisso' : 'nota';
+    if (tipo === 'compromisso') aplicaEntendido();
     var dados = tipo === 'compromisso' ? { quando: document.getElementById('ag-data').value || hojeISO(), hora: document.getElementById('ag-hora').value, texto: txt } : { assunto: notaAssunto, texto: txt };
     msg.textContent = 'Salvando…';
     rpc('cc_salvar', { p_senha: pw(), p_tipo: tipo, p_dados: dados }).then(carregaCC).then(function () { desenhaSec(); var m = document.getElementById('sec-msg'); if (m) m.textContent = 'Salvo.'; })
       .catch(function () { msg.textContent = 'Não salvou. Confira a internet e tente de novo.'; });
   }
 });
+document.getElementById('sec-corpo').addEventListener('input', function (e) { if (e.target.id === 'sec-txt' && secAba === 'agenda') aplicaEntendido(); });
 document.getElementById('sec-corpo').addEventListener('change', function (e) {
   if (e.target.id === 'ag-data') { agDia = e.target.value; document.querySelectorAll('[data-dia]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); return; }
   var cb = e.target.closest('input[type=checkbox][data-id]'); if (!cb) return;
