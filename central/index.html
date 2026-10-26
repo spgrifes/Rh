@@ -128,8 +128,8 @@ section.arquivo { opacity: .85; border-top: 1px dashed var(--line); padding-top:
 section.arquivo .ico { filter: saturate(.4); }
 
 /* ---------- Fornecedores ---------- */
-#forn-fundo { position: fixed; inset: 0; z-index: 40; background: var(--shade); }
-#forn { position: fixed; z-index: 41; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(30rem, calc(100% - 32px)); max-height: 85vh; overflow-y: auto; }
+#comb-fundo, #forn-fundo { position: fixed; inset: 0; z-index: 40; background: var(--shade); }
+#comb, #forn { position: fixed; z-index: 41; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(30rem, calc(100% - 32px)); max-height: 85vh; overflow-y: auto; }
 .fechar-forn { border: 1px solid var(--line); background: var(--tile); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: .82rem; cursor: pointer; }
 .divida { box-shadow: 0 24px 60px rgba(0,0,0,.3); border: 1px solid var(--line); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 12px; background: var(--bg); }
 .dtop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
@@ -141,6 +141,8 @@ section.arquivo .ico { filter: saturate(.4); }
 .dl b { font-weight: 700; }
 .dl strong { font: 800 1.05rem var(--display); font-variant-numeric: tabular-nums; text-align: right; }
 .dl small { grid-column: 1 / -1; color: var(--muted); font-size: .82rem; }
+.dl .quando { font: 800 .72rem var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); grid-column: 1 / -1; }
+.dl a.onde { color: var(--accent); font-weight: 700; }
 .dl small em { font-style: normal; font-weight: 700; color: var(--gold); }
 .dvazio { margin: 0; color: var(--muted); font-size: .9rem; }
 
@@ -233,7 +235,15 @@ a.app:hover .ico, a.app:focus-visible .ico { background: linear-gradient(145deg,
     <p id="nada" class="empty" hidden>Nada encontrado com esse nome.</p>
     <footer>Dica: no Claude você pode só falar "abre a Central de Comando".</footer>
   </main>
-<div id="forn-fundo" hidden></div>
+<div id="comb-fundo" hidden></div>
+  <div id="comb" role="dialog" aria-modal="true" aria-labelledby="comb-t" hidden>
+    <section class="divida">
+      <div class="dtop"><h2 id="comb-t">Combinados e rotinas</h2><button type="button" class="fechar-forn" id="comb-x">Fechar</button></div>
+      <p class="dvazio">O que o Claude faz sozinho para você, quando e onde o resultado aparece.</p>
+      <div class="dlinhas" id="comb-linhas"></div>
+    </section>
+  </div>
+  <div id="forn-fundo" hidden></div>
   <div id="forn" role="dialog" aria-modal="true" aria-labelledby="div-t" hidden>
     <section class="divida" id="divida" aria-labelledby="div-t">
       <div class="dtop"><h2 id="div-t">Quanto eu devo aos fornecedores</h2><button type="button" class="fechar-forn" id="forn-x" aria-label="Fechar">Fechar</button><span id="div-quando"></span></div>
@@ -294,6 +304,7 @@ var AREAS = [
     ['Segundo Cérebro', '17bbfb85-ed3d-4d1f-877c-345e03450661', 'cerebro'],
     ['Biblioteca de Vida', 'ce62fc99-f1ad-4a81-9192-f56f33d4a2b7', 'livro'],
     ['Revisão do Boss', 'e090c225-71c1-4148-8b63-400168b02b5d', 'check'],
+    ['Combinados', '#combinados', 'check'],
     ['Comandos do Boss', '4c4145d0-5a63-417c-ab05-aecb0a8b6d82', 'comando']
   ]},
   { id: 'dinheiro', c: '#1f8a55', t: 'Dinheiro', apps: [
@@ -405,6 +416,22 @@ document.addEventListener('click', function (e) {
 document.getElementById('forn-x').addEventListener('click', function () { abreForn(false); });
 document.getElementById('forn-fundo').addEventListener('click', function () { abreForn(false); });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') abreForn(false); });
+
+var COMB = [["Todo dia, 7h40", "Frase do dia", "Arte de frase motivacional, feed e stories.", "Grupo PRONTO PRA POSTAR", null], ["Todo dia, 7h45", "Contas a pagar", "Lê Gmail, WhatsApp e extratos, atualiza as contas e manda o alerta do que vence.", "Painel Contas a Pagar e grupo CONTAS A PAGAR", "https://spgrifes.github.io/Rh/contas/"], ["Todo dia, 8h45", "Vídeo de viagem", "Um vídeo por dia das viagens: Peru, China e Dubai.", "Grupo PRONTO PRA POSTAR", null], ["Todo dia, 9h15", "Rotina do e-mail", "Limpa o Gmail, responde clientes e as avaliações do Google, posta fotos sem marca no Google.", "PDF no grupo Vendedoras e resumo no grupo ANOTAÇÕES", null], ["9h, 12h, 18h e 20h", "Novidades no Telegram", "Repassa as novidades do WhatsApp para o canal oficial.", "Canal do Telegram SP Grifes", null], ["Seg a sáb, 22h", "Caixa automático", "Puxa caixa e vendas do SIDOS 360 e salva na pasta do dia.", "Grupo CAIXA SP GRIFES", null], ["Todo dia, 21h50", "Lembrete da Revisão", "Avisa se você ainda não respondeu as 4 perguntas da noite.", "Notificação no celular e Revisão do Boss", "https://claude.ai/artifact/UjMjRg9jmJCU5ojDuKYict"], ["Domingo, 20h50", "Relatório da semana", "Lê as suas noites e monta o resumo da semana.", "Aba Semana da Revisão do Boss", "https://claude.ai/artifact/UjMjRg9jmJCU5ojDuKYict"], ["Segunda, 8h", "Pesquisa de IA", "Novidades da semana em IA para a SP Grifes 24h.", "Notificação e app do Claude", null], ["Segunda, 21h", "Lembrete do extrato", "Lembra de mandar o extrato da semana.", "Notificação no celular", null]];
+function abreComb(on) {
+  document.getElementById('comb').hidden = !on; document.getElementById('comb-fundo').hidden = !on;
+  if (on) document.getElementById('comb-linhas').innerHTML = COMB.map(function (c) {
+    var onde = c[4] ? '<a class="onde" href="' + c[4] + '" target="_blank" rel="noopener">' + c[3] + '</a>' : c[3];
+    return '<div class="dl"><span class="quando">' + c[0] + '</span><b>' + c[1] + '</b><span></span><small>' + c[2] + ' Resultado: ' + onde + '.</small></div>';
+  }).join('');
+}
+document.addEventListener('click', function (e) {
+  var a = e.target.closest('a[href="#combinados"]');
+  if (a) { e.preventDefault(); if (window.gaveta) gaveta(false); abreComb(true); }
+});
+document.getElementById('comb-x').addEventListener('click', function () { abreComb(false); });
+document.getElementById('comb-fundo').addEventListener('click', function () { abreComb(false); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') abreComb(false); });
 
 /* ---------- Relógio, frase e números ---------- */
 (function () {
