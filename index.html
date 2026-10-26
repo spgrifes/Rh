@@ -263,6 +263,16 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(70px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#fff;padding:9px 16px;border-radius:999px;font-size:.88rem;font-weight:600;z-index:6}
 @media (max-width:560px){.f{grid-template-columns:1fr auto}.f .k{grid-column:1/-1}.money .b{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.prgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(16rem,1fr));gap:14px;margin-top:12px}
+.prc{background:#fff;border:1px solid #e6e2df;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.prc .im{aspect-ratio:16/9;background:#f1eeec center/cover no-repeat;max-width:100%}
+.prc .bd{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.prc .ct{font:800 .7rem/1 inherit;letter-spacing:.1em;text-transform:uppercase;color:#c8102e}
+.prc h3{margin:0;font-size:1.05rem;line-height:1.25}
+.prc .mt{font-size:.85rem;color:#5f5a57}
+.prc p{margin:0;font-size:.9rem;line-height:1.4}
+.prc a{margin-top:auto;align-self:flex-start;background:#141212;color:#fff;text-decoration:none;border-radius:999px;padding:8px 14px;font-weight:700;font-size:.85rem}
+@media (prefers-color-scheme:dark){.prc{background:#1b1818;border-color:#2c2727}.prc .mt{color:#a39b99}.prc a{background:#f3efee;color:#141212}}
 </style>
 </head><body>
 
@@ -300,6 +310,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <button type="button" data-tab="ferias" aria-pressed="false">Férias e 13º</button>
     <button type="button" data-tab="entradas" aria-pressed="false">Entradas e saídas</button>
     <button type="button" data-tab="bemestar" aria-pressed="false">Bem-estar</button>
+    <button type="button" data-tab="premios" aria-pressed="false">Prêmios para funcionários</button>
     <button type="button" data-tab="falta" aria-pressed="false">Falta informação</button>
     <button type="button" data-tab="novidades" aria-pressed="false">Novidades <span class="mb" id="mb-nv"></span></button>
   </div></nav>
@@ -310,6 +321,13 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <section><h2>Dia a dia <span class="count" id="agcnt"></span></h2><div class="chips" id="agchips"></div><div class="grid" id="aglist"></div></section>
    </div>
    <div id="v-reg" hidden></div>
+   <div id="v-premios" hidden>
+    <section><h2>Prêmios para funcionários <span class="count" id="prcnt"></span></h2>
+      <p class="sub" style="margin:0 0 12px">Teatro, shows, exposições e passeios em São Paulo para presentear quem se destacar. O Claude atualiza esta lista todo dia de manhã. Toque em "Ver ingressos" para abrir a página oficial.</p>
+      <div class="chips" id="prchips"></div>
+      <div class="prgrid" id="prlist"><p class="sub">Carregando…</p></div>
+    </section>
+   </div>
    <div id="v-painel">
     <div class="card news" id="news" data-sec="painel novidades">
       <div class="nh"><div><h2 style="margin:0">Conte uma novidade do RH</h2><p>Fale ou escreva qualquer atualização (alguém entrou, saiu, faltou, pagou, atestado...). O Claude lê e coloca no lugar certo do painel.</p></div></div>
@@ -550,7 +568,7 @@ function renderAgenda(){
 }
 function trocarAba(t){aba=t;document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===t));
   const isReg=!!TIPOS[t];
-  $('v-agenda').hidden=t!=='agenda';$('v-reg').hidden=!isReg;$('v-painel').hidden=t==='agenda'||isReg;
+  $('v-agenda').hidden=t!=='agenda';$('v-reg').hidden=!isReg;$('v-premios').hidden=t!=='premios';$('v-painel').hidden=t==='agenda'||isReg||t==='premios';if(t==='premios')carregaPremios();
   if(t==='falta')filtro='falta'; else if(filtro==='falta')filtro='todos';
   $('eqtit').firstChild.textContent=t==='falta'?'Quem tem informação faltando ':'Equipe ';
   regEdit=null;render();const b=document.querySelector('[data-tab="'+t+'"]');if(b)b.scrollIntoView({inline:'center',block:'nearest'});window.scrollTo(0,0);}
@@ -790,6 +808,20 @@ $('nsend').addEventListener('click',async()=>{
   try{await rpc('rh_salvar',{p_senha:SENHA,p_item:id,p_status:'nova',p_nota:t});REV[id]={s:'nova',n:t};$('ntxt').value='';$('nst').textContent='';renderNews();toast('Novidade enviada. O Claude vai encaixar no painel.');}
   catch(e){$('nst').textContent='Não enviou. Verifique a internet e tente de novo.';}
 });
+
+let PREMIOS=null, prCat='Todos';
+async function carregaPremios(){
+  try{PREMIOS=await rpc('rh_premios_get',{p_senha:SENHA});}catch(e){$('prlist').innerHTML='<p class="sub">Não consegui carregar agora. Verifique a internet.</p>';return;}
+  desenhaPremios();
+}
+function desenhaPremios(){
+  const L=PREMIOS||[]; const cats=['Todos',...new Set(L.map(x=>x.categoria).filter(Boolean))];
+  $('prcnt').textContent=L.length||'';
+  $('prchips').innerHTML=cats.map(c=>`<button type="button" class="chip" data-prc="${esc(c)}" aria-pressed="${c===prCat}">${esc(c)}</button>`).join('');
+  const V=L.filter(x=>prCat==='Todos'||x.categoria===prCat);
+  $('prlist').innerHTML=V.length?V.map(x=>`<article class="prc"><div class="im" ${x.imagem?`style="background-image:url('${esc(x.imagem).replace(/'/g,'%27')}')"`:''}></div><div class="bd"><span class="ct">${esc(x.categoria||'Evento')}</span><h3>${esc(x.titulo)}</h3><div class="mt">${[x.quando,x.local,x.preco].filter(Boolean).map(esc).join(' · ')}</div><p>${esc(x.descricao||'')}</p><a href="${esc(x.link)}" target="_blank" rel="noopener">Ver ingressos</a></div></article>`).join(''):'<p class="sub">A primeira lista chega amanhã de manhã.</p>';
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-prc]');if(b){prCat=b.dataset.prc;desenhaPremios();}});
 micSetup();
 $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(correcoes());toast('Correções copiadas. Cole no grupo RH.');}catch(e){toast('Não deu para copiar neste aparelho');}});
 
