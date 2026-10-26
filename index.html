@@ -411,7 +411,7 @@ function gerarAgenda(){
   const eq=D.EQUIPE, adih=A.adih||{}, xd=A.extraDesc||{};
   return A.dias.map(dd=>{
     const dia=dd.data.slice(8,10)+'/'+dd.data.slice(5,7); let itens=[], titulo=dd.titulo;
-    if(dd.tipo==='conducao'){titulo='Condução da semana';
+    if(dd.tipo==='conducao'){titulo='Condução do mês';
       eq.forEach(e=>{const v=num(e.vt); itens.push({quem:e.nome,motivo:`Condução de ${dd.semana} (${dd.dias} dias${v?' × '+F(v):''})`,valor:v?Math.round(v*dd.dias*100)/100:null,obs:v?'':'Falta o valor do vale-transporte'});});}
     if(dd.tipo==='salario'){titulo='Saldo do salário';
       eq.forEach(e=>{const ad=adih[e.id]||e.adi||0, ds=descNa(e,'05/11'), x=xd[e.id];
