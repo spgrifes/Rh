@@ -41,12 +41,12 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .err{color:#ff8a93;font-size:.9rem;min-height:1.3em}
 
 /* topo */
-header.top{background:var(--head);color:#fff;padding-block:22px 64px;padding-top:calc(22px + env(safe-area-inset-top,0px))}
+header.top{background:var(--head);color:#fff;padding-block:22px 30px;padding-top:calc(22px + env(safe-area-inset-top,0px))}
 .topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .mes{background:#232733;border:1px solid #333a48;color:#fff;border-radius:999px;padding:6px 14px;font-weight:600;font-size:.88rem}
 header.top h1{font-family:var(--display);font-size:clamp(2rem,6vw,2.8rem);line-height:1;margin:18px 0 6px;text-wrap:balance}
 header.top .sub{color:#aab0bd;margin:0;max-width:60ch}
-main{margin-top:-44px;padding-bottom:110px}
+main{margin-top:14px;padding-bottom:110px}
 section{margin-top:22px}
 h2{font-family:var(--display);font-size:1.45rem;letter-spacing:.02em;text-transform:uppercase;margin:0 0 10px;display:flex;align-items:center;gap:10px}
 h2 .count{font-family:var(--body);font-size:.75rem;font-weight:700;background:var(--ink);color:#fff;border-radius:999px;padding:2px 9px;letter-spacing:0}
@@ -204,6 +204,20 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 .nv{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}
 .nv .it{font-size:.88rem;display:flex;gap:8px;align-items:flex-start}
 .nv .it .tag{flex:none}
+.menu{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--head);border-bottom:1px solid #262a33;padding-block:10px}
+.mscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mscroll::-webkit-scrollbar{display:none}
+.menu button{flex:none;border:1px solid #333a48;background:#1a1d24;color:#cfd3dc;border-radius:999px;padding:8px 14px;font-weight:700;font-size:.86rem;white-space:nowrap}
+.menu button[aria-pressed="true"]{background:#fff;color:var(--head);border-color:#fff}
+.mb{display:inline-block;min-width:18px;padding:0 5px;border-radius:99px;background:var(--red);color:#fff;font-size:.7rem;line-height:18px;text-align:center}
+.mb:empty{display:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--head)}
+.formas{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:var(--bg);border-radius:12px;padding:10px}
+.formas b{font-size:.8rem;margin-right:4px}
+.formas button{border:1px solid var(--green);background:var(--card);color:var(--green);border-radius:999px;padding:7px 13px;font-size:.82rem;font-weight:800}
+.formas .cx{border-color:var(--line);color:var(--soft)}
+.pi .act .pg{border-color:var(--green);color:var(--green);font-weight:800}
+.pi .pd{grid-column:1;font-size:.8rem;color:var(--green);font-weight:700}
 .foot{position:fixed;left:0;right:0;bottom:0;background:var(--head);color:#fff;z-index:5;padding-block:10px calc(10px + env(safe-area-inset-bottom,0px))}
 .foot .wrap{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .foot .sy{font-size:.82rem;color:#aab0bd}
@@ -232,10 +246,19 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
       <div class="topline"><div class="logo"><b>SP</b><span>Grifes · RH</span></div><span class="mes" id="mes"></span></div>
       <h1>Painel do RH</h1>
       <p class="sub">Tudo sobre a equipe num lugar só. Toque em um nome para ver a ficha completa. Se algo estiver errado, toque em <b>Conferir</b> ao lado da informação e corrija.</p>
-      <div class="tabs" role="tablist"><button type="button" data-tab="painel" aria-pressed="true">Painel</button><button type="button" data-tab="agenda" aria-pressed="false">Agenda de pagamentos</button></div>
     </div>
   </header>
 
+  <nav class="menu gut" aria-label="Menu"><div class="wrap mscroll" role="tablist">
+    <button type="button" data-tab="painel" aria-pressed="true">Painel</button>
+    <button type="button" data-tab="alertas" aria-pressed="false">Alertas <span class="mb" id="mb-al"></span></button>
+    <button type="button" data-tab="agenda" aria-pressed="false">Agenda de pagamentos</button>
+    <button type="button" data-tab="equipe" aria-pressed="false">Equipe</button>
+    <button type="button" data-tab="comissoes" aria-pressed="false">Comissões</button>
+    <button type="button" data-tab="atestados" aria-pressed="false">Atestados</button>
+    <button type="button" data-tab="falta" aria-pressed="false">Falta informação</button>
+    <button type="button" data-tab="novidades" aria-pressed="false">Novidades <span class="mb" id="mb-nv"></span></button>
+  </div></nav>
   <main class="gut"><div class="wrap">
    <div id="v-agenda" hidden>
     <div class="card agtop" id="agtop"></div>
@@ -243,15 +266,15 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
     <section><h2>Dia a dia <span class="count" id="agcnt"></span></h2><div class="chips" id="agchips"></div><div class="grid" id="aglist"></div></section>
    </div>
    <div id="v-painel">
-    <div class="card news" id="news">
+    <div class="card news" id="news" data-sec="painel novidades">
       <div class="nh"><div><h2 style="margin:0">Conte uma novidade do RH</h2><p>Fale ou escreva qualquer atualização (alguém entrou, saiu, faltou, pagou, atestado...). O Claude lê e coloca no lugar certo do painel.</p></div></div>
       <div class="nrow"><textarea id="ntxt" rows="3" placeholder="Ex.: A Karol faltou hoje e trouxe atestado do posto da Mooca, 2 dias."></textarea></div>
       <div class="nrow2"><button type="button" class="btn mic" id="nmic">Falar</button><button type="button" class="btn" id="nsend" style="background:var(--ink)">Enviar novidade</button><span class="sy2" id="nst"></span></div>
       <div id="nlist"></div>
     </div>
-    <div class="alerts" id="alerts" style="margin-top:14px"></div>
+    <div class="alerts" id="alerts" data-sec="painel alertas" style="margin-top:14px"></div>
 
-    <section>
+    <section data-sec="painel">
       <div class="kpis" id="kpis"></div>
       <div class="legend">
         <span><i style="background:var(--red)"></i>Alerta</span>
@@ -262,28 +285,28 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
       </div>
     </section>
 
-    <section>
+    <section data-sec="painel comissoes">
       <h2>Ranking de comissão</h2>
       <div class="card rank" id="rank"></div>
     </section>
 
-    <section>
-      <h2>Equipe <span class="count" id="cnt"></span></h2>
+    <section data-sec="painel equipe atestados falta">
+      <h2 id="eqtit">Equipe <span class="count" id="cnt"></span></h2>
       <div class="chips" id="chips"></div>
       <div class="grid" id="list"></div>
     </section>
 
-    <section>
+    <section data-sec="painel">
       <h2>Folha do mês</h2>
       <div class="card tbl"><table id="totals"></table></div>
     </section>
 
-    <section>
+    <section data-sec="painel falta">
       <h2>Falta descobrir</h2>
       <div class="card list" id="qs"></div>
     </section>
 
-    <section>
+    <section data-sec="painel equipe">
       <h2>Saíram</h2>
       <div class="card list" id="out"></div>
     </section>
@@ -306,6 +329,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const $=id=>document.getElementById(id);
 const SETOR_COR={Vendas:'#12895a',Caixa:'#2563eb',Site:'#7048e8',Loja:'#d97706',Apoio:'#475569',CD:'#0e7490',RH:'#be185d','Mídia':'#c026d3'};
 
+const PAGO=['ok','pix','dinheiro','cartao','transf'], FORMA={ok:'Pago',pix:'Pix',dinheiro:'Dinheiro',cartao:'Cartão',transf:'Transferência'}; let pgEsc=null;
 let D=null, REV={}, SENHA='', filtro='todos', editando=null, editAl=null, aba='painel', agf='todos', agEd=null;
 
 function campos(e){
@@ -329,8 +353,10 @@ function campos(e){
 function alertasDe(e){return (D.ALERTAS||[]).filter(a=>a.quem===e.nome && (REV['alerta_'+a.id]||{}).s!=='ok');}
 
 function render(){
+  try{$('mb-al').textContent=(D.ALERTAS||[]).filter(a=>(REV['alerta_'+a.id]||{}).s!=='ok').length||'';$('mb-nv').textContent=Object.entries(REV).filter(([k,v])=>k.startsWith('novidade_')&&v.s==='nova').length||'';}catch(e){}
   renderNews();
   if(aba==='agenda'){renderAgenda();}
+  document.querySelectorAll('[data-sec]').forEach(el=>el.hidden=!el.dataset.sec.split(' ').includes(aba==='agenda'?'painel':aba));
   $('mes').textContent=D.MES||'';
   // alertas
   const A=D.ALERTAS||[], abertos=A.filter(a=>(REV['alerta_'+a.id]||{}).s!=='ok');
@@ -365,7 +391,7 @@ function render(){
   // fichas
   const open=new Set([...document.querySelectorAll('details.emp[open]')].map(d=>d.dataset.e));
   const lista=eq.filter(e=>{
-    if(filtro==='alerta')return alertasDe(e).length; if(filtro==='falta')return campos(e).some(c=>c.v==null);
+    if(filtro==='atest')return !!e.atest; if(filtro==='alerta')return alertasDe(e).length; if(filtro==='falta')return campos(e).some(c=>c.v==null);
     if(filtro==='reg')return e.reg===true; if(filtro==='nreg')return e.reg!==true;
     if(filtro==='Vendas'||filtro==='Site')return e.setor===filtro; return true;});
   $('cnt').textContent=lista.length;
@@ -433,7 +459,7 @@ function gerarAgenda(){
 function renderAgenda(){
   const G=gerarAgenda(); if(!G.length){$('agtop').innerHTML='<div>Agenda ainda não montada.</div>';return;}
   const hoje=new Date(); hoje.setHours(0,0,0,0);
-  const tot=G.reduce((s,d)=>s+d.total,0), pago=G.reduce((s,d)=>s+d.itens.filter(i=>(REV[i.id]||{}).s==='ok').reduce((a,i)=>a+(i.valor||0),0),0);
+  const tot=G.reduce((s,d)=>s+d.total,0), pago=G.reduce((s,d)=>s+d.itens.filter(i=>PAGO.includes((REV[i.id]||{}).s)).reduce((a,i)=>a+(i.valor||0),0),0);
   const maior=G.reduce((a,b)=>b.total>a.total?b:a), falt=G.reduce((s,d)=>s+d.itens.filter(i=>i.valor==null).length,0);
   const max=Math.max(...G.map(d=>d.total));
   $('agtop').innerHTML=`<div><div class="l">Total previsto · ${esc(D.AGENDA.mes)}</div><div class="n num" style="color:var(--blue)">${F(tot)}</div><div class="s">${G.length} datas de pagamento</div></div>
@@ -448,7 +474,7 @@ function renderAgenda(){
   const L=G.filter(d=>agf==='todos'||(agf==='pendente'?d.itens.some(i=>(REV[i.id]||{}).s!=='ok'):d.tipo===agf));
   $('agcnt').textContent=L.length;
   $('aglist').innerHTML=L.map(d=>{
-    const dt=new Date(d.data+'T00:00:00'), dif=Math.round((dt-hoje)/864e5), pagos=d.itens.filter(i=>(REV[i.id]||{}).s==='ok').length, tudo=pagos===d.itens.length;
+    const dt=new Date(d.data+'T00:00:00'), dif=Math.round((dt-hoje)/864e5), pagos=d.itens.filter(i=>PAGO.includes((REV[i.id]||{}).s)).length, tudo=pagos===d.itens.length;
     const tag=tudo?'<span class="tag t-green">Pago</span>':dif<0?'<span class="tag t-red">Atrasado</span>':dif<=2?`<span class="tag t-red">${dif===0?'Hoje':dif===1?'Amanhã':'Em 2 dias'}</span>`:`<span class="tag t-blue">em ${dif} dias</span>`;
     const key=d.data+d.tipo;
     return `<details class="card day ty-${d.tipo}" data-d="${key}" ${open.has(key)?'open':''}><summary>
@@ -456,14 +482,21 @@ function renderAgenda(){
       <div class="who"><div class="nm">${esc(d.titulo)} ${tag}</div><div class="rl">${SEM[dt.getDay()]} · ${d.itens.length} pagamentos · ${pagos} pagos</div></div>
       <div class="money"><div class="a num">${F(d.total)}</div><div class="b">no dia</div></div></summary>
       ${d.nota?`<div class="dnote">${esc(d.nota)}</div>`:''}
-      ${d.itens.map(i=>{const r=REV[i.id]||{}, pg=r.s==='ok';
+      ${d.itens.map(i=>{const r=REV[i.id]||{}, pg=PAGO.includes(r.s);
         return `<div class="pi ${pg?'paid':''}"><div class="q">${esc(i.quem)}</div><div class="val num ${i.valor==null?'miss':''}">${i.valor==null?'a definir':F(i.valor)}</div>
         <div class="m">${esc(i.motivo)}</div>${i.obs?`<div class="o">${esc(i.obs)}</div>`:''}${r.n?`<div class="o blue">Anotação: ${esc(r.n)}</div>`:''}
-        <div class="act"><button type="button" class="pg" data-pg="${i.id}">${pg?'Pago ✓':'Marcar pago'}</button><button type="button" data-pged="${i.id}">${r.n?'Editar nota':'Anotar'}</button></div>
+        ${pg?`<div class="pd">Pago · ${FORMA[r.s]||'Pago'}${r.a?' · '+new Date(r.a).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}</div>`:''}
+        <div class="act"><button type="button" class="pg" data-pg="${i.id}">${pg?'Pago ✓':'Pago'}</button><button type="button" data-pged="${i.id}">${r.n?'Editar nota':'Anotar'}</button></div>
+        ${pgEsc===i.id?`<div class="formas"><b>Como foi pago?</b>${['pix','dinheiro','cartao','transf'].map(f=>`<button type="button" data-forma="${f}" data-id="${i.id}">${FORMA[f]}</button>`).join('')}<button type="button" class="cx" data-forma="" data-id="${i.id}">Cancelar</button></div>`:''}
         ${agEd===i.id?`<div class="edit"><input class="nt" id="n_${i.id}" data-id="${i.id}" placeholder="Ex.: valor certo é outro, pagou em dinheiro... (pode ditar)" value="${esc(r.n||'')}"><div class="hint">Salva sozinho.</div></div>`:''}</div>`}).join('')}
     </details>`}).join('');
 }
-function trocarAba(t){aba=t;document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===t));$('v-painel').hidden=t!=='painel';$('v-agenda').hidden=t!=='agenda';if(t==='agenda')renderAgenda();window.scrollTo(0,0);}
+function trocarAba(t){aba=t;document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===t));
+  $('v-agenda').hidden=t!=='agenda';$('v-painel').hidden=t==='agenda';
+  document.querySelectorAll('[data-sec]').forEach(el=>el.hidden=!el.dataset.sec.split(' ').includes(t));
+  if(t==='atestados')filtro='atest'; else if(t==='falta')filtro='falta'; else if(filtro==='atest'||filtro==='falta')filtro='todos';
+  $('eqtit').firstChild.textContent=t==='atestados'?'Atestados ':t==='falta'?'Quem tem informação faltando ':'Equipe ';
+  render();const b=document.querySelector('[data-tab="'+t+'"]');if(b)b.scrollIntoView({inline:'center',block:'nearest'});window.scrollTo(0,0);}
 
 
 function renderNews(){
@@ -500,7 +533,12 @@ document.addEventListener('click',ev=>{
   if(al){const id='alerta_'+al.dataset.al;REV[id]=REV[id]||{};REV[id].s=REV[id].s==='ok'?'':'ok';salvar(id);render();toast(REV[id].s?'Alerta marcado como resolvido':'Alerta reaberto');return;}
   const tb=ev.target.closest('[data-tab]'); if(tb){trocarAba(tb.dataset.tab);return;}
   const ag=ev.target.closest('[data-agf]'); if(ag){agf=ag.dataset.agf;renderAgenda();return;}
-  const pg=ev.target.closest('[data-pg]'); if(pg){ev.preventDefault();const id=pg.dataset.pg;REV[id]=REV[id]||{};REV[id].s=REV[id].s==='ok'?'':'ok';salvar(id);renderAgenda();toast(REV[id].s?'Marcado como pago':'Desmarcado');return;}
+  const pg=ev.target.closest('[data-pg]'); if(pg){ev.preventDefault();const id=pg.dataset.pg;REV[id]=REV[id]||{};
+    if(PAGO.includes(REV[id].s)){REV[id].s='';salvar(id);pgEsc=null;renderAgenda();toast('Pagamento desfeito');return;}
+    pgEsc=pgEsc===id?null:id;renderAgenda();return;}
+  const fm=ev.target.closest('[data-forma]'); if(fm){ev.preventDefault();const id=fm.dataset.id,f=fm.dataset.forma;pgEsc=null;
+    if(f){REV[id]=REV[id]||{};REV[id].s=f;REV[id].a=new Date().toISOString();salvar(id);toast('Baixa feita: pago em '+FORMA[f]);}
+    renderAgenda();return;}
   const pe=ev.target.closest('[data-pged]'); if(pe){ev.preventDefault();agEd=agEd===pe.dataset.pged?null:pe.dataset.pged;renderAgenda();const i=$('n_'+agEd);if(i)i.focus({preventScroll:true});return;}
   const ae=ev.target.closest('[data-aled]'); if(ae){editAl=editAl===ae.dataset.aled?null:ae.dataset.aled;render();const i=$('n_alerta_'+editAl);if(i)i.focus();return;}
   const ao=ev.target.closest('[data-alok]'); if(ao){const id='alerta_'+ao.dataset.alok;clearTimeout(tm[id]);salvar(id);editAl=null;render();toast('Comentário salvo');return;}
@@ -532,7 +570,7 @@ $('nsend').addEventListener('click',async()=>{
 micSetup();
 $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(correcoes());toast('Correções copiadas. Cole no grupo RH.');}catch(e){toast('Não deu para copiar neste aparelho');}});
 
-async function carregar(){const d=await rpc('rh_get',{p_senha:SENHA});D=d.dados;D.EQUIPE.forEach(e=>{e.setor=e.setor||(/vend/i.test(e.funcao||'')?'Vendas':'Equipe');e.extra=e.extra||[];});D.MES=D.MES||'Outubro 2026';REV={};Object.entries(d.revisao||{}).forEach(([k,v])=>REV[k]={s:v.s||'',n:v.n||''});}
+async function carregar(){const d=await rpc('rh_get',{p_senha:SENHA});D=d.dados;D.EQUIPE.forEach(e=>{e.setor=e.setor||(/vend/i.test(e.funcao||'')?'Vendas':'Equipe');e.extra=e.extra||[];});D.MES=D.MES||'Outubro 2026';REV={};Object.entries(d.revisao||{}).forEach(([k,v])=>REV[k]={s:v.s||'',n:v.n||'',a:v.a||''});}
 async function entrar(p){
   SENHA=p; await carregar();
   $('lock').hidden=true;$('app').hidden=false;render();sync('Atualizado · '+hora());
