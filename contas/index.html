@@ -36,6 +36,17 @@ h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;letter-spa
 .filters{display:flex;gap:6px;flex-wrap:wrap}
 .filters button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:99px;padding:6px 14px;cursor:pointer}
 .filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-top:-12px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cats button{flex:0 0 auto;font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:10px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+.cats button b{font-weight:600;color:var(--muted);margin-left:4px;font-variant-numeric:tabular-nums}
+.cats button[aria-pressed="true"]{background:var(--gold);color:#fff;border-color:var(--gold)}
+.cats button[aria-pressed="true"] b{color:#fff}
+.tag.c{background:transparent;border:1px solid var(--line)}
+.rowbtns{display:flex;gap:6px;flex-wrap:wrap}
+.del-btn{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--bg);color:var(--late);border-radius:8px;padding:4px 10px;cursor:pointer;margin-top:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);border-radius:12px;padding:10px 14px;display:flex;gap:12px;align-items:center;font-size:14px;z-index:40;max-width:calc(100% - 32px)}
+.toast button{font:inherit;font-weight:700;border:0;background:none;color:var(--gold);cursor:pointer}
 section h2{font-family:var(--display);font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px;display:flex;justify-content:space-between;gap:8px}
 section h2 small{font-family:var(--body);color:var(--muted);letter-spacing:0;text-transform:none;font-weight:500;font-variant-numeric:tabular-nums}
 .late h2{color:var(--late)}
@@ -141,9 +152,12 @@ img{max-width:100%}
     <button data-f="Empresa" aria-pressed="false">Empresa</button>
     <button data-f="Pessoal" aria-pressed="false">Pessoal</button>
   </div>
+  <div class="cats" id="cats" role="group" aria-label="Setor"></div>
 
   <div id="out"><p class="empty">Carregando suas contas…</p></div>
   <div id="fxdone"></div>
+  <div id="removidas"></div>
+  <div class="toast" id="toast" hidden></div>
 
   <details class="note">
     <summary>Adicionar conta</summary>
@@ -152,6 +166,7 @@ img{max-width:100%}
       <input id="f-valor" inputmode="decimal" placeholder="Valor (R$)">
       <input id="f-venc" type="date" required>
       <select id="f-tipo"><option>Empresa</option><option>Pessoal</option></select>
+      <select id="f-cat"></select>
       <input id="f-obs" placeholder="Observação">
       <button type="submit">Salvar conta</button>
     </form>
@@ -166,15 +181,41 @@ const dayMs=864e5;
 const parse=s=>{if(!s)return null;const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
 const wd=['dom','seg','ter','qua','qui','sex','sáb'];
 document.getElementById('hoje').textContent='Hoje: '+today.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
-let rows=[],filtro='todas',db=null,periodo=null;
+const CATS=['Moradia','Comunicação','Investimentos','Aluguel e loja','Sistemas e marketing','Jurídico','Carro','Funcionários','Contador e impostos','Pessoal e assinaturas','Outros'];
+let rows=[],filtro='todas',db=null,periodo=null,cat='todos';
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-p]');if(!b)return;
   periodo=periodo===b.dataset.p?null:b.dataset.p;render();
   if(periodo)document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});
 });
 
+function renderCats(base){
+  const cnt={};base.filter(r=>r.status!=='paga').forEach(r=>{const c=r.cat||'Outros';cnt[c]=(cnt[c]||0)+1});
+  const present=CATS.filter(c=>cnt[c]);
+  if(cat!=='todos'&&!present.includes(cat))present.push(cat);
+  document.getElementById('cats').innerHTML=`<button data-cat="todos" aria-pressed="${cat==='todos'}">Todos os setores</button>`+present.map(c=>`<button data-cat="${esc(c)}" aria-pressed="${cat===c}">${esc(c)}<b>${cnt[c]||0}</b></button>`).join('');
+}
+function renderRemovidas(){
+  const rem=rows.filter(r=>r.status==='cancelada');
+  document.getElementById('removidas').innerHTML=rem.length?`<details class="done-fx note"><summary>Contas que você tirou (${rem.length})</summary><ul>${rem.map(r=>`<li>${esc(r.nome)}${r.valor!=null?' · '+brl(r.valor):''} <button class="undo" data-volta="${esc(r.id)}">voltar</button></li>`).join('')}</ul></details>`:'';
+}
+let toastT=null;
+function toast(msg,undoId){const t=document.getElementById('toast');t.innerHTML=`<span>${esc(msg)}</span>`+(undoId?`<button data-volta="${esc(undoId)}">Desfazer</button>`:'');t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,6000)}
+document.getElementById('cats').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;cat=b.dataset.cat;render()});
+document.addEventListener('click',async e=>{
+  const d=e.target.closest('[data-del]');const v=e.target.closest('[data-volta]');
+  if(!d&&!v)return; if(!db)return;
+  const el=d||v; el.disabled=true;
+  try{
+    if(d){await db.doc('contas/'+d.dataset.del).update({status:'cancelada',tiradaEm:new Date().toISOString()});toast('Conta tirada da lista',d.dataset.del)}
+    else{await db.doc('contas/'+v.dataset.volta).update({status:'aberta'});document.getElementById('toast').hidden=true}
+  }catch(err){el.disabled=false;toast('Não salvou. Tente de novo.')}
+});
 function render(){
-  const list=rows.filter(r=>r.status!=='cancelada'&&(filtro==='todas'||r.tipo===filtro));
+  const base=rows.filter(r=>r.status!=='cancelada'&&(filtro==='todas'||r.tipo===filtro));
+  renderCats(base);
+  const list=base.filter(r=>cat==='todos'||(r.cat||'Outros')===cat);
+  renderRemovidas();
   const open=list.filter(r=>r.status!=='paga');
   const g={late:[],week:[],month:[],later:[],nodate:[],paid:[]};
   for(const r of list){
@@ -221,6 +262,7 @@ function editorHtml(kind,r){
     <label>Valor (R$)<input id="e-valor" inputmode="decimal" value="${r.valor!=null?String(r.valor).replace('.',','):''}" placeholder="varia"></label>
     ${isFx?`<label>Todo dia<input id="e-dia" inputmode="numeric" value="${r.dia??''}"></label>`:`<label>Vencimento<input id="e-venc" type="date" value="${esc(r.venc||'')}"></label>`}
     <label class="full">Empresa ou pessoal<select id="e-tipo"><option ${r.tipo==='Empresa'?'selected':''}>Empresa</option><option ${r.tipo==='Pessoal'?'selected':''}>Pessoal</option></select></label>
+    <label class="full">Setor<select id="e-cat">${CATS.map(c=>`<option ${(r.cat||'Outros')===c?'selected':''}>${c}</option>`).join('')}</select></label>
     <label class="full">O que mudou? <span class="mic">Toque aqui e use o microfone do teclado 🎤</span><textarea id="e-nota" placeholder="Ex.: esse boleto agora vence dia 10 e é 350 reais">${esc(r.nota||'')}</textarea></label>
     <div class="acts"><button class="cancel" data-eact="cancel">Cancelar</button><button class="save" data-eact="save">Salvar</button></div>
   </div>`;
@@ -234,7 +276,7 @@ function item(r){
     const rel=paid?wd[d.getDay()]:n<0?`${-n}d atraso`:n===0?'hoje':n===1?'amanhã':wd[d.getDay()];
     dt=`<div class="date">${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}<em>${rel}</em></div>`}
   return `<div class="row ${paid?'paid':''}">${dt}
-    <div class="info"><div class="name">${esc(r.nome)}<span class="tag ${r.tipo==='Pessoal'?'p':''}">${esc(r.tipo)}</span></div>${r.obs?`<div class="obs">${esc(r.obs)}</div>`:''}${r.nota?`<div class="nota">🎤 ${esc(r.nota)}</div>`:''}<div><button class="edit-btn" data-edit="conta" data-id="${esc(r.id)}">Editar</button></div></div>
+    <div class="info"><div class="name">${esc(r.nome)}<span class="tag ${r.tipo==='Pessoal'?'p':''}">${esc(r.tipo)}</span><span class="tag c">${esc(r.cat||'Outros')}</span></div>${r.obs?`<div class="obs">${esc(r.obs)}</div>`:''}${r.nota?`<div class="nota">🎤 ${esc(r.nota)}</div>`:''}<div class="rowbtns"><button class="edit-btn" data-edit="conta" data-id="${esc(r.id)}">Editar</button>${paid?'':`<button class="del-btn" data-del="${esc(r.id)}">Não devo</button>`}</div></div>
     <div class="val">${r.valor!=null?brl(r.valor):'<span class="na">ver boleto</span>'}<br><button class="pay" data-id="${esc(r.id)}">${paid?'Paga ✓':'Paguei'}</button></div></div>`;
 }
 document.querySelector('.filters').addEventListener('click',e=>{
@@ -257,6 +299,7 @@ document.getElementById('add').addEventListener('submit',async e=>{
     valor:v?Number(v):null,
     venc:document.getElementById('f-venc').value,
     tipo:document.getElementById('f-tipo').value,
+    cat:document.getElementById('f-cat').value,
     obs:document.getElementById('f-obs').value.trim(),
     status:'aberta'
   });
@@ -304,7 +347,7 @@ document.addEventListener('click',async e=>{
       await db.doc('fixas/'+f.id).update({status:'aprovada',respondido:new Date().toISOString()});
       if(!f.contaId&&f.dia){
         const venc=nextDue(f.dia);const cid='fx-'+f.id+'-'+venc.slice(0,7);
-        await db.doc('contas/'+cid).set({nome:f.nome,valor:f.valor??null,venc,tipo:f.tipo,obs:'Conta fixa'+(f.valor==null?' — valor varia':''),status:'aberta',fonte:'Fixa'});
+        await db.doc('contas/'+cid).set({nome:f.nome,valor:f.valor??null,venc,tipo:f.tipo,obs:'Conta fixa'+(f.valor==null?' — valor varia':''),status:'aberta',fonte:'Fixa',cat:f.cat||'Outros'});
       }
     }else if(b.dataset.a==='nao'){
       await db.doc('fixas/'+f.id).update({status:'recusada',respondido:new Date().toISOString()});
@@ -324,13 +367,14 @@ document.addEventListener('click',async e=>{
   if(ab.dataset.eact==='cancel'){editing=null;render();renderFx();return}
   if(!db)return;
   const v=document.getElementById('e-valor').value.trim().replace(/[R$\s]/g,'').replace(/\.(?=\d{3})/g,'').replace(',','.');
-  const data={nome:document.getElementById('e-nome').value.trim(),valor:v&&!isNaN(Number(v))?Number(v):null,tipo:document.getElementById('e-tipo').value,nota:document.getElementById('e-nota').value.trim(),editadoEm:new Date().toISOString()};
+  const data={nome:document.getElementById('e-nome').value.trim(),valor:v&&!isNaN(Number(v))?Number(v):null,tipo:document.getElementById('e-tipo').value,cat:document.getElementById('e-cat').value,nota:document.getElementById('e-nota').value.trim(),editadoEm:new Date().toISOString()};
   if(box.dataset.ek==='fixa'){const dd=parseInt(document.getElementById('e-dia').value,10);data.dia=dd>=1&&dd<=31?dd:null}
   else data.venc=document.getElementById('e-venc').value||null;
   ab.disabled=true;ab.textContent='Salvando…';
   try{await db.doc((box.dataset.ek==='fixa'?'fixas/':'contas/')+box.dataset.eid).update(data);editing=null;render();renderFx()}
   catch(err){ab.disabled=false;ab.textContent='Erro, tente de novo'}
 });
+document.getElementById('f-cat').innerHTML=CATS.map(c=>`<option>${c}</option>`).join('');
 const SB='https://hkhbyeygzfdhwxsdgaxl.supabase.co/rest/v1/rpc/';
 const KEY='sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1';
 let SENHA='';
