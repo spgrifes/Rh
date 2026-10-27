@@ -102,6 +102,32 @@ form button{grid-column:1/-1;font:inherit;font-weight:600;padding:10px;border:0;
 .editor .save{background:var(--fg);color:var(--bg)}
 .editor .cancel{background:var(--bg);color:var(--fg);border:1px solid var(--line)!important}
 .nota{font-size:13px;color:var(--fg);background:var(--gold-soft);border-radius:6px;padding:3px 7px;margin-top:3px;display:inline-block}
+.tipos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tipos button{font:inherit;color:inherit;text-align:left;cursor:pointer;border:2px solid var(--line);background:var(--bg);border-radius:16px;padding:14px;min-width:0;display:flex;flex-direction:column;gap:4px}
+.tipos button[aria-pressed="true"]{border-color:var(--fg);background:var(--surface)}
+.tipos .t{font-family:var(--display);font-weight:700;font-size:20px}
+.tipos .v{font-variant-numeric:tabular-nums;font-weight:600;font-size:15px;white-space:nowrap}
+.tipos .a{font-size:12px;color:var(--late);font-weight:600;min-height:16px}
+.tipos .m{font-size:12px;color:var(--muted)}
+.todas-link{font:inherit;font-size:13px;border:0;background:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0;justify-self:start}
+.todas-link[aria-pressed="true"]{color:var(--fg);font-weight:600}
+.setores h2,.kind h2{font-family:var(--display);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px}
+.setgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.setgrid button{font:inherit;color:inherit;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.setgrid button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.setgrid button[aria-pressed="true"] .sm{color:var(--bg);opacity:.75}
+.setgrid .sn{font-weight:600;font-size:14px}
+.setgrid .sv{font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}
+.setgrid .sm{font-size:12px;color:var(--muted)}
+.setgrid .sl{font-size:12px;color:var(--late);font-weight:600}
+.setgrid button[aria-pressed="true"] .sl{color:#ffb3a9}
+.kindbar{display:flex;gap:6px}
+.kindbar button{flex:1;font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:9px 6px;cursor:pointer}
+.kindbar button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.kindbar button small{display:block;font-weight:500;font-size:12px;opacity:.75;font-variant-numeric:tabular-nums}
+.tag.fx1{background:var(--ok-soft);color:var(--ok)}
+.tag.fx0{background:var(--surface);color:var(--muted);border:1px dashed var(--line)}
+.vista{font-family:var(--display);font-size:18px;font-weight:700;margin:0}
 @media (max-width:420px){.sum{gap:6px}.sum button{padding:10px 8px}.row{grid-template-columns:52px 1fr auto;gap:10px}}
 </style>
 <style>
@@ -139,20 +165,19 @@ img{max-width:100%}
     <p class="sub" id="hoje">Empresa e pessoal, por vencimento</p>
   </header>
 
-  <div class="sum">
+
+  <div class="tipos" id="tipos" role="group" aria-label="Empresa ou pessoal"></div>
+  <button class="todas-link" id="vertudo" data-tipo="todas" aria-pressed="false">Ver empresa e pessoal juntos</button>
+  <div id="fxbox"></div>
+  <section class="setores"><h2 id="setTit">Setores</h2><div class="setgrid" id="cats" role="group" aria-label="Setor"></div></section>
+  <section class="kind"><h2>Tipo de conta</h2><div class="kindbar" id="kinds" role="group" aria-label="Fixa ou variável"></div></section>
+  <div class="sum" id="sumbox">
     <button class="l" data-p="late" aria-pressed="false"><span>Atrasado</span><b id="s-late">—</b></button>
     <button data-p="week" aria-pressed="false"><span>7 dias</span><b id="s-week">—</b></button>
     <button data-p="open" aria-pressed="false"><span>30 dias</span><b id="s-all">—</b></button>
   </div>
 
-  <div id="fxbox"></div>
-
-  <div class="filters" role="group" aria-label="Filtro">
-    <button data-f="todas" aria-pressed="true">Todas</button>
-    <button data-f="Empresa" aria-pressed="false">Empresa</button>
-    <button data-f="Pessoal" aria-pressed="false">Pessoal</button>
-  </div>
-  <div class="cats" id="cats" role="group" aria-label="Setor"></div>
+  <p class="vista" id="vista"></p>
 
   <div id="out"><p class="empty">Carregando suas contas…</p></div>
   <div id="fxdone"></div>
@@ -167,6 +192,7 @@ img{max-width:100%}
       <input id="f-venc" type="date" required>
       <select id="f-tipo"><option>Empresa</option><option>Pessoal</option></select>
       <select id="f-cat"></select>
+      <select id="f-fixa"><option value="1">Conta fixa (todo mês)</option><option value="0" selected>Conta variável</option></select>
       <input id="f-obs" placeholder="Observação">
       <button type="submit">Salvar conta</button>
     </form>
@@ -181,19 +207,48 @@ const dayMs=864e5;
 const parse=s=>{if(!s)return null;const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
 const wd=['dom','seg','ter','qua','qui','sex','sáb'];
 document.getElementById('hoje').textContent='Hoje: '+today.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
-const CATS=['Moradia','Comunicação','Investimentos','Aluguel e loja','Sistemas e marketing','Jurídico','Carro','Funcionários','Contador e impostos','Pessoal e assinaturas','Outros'];
-let rows=[],filtro='todas',db=null,periodo=null,cat='todos';
+const SET={
+  Empresa:['Aluguel e loja','Funcionários','Fornecedores','Sistemas e marketing','Comunicação','Contador e impostos','Jurídico','Outros'],
+  Pessoal:['Moradia','Contas de vida','Comunicação','Carro','Investimentos','Outros']
+};
+const CATS=[...new Set([...SET.Empresa,...SET.Pessoal])];
+const DICA={'Contas de vida':'assinaturas, academia, curso, tarifas','Moradia':'aluguel, apartamento, luz','Investimentos':'terrenos, lotes','Aluguel e loja':'boxes, CD, estacionamento'};
+const catOf=r=>{let c=r.cat||'Outros';if(c==='Pessoal e assinaturas')c=r.tipo==='Pessoal'?'Contas de vida':'Outros';const l=SET[r.tipo]||CATS;return l.includes(c)?c:'Outros'};
+const isFixa=r=>r.fixa!=null&&r.fixa!==''?!!r.fixa:(r.fonte==='Fixa'||/conta fixa/i.test(r.obs||'')||String(r.id||'').startsWith('fx-'));
+let rows=[],db=null,periodo=null,cat='todos',kind='todas';
+let filtro=(()=>{try{return localStorage.getItem('cp_tipo')||'Empresa'}catch(e){return'Empresa'}})();
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-p]');if(!b)return;
   periodo=periodo===b.dataset.p?null:b.dataset.p;render();
   if(periodo)document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});
 });
 
+function renderTop(){
+  const vivo=rows.filter(r=>r.status!=='cancelada'&&r.status!=='paga');
+  const lim=new Date(today.getTime()+30*dayMs);
+  const resumo=t=>{const a=vivo.filter(r=>r.tipo===t);const m=a.filter(r=>{const d=parse(r.venc);return !d||d<=lim});
+    const late=a.filter(r=>{const d=parse(r.venc);return d&&d<today});
+    return {v:m.reduce((s,r)=>s+(r.valor||0),0),unk:m.some(r=>r.valor==null),late:late.length,n:a.length}};
+  document.getElementById('tipos').innerHTML=['Empresa','Pessoal'].map(t=>{const x=resumo(t);
+    return `<button data-tipo="${t}" aria-pressed="${filtro===t}"><span class="t">${t}</span><span class="v">${brl(x.v)}${x.unk?' +':''}</span><span class="m">próximos 30 dias · ${x.n} contas</span><span class="a">${x.late?x.late+' atrasada'+(x.late>1?'s':''):''}</span></button>`}).join('');
+  document.getElementById('vertudo').setAttribute('aria-pressed',filtro==='todas');
+  document.getElementById('vertudo').textContent=filtro==='todas'?'Mostrando empresa e pessoal juntos':'Ver empresa e pessoal juntos';
+}
 function renderCats(base){
-  const cnt={};base.filter(r=>r.status!=='paga').forEach(r=>{const c=r.cat||'Outros';cnt[c]=(cnt[c]||0)+1});
-  const present=CATS.filter(c=>cnt[c]);
-  if(cat!=='todos'&&!present.includes(cat))present.push(cat);
-  document.getElementById('cats').innerHTML=`<button data-cat="todos" aria-pressed="${cat==='todos'}">Todos os setores</button>`+present.map(c=>`<button data-cat="${esc(c)}" aria-pressed="${cat===c}">${esc(c)}<b>${cnt[c]||0}</b></button>`).join('');
+  const lista=filtro==='todas'?CATS:SET[filtro];
+  const aberto=base.filter(r=>r.status!=='paga');
+  const info={};aberto.forEach(r=>{const c=catOf(r);const i=info[c]||(info[c]={n:0,v:0,unk:false,late:0});i.n++;i.v+=r.valor||0;if(r.valor==null)i.unk=true;const d=parse(r.venc);if(d&&d<today)i.late++});
+  if(cat!=='todos'&&!lista.includes(cat))cat='todos';
+  document.getElementById('setTit').textContent=filtro==='todas'?'Setores':'Setores — '+filtro;
+  const tot={n:aberto.length,v:aberto.reduce((s,r)=>s+(r.valor||0),0),late:Object.values(info).reduce((s,i)=>s+i.late,0)};
+  const btn=(id,nome,i,dica)=>`<button data-cat="${esc(id)}" aria-pressed="${cat===id}"><span class="sn">${esc(nome)}</span><span class="sv">${!i.n?'nada em aberto':i.v===0&&i.unk?'ver boleto':brl(i.v)+(i.unk?' +':'')}</span><span class="sm">${i.n?i.n+' conta'+(i.n>1?'s':''):(dica||'')}</span>${i.late?`<span class="sl">${i.late} atrasada${i.late>1?'s':''}</span>`:''}</button>`;
+  document.getElementById('cats').innerHTML=btn('todos','Todos',tot,'')+lista.filter(c=>c!=='Outros'||info[c]).map(c=>btn(c,c,info[c]||{n:0,v:0,late:0},DICA[c])).join('');
+}
+function renderKinds(base){
+  const ab=base.filter(r=>r.status!=='paga');
+  const f=ab.filter(isFixa),v=ab.filter(r=>!isFixa(r));
+  const sm=a=>brl(a.reduce((s,r)=>s+(r.valor||0),0));
+  document.getElementById('kinds').innerHTML=[['todas','Todas',ab],['fixa','Fixas',f],['variavel','Variáveis',v]].map(([k,t,a])=>`<button data-kind="${k}" aria-pressed="${kind===k}">${t}<small>${a.length} · ${sm(a)}</small></button>`).join('');
 }
 function renderRemovidas(){
   const rem=rows.filter(r=>r.status==='cancelada');
@@ -201,7 +256,9 @@ function renderRemovidas(){
 }
 let toastT=null;
 function toast(msg,undoId){const t=document.getElementById('toast');t.innerHTML=`<span>${esc(msg)}</span>`+(undoId?`<button data-volta="${esc(undoId)}">Desfazer</button>`:'');t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,6000)}
-document.getElementById('cats').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;cat=b.dataset.cat;render()});
+document.getElementById('cats').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;cat=cat===b.dataset.cat&&cat!=='todos'?'todos':b.dataset.cat;render();document.getElementById('vista').scrollIntoView({behavior:'smooth',block:'start'})});
+document.getElementById('kinds').addEventListener('click',e=>{const b=e.target.closest('[data-kind]');if(!b)return;kind=b.dataset.kind;render()});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-tipo]');if(!b)return;filtro=filtro===b.dataset.tipo&&filtro!=='todas'?filtro:b.dataset.tipo;if(b.id==='vertudo'&&filtro==='todas'&&b.getAttribute('aria-pressed')==='true')filtro='Empresa';cat='todos';try{localStorage.setItem('cp_tipo',filtro)}catch(x){}render()});
 document.addEventListener('click',async e=>{
   const d=e.target.closest('[data-del]');const v=e.target.closest('[data-volta]');
   if(!d&&!v)return; if(!db)return;
@@ -213,8 +270,11 @@ document.addEventListener('click',async e=>{
 });
 function render(){
   const base=rows.filter(r=>r.status!=='cancelada'&&(filtro==='todas'||r.tipo===filtro));
-  renderCats(base);
-  const list=base.filter(r=>cat==='todos'||(r.cat||'Outros')===cat);
+  renderTop();renderCats(base);
+  const porSetor=base.filter(r=>cat==='todos'||catOf(r)===cat);
+  renderKinds(porSetor);
+  const list=porSetor.filter(r=>kind==='todas'||(kind==='fixa')===isFixa(r));
+  document.getElementById('vista').textContent=[filtro==='todas'?'Empresa e pessoal':filtro,cat==='todos'?'todos os setores':cat,kind==='fixa'?'só fixas':kind==='variavel'?'só variáveis':''].filter(Boolean).join(' · ');
   renderRemovidas();
   const open=list.filter(r=>r.status!=='paga');
   const g={late:[],week:[],month:[],later:[],nodate:[],paid:[]};
@@ -262,7 +322,8 @@ function editorHtml(kind,r){
     <label>Valor (R$)<input id="e-valor" inputmode="decimal" value="${r.valor!=null?String(r.valor).replace('.',','):''}" placeholder="varia"></label>
     ${isFx?`<label>Todo dia<input id="e-dia" inputmode="numeric" value="${r.dia??''}"></label>`:`<label>Vencimento<input id="e-venc" type="date" value="${esc(r.venc||'')}"></label>`}
     <label class="full">Empresa ou pessoal<select id="e-tipo"><option ${r.tipo==='Empresa'?'selected':''}>Empresa</option><option ${r.tipo==='Pessoal'?'selected':''}>Pessoal</option></select></label>
-    <label class="full">Setor<select id="e-cat">${CATS.map(c=>`<option ${(r.cat||'Outros')===c?'selected':''}>${c}</option>`).join('')}</select></label>
+    <label>Setor<select id="e-cat">${CATS.map(c=>`<option ${catOf(r)===c?'selected':''}>${c}</option>`).join('')}</select></label>
+    ${isFx?'':`<label>Tipo de conta<select id="e-fixa"><option value="1" ${isFixa(r)?'selected':''}>Fixa (todo mês)</option><option value="0" ${isFixa(r)?'':'selected'}>Variável</option></select></label>`}
     <label class="full">O que mudou? <span class="mic">Toque aqui e use o microfone do teclado 🎤</span><textarea id="e-nota" placeholder="Ex.: esse boleto agora vence dia 10 e é 350 reais">${esc(r.nota||'')}</textarea></label>
     <div class="acts"><button class="cancel" data-eact="cancel">Cancelar</button><button class="save" data-eact="save">Salvar</button></div>
   </div>`;
@@ -276,13 +337,9 @@ function item(r){
     const rel=paid?wd[d.getDay()]:n<0?`${-n}d atraso`:n===0?'hoje':n===1?'amanhã':wd[d.getDay()];
     dt=`<div class="date">${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}<em>${rel}</em></div>`}
   return `<div class="row ${paid?'paid':''}">${dt}
-    <div class="info"><div class="name">${esc(r.nome)}<span class="tag ${r.tipo==='Pessoal'?'p':''}">${esc(r.tipo)}</span><span class="tag c">${esc(r.cat||'Outros')}</span></div>${r.obs?`<div class="obs">${esc(r.obs)}</div>`:''}${r.nota?`<div class="nota">🎤 ${esc(r.nota)}</div>`:''}<div class="rowbtns"><button class="edit-btn" data-edit="conta" data-id="${esc(r.id)}">Editar</button>${paid?'':`<button class="del-btn" data-del="${esc(r.id)}">Não devo</button>`}</div></div>
+    <div class="info"><div class="name">${esc(r.nome)}${filtro==='todas'?`<span class="tag ${r.tipo==='Pessoal'?'p':''}">${esc(r.tipo)}</span>`:''}${filtro==='todas'||cat==='todos'?`<span class="tag c">${esc(catOf(r))}</span>`:''}<span class="tag ${isFixa(r)?'fx1':'fx0'}">${isFixa(r)?'Fixa':'Variável'}</span></div>${r.obs&&!/^conta fixa$/i.test(r.obs.trim())?`<div class="obs">${esc(r.obs)}</div>`:''}${r.nota?`<div class="nota">🎤 ${esc(r.nota)}</div>`:''}<div class="rowbtns"><button class="edit-btn" data-edit="conta" data-id="${esc(r.id)}">Editar</button>${paid?'':`<button class="del-btn" data-del="${esc(r.id)}">Não devo</button>`}</div></div>
     <div class="val">${r.valor!=null?brl(r.valor):'<span class="na">ver boleto</span>'}<br><button class="pay" data-id="${esc(r.id)}">${paid?'Paga ✓':'Paguei'}</button></div></div>`;
 }
-document.querySelector('.filters').addEventListener('click',e=>{
-  const b=e.target.closest('button');if(!b)return;
-  filtro=b.dataset.f;document.querySelectorAll('.filters button').forEach(x=>x.setAttribute('aria-pressed',x===b));render();
-});
 document.getElementById('out').addEventListener('click',async e=>{
   const b=e.target.closest('.pay');if(!b||!db)return;
   const r=rows.find(x=>x.id===b.dataset.id);if(!r)return;
@@ -300,6 +357,7 @@ document.getElementById('add').addEventListener('submit',async e=>{
     venc:document.getElementById('f-venc').value,
     tipo:document.getElementById('f-tipo').value,
     cat:document.getElementById('f-cat').value,
+    fixa:document.getElementById('f-fixa').value==='1',
     obs:document.getElementById('f-obs').value.trim(),
     status:'aberta'
   });
@@ -369,12 +427,13 @@ document.addEventListener('click',async e=>{
   const v=document.getElementById('e-valor').value.trim().replace(/[R$\s]/g,'').replace(/\.(?=\d{3})/g,'').replace(',','.');
   const data={nome:document.getElementById('e-nome').value.trim(),valor:v&&!isNaN(Number(v))?Number(v):null,tipo:document.getElementById('e-tipo').value,cat:document.getElementById('e-cat').value,nota:document.getElementById('e-nota').value.trim(),editadoEm:new Date().toISOString()};
   if(box.dataset.ek==='fixa'){const dd=parseInt(document.getElementById('e-dia').value,10);data.dia=dd>=1&&dd<=31?dd:null}
-  else data.venc=document.getElementById('e-venc').value||null;
+  else{data.venc=document.getElementById('e-venc').value||null;data.fixa=document.getElementById('e-fixa').value==='1'}
   ab.disabled=true;ab.textContent='Salvando…';
   try{await db.doc((box.dataset.ek==='fixa'?'fixas/':'contas/')+box.dataset.eid).update(data);editing=null;render();renderFx()}
   catch(err){ab.disabled=false;ab.textContent='Erro, tente de novo'}
 });
-document.getElementById('f-cat').innerHTML=CATS.map(c=>`<option>${c}</option>`).join('');
+const fillCat=()=>{const t=document.getElementById('f-tipo').value;document.getElementById('f-cat').innerHTML=SET[t].map(c=>`<option>${c}</option>`).join('')};
+document.getElementById('f-tipo').addEventListener('change',fillCat);fillCat();
 const SB='https://hkhbyeygzfdhwxsdgaxl.supabase.co/rest/v1/rpc/';
 const KEY='sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1';
 let SENHA='';
