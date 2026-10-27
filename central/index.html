@@ -339,9 +339,6 @@ var AREAS = [
     ['Combinados', '#combinados', 'check']
   ]},
   { id: 'sistemas', c: '#2f6fde', t: 'Sistemas da loja', apps: [
-    ['RH (site)', 'https://spgrifes.github.io/Rh/', 'pessoas'],
-    ['Contas a Pagar (site)', 'https://spgrifes.github.io/Rh/contas/', 'boleto'],
-    ['Contagem CD (site)', 'https://spgrifes.github.io/contagem-cd/', 'caixa'],
     ['SIDOS 360', 'https://sidos360.com.br/spg', 'caixareg'],
     ['Site SP Grifes', 'https://spgrifes.com.br', 'globo']
   ]},
@@ -354,12 +351,12 @@ var AREAS = [
   ]},
   { id: 'dinheiro', c: '#1f8a55', t: 'Dinheiro', apps: [
     ['Painel de Vendas', 'f4f0aeeb-d0bd-4abe-9d52-af34078d3b6a', 'grafico'],
-    ['Contas a Pagar', '024dfe6a-f715-4b7c-857d-80005bb728ac', 'boleto'],
+    ['Contas a Pagar', 'https://spgrifes.github.io/Rh/contas/', 'boleto'],
     ['Fornecedores', '#fornecedores', 'pessoas']
   ]},
   { id: 'loja', c: '#c8102e', t: 'Loja e equipe', apps: [
-    ['RH SP Grifes', '38ca6bad-4ac5-4b11-ac33-12b8cc545309', 'pessoas'],
-    ['Contagem CD', 'a01e49f6-bbf4-4124-8bba-78bfff0b7896', 'caixa'],
+    ['RH SP Grifes', 'https://spgrifes.github.io/Rh/', 'pessoas'],
+    ['Contagem CD', 'https://spgrifes.github.io/contagem-cd/', 'caixa'],
     ['Contagem de Perfumes', '56c75e4e-4e6a-43dd-a05b-061be87feed9', 'frasco']
   ]},
   { id: 'projetos', c: '#d9741c', t: 'Projetos da loja', apps: [
@@ -393,7 +390,7 @@ var AREAS = [
 
 function svg(k, w) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + I[k] + '</svg>'; }
 function url(id) { return id.charAt(0) === '#' || id.indexOf('http') === 0 ? id : B + id; }
-function link(x) { return '<a href="' + url(x[1]) + '" target="_blank" rel="noopener">' + svg(x[2]) + '<span>' + x[0] + '</span></a>'; }
+function link(x) { var u = url(x[1]); var mesma = u.indexOf('https://spgrifes.github.io/') === 0; return '<a href="' + u + '"' + (mesma ? '' : ' target="_blank" rel="noopener"') + '>' + svg(x[2]) + '<span>' + x[0] + '</span></a>'; }
 function store(get, val) { try { if (get) return localStorage.getItem('cc-ok'); if (val === null) localStorage.removeItem('cc-ok'); else localStorage.setItem('cc-ok', val); } catch (e) { return null; } }
 
 /* ---------- Senha ---------- */
