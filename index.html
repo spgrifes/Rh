@@ -252,6 +252,9 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
 .cxf .foto{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--line);border-radius:12px;padding:16px;font-weight:700;color:var(--ink);cursor:pointer;background:var(--bg)}
 .cxf .foto.ok{border-color:var(--green);color:var(--green)}
 .cxf .btn{font-size:1.05rem;padding:15px 18px;flex:1}
+.vf{padding:8px 0;border-top:1px solid var(--line)}.vf:first-of-type{border-top:0}
+.vf2{font-size:.86rem;color:var(--soft)}.vf3{font-size:.74rem;color:#9aa0ab}
+.vfb{border:0;background:none;color:var(--blue);font:700 .74rem inherit;padding:0;cursor:pointer;text-decoration:underline}
 .rg{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:4px}
 .rg .h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .rg .t1{font-weight:800}
@@ -492,14 +495,14 @@ function render(){
     const cs=campos(e), falta=cs.filter(c=>c.v==null).length, al=alertasDe(e).length;
     const tags=[al?`<span class="tag t-red">${al} alerta${al>1?'s':''}</span>`:'',
       e.reg===true?'<span class="tag t-green">Registrado</span>':e.reg===false?'<span class="tag t-amber">Sem registro</span>':'<span class="tag t-blue">Registro?</span>',
-      e.atest?'<span class="tag t-violet">Atestado</span>':''].join(' ');
+      e.atest?'<span class="tag t-violet">Atestado</span>':'',valesPend(e)?`<span class="tag t-amber">Vales ${F(valesPend(e))}</span>`:''].join(' ');
     const g=(grp,tit,cls)=>`<div class="blk ${cls}"><h3>${tit}</h3>${cs.filter(c=>c.grp===grp).map(fieldHTML).join('')}</div>`;
     return `<details class="card emp" data-e="${e.id}" ${open.has(e.id)?'open':''}>
       <summary><div class="av" style="background:${SETOR_COR[e.setor]||'#475569'}">${esc(e.nome[0])}</div>
         <div class="who"><div class="nm">${esc(e.nome)} ${tags}</div><div class="rl">${esc(e.setor)}${e.funcao&&e.funcao!==e.setor?' · '+esc(e.funcao):e.funcao?'':' · função a confirmar'}${falta?` · <span style="color:var(--amber)">${falta} a completar</span>`:''}</div></div>
         <div class="money"><div class="a num">${e.sal?F(e.sal):'—'}</div><div class="b">salário</div></div></summary>
       <div class="dos">${alertasDe(e).map(a=>`<div class="al alto" style="color:#fff;border-radius:12px"><div class="t"><div class="q">Alerta</div><div class="x">${esc(a.texto)}</div></div></div>`).join('')}
-        ${g('dados','Dados','dados')}${g('din','Dinheiro do mês','money3')}${g('saude','Saúde','saude')}</div></details>`;
+        ${g('dados','Dados','dados')}${g('din','Dinheiro do mês','money3')}${valesFicha(e)}${g('saude','Saúde','saude')}</div></details>`;
   }).join('')||'<div class="card" style="padding:16px">Ninguém neste filtro.</div>';
   // folha
   $('totals').innerHTML=(D.TOTAIS||[]).map(([k,v],i)=>`<tr class="${/Total/.test(k)?'tot':''}"><td>${esc(k)}</td><td class="v num">${F(v)}</td></tr>`).join('');
@@ -507,6 +510,13 @@ function render(){
   $('out').innerHTML=(D.SAIRAM||[]).map(([n,t])=>`<div class="li"><b>${esc(n)}</b><span style="color:var(--soft)">${esc(t)}</span></div>`).join('');
 }
 
+const valesDe=e=>REGS.filter(r=>r.tipo==='vale'&&r.func===e.id);
+const valesPend=e=>valesDe(e).filter(r=>(r.d.st||'A descontar')!=='Descontado').reduce((t,r)=>t+valNum(r.d.valor),0);
+function valesFicha(e){const vs=valesDe(e);
+  const it=vs.map(r=>`<div class="vf"><div class="vf1"><b>${F(valNum(r.d.valor))}</b> · ${esc(r.d.tipo||'Vale')}${r.d.st==='Descontado'?' <span class="tag t-green">descontado</span>':''}</div>
+    ${r.d.motivo?`<div class="vf2">${esc(r.d.motivo)}</div>`:''}
+    <div class="vf3">${new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})} · lançado por ${esc(r.cp||'')}${(r.d.arqs||[]).map(a=>` · <button type="button" class="vfb" data-ver="${esc(a.path)}">ver foto</button>`).join('')}</div></div>`).join('');
+  return `<div class="blk money3"><h3>Vales e compras${vs.length?` · falta descontar ${F(valesPend(e))}`:''}</h3>${it||'<div class="vf2" style="padding:6px 0">Nenhum vale lançado.</div>'}</div>`;}
 function fieldHTML(c){
   const r=REV[c.id]||{}, s=r.s||'';
   const lab={ok:'Certo',bad:'Errado',miss:'Falta'}[s]||'Conferir';
