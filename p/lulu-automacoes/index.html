@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lulu — Automações de pedido (WhatsApp + E-mail) para o Gustavo</title>
+<style>
+:root{--bg:#fff;--fg:#171512;--mut:#6f6a60;--line:#e7e4dc;--soft:#f6f4ef;--link:#1f5fbf}
+@media (prefers-color-scheme:dark){:root{--bg:#121110;--fg:#f1eee8;--mut:#a39d92;--line:#33302b;--soft:#1c1a18;--link:#8ab4f8}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+h1,h2,h3,h4{font-weight:700;line-height:1.25;margin:1.6em 0 .5em}
+h1{font-size:1.75rem;margin-top:.4em}h2{font-size:1.35rem}h3{font-size:1.1rem}
+p{margin:.6em 0}
+a{color:var(--link);overflow-wrap:anywhere}
+ul,ol{padding-left:1.4em}li>p{margin:.25em 0}
+li[data-checked]{list-style:none;margin-left:-1.4em}
+.meta{color:var(--mut);font-size:.9rem}
+.tw{overflow-x:auto;margin:1em 0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.94rem}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:700}
+pre{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word;font-size:.9rem}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--line);color:var(--mut)}
+hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+figure{margin:1.2em 0}figcaption{color:var(--mut);font-size:.88rem;margin-top:.4em}
+</style>
+</head>
+<body>
+<main>
+<h1 id="lulu-automações-de-pedido-whatsapp-e-mail">Lulu — Automações de pedido (WhatsApp + E-mail)</h1>
+<p><span class="meta">22/10/2026</span> · <span class="meta">Fábio Leite</span></p>
+<h2 id="resumo">Resumo</h2>
+<p>Esta é a versão final das mensagens da Lulu: <strong>sem rimas</strong>, só com a simpatia dela. Substitui o documento &quot;Copies da Lulu para validação&quot;. São 9 mensagens de WhatsApp e 13 e-mails, incluindo 2 fluxos novos: <strong>pedido retirado na loja</strong> e <strong>pedido de avaliação no Google</strong>.</p>
+<p><strong>Voz da Lulu (vale para tudo):</strong></p>
+<ul><li><p>Simpática, leve e prestativa, como uma boa atendente de loja.</p></li><li><p>Frases curtas, a informação importante sempre primeiro.</p></li><li><p>No máximo um toque de humor por mensagem, e nunca em pagamento negado.</p></li><li><p>Sempre deixa claro que é robô e que não lê respostas.</p></li></ul>
+<p><strong>Identidade fixa:</strong></p>
+<ul><li><p>Abertura do WhatsApp: &quot;Oi, [nome]! Aqui é a Lulu, robô da SP Grifes 🤖&quot;</p></li><li><p>Rodapé do template WhatsApp (campo Footer): &quot;🤖 Sou robô e não leio respostas aqui&quot;</p></li><li><p>Nome do remetente do e-mail: Lulu da SP Grifes</p></li><li><p>A Lulu tem número de WhatsApp próprio. A &quot;Luna&quot; não existe mais e não pode aparecer em lugar nenhum.</p></li><li><p>Texto corrido: a frase continua depois da vírgula, sem quebrar linha no meio.</p></li><li><p>Idioma de todos os templates: Português (BR), pt_BR.</p></li></ul>
+<h2 id="avisos-importantes-para-o-gustavo">Avisos importantes para o Gustavo</h2>
+<p><strong>1. Feedback no WhatsApp pode virar marketing.</strong> Os templates &quot;Pedido entregue&quot; e &quot;Pedido retirado&quot; têm o botão &quot;Feedback pra equipe&quot;. Pedir feedback pode fazer a Meta classificar o template como Marketing, que custa cerca de 9 vezes mais que Utilidade.</p>
+<ul><li><p>Enviar como <strong>Utilidade</strong>.</p></li><li><p>Se a Meta recategorizar para Marketing: <strong>não reenviar o mesmo texto</strong>. Tirar o botão e o trecho &quot;ou se quiser contar como foi sua experiência&quot;, e enviar de novo. O feedback continua só no e-mail.</p></li><li><p>Insistir com o mesmo texto pode fazer a Meta bloquear todos os templates de utilidade da conta.</p></li></ul>
+<p><strong>2. Pix no pagamento negado: sem cupom.</strong> Cupom fixo dá dois problemas: o cliente reusa, e a regra de &quot;uma vez por CPF&quot; trava o cupom nas próximas compras. As mensagens já estão escritas sem cupom (&quot;pagar no Pix, que não tem o acréscimo do cartão e sai mais barato&quot;). Verificar na Wbuy, nesta ordem:</p>
+<ol><li><p>O acréscimo do cartão está configurado por forma de pagamento? Se sim, o cliente que escolhe Pix já paga o preço menor sozinho.</p></li><li><p>O cliente consegue reabrir o pedido negado, escolher Pix, e o valor recalcula sem o acréscimo? Se sim, o botão &quot;Tentar de novo&quot; resolve.</p></li><li><p>Se não recalcular: o botão &quot;Tentar de novo&quot; passa a levar ao <strong>carrinho</strong>, o cliente refaz o pedido no Pix com o preço certo, e o pedido negado expira sozinho.</p></li><li><p>Último recurso: perguntar ao suporte da Wbuy se dá para gerar <strong>cupom único por pedido</strong> (vale uma vez só, sem bloquear o CPF).</p></li></ol>
+<p><strong>3. Gatilho novo obrigatório: pedido retirado na loja.</strong> Quando a equipe marcar o pedido como retirado, o sistema precisa disparar o WhatsApp &quot;Pedido retirado&quot; e, 1 dia depois, o e-mail de avaliação no Google. Se o Bevean não tiver esse gatilho hoje, ele precisa ser criado.</p>
+<p><strong>4. Regras para os templates ficarem em Utilidade:</strong></p>
+<ul><li><p>Só falar do pedido: nada de novidades, grupo, cupom, Instagram ou &quot;estoque acabando&quot;.</p></li><li><p>Citar o número do pedido no texto.</p></li><li><p>O corpo não pode começar nem terminar com variável.</p></li><li><p>Carrinho abandonado é sempre Marketing: fica opcional e só para quem aceitou receber marketing.</p></li><li><p>Depois que os novos forem aprovados, desativar os templates antigos.</p></li></ul>
+<p><strong>5. Links:</strong></p>
+<div class="tw"><table><thead><tr><th>Uso</th><th>Link</th></tr></thead><tbody><tr><td>Ver meu pedido</td><td>https://www.spgrifes.com.br/login/ (se a Wbuy tiver link direto para o pedido, usar esse no lugar)</td></tr><tr><td>Avaliar no Google</td><td>https://g.page/r/CcRyOUVjt-LuEAE/review</td></tr><tr><td>Instagram do Fábio</td><td>https://www.instagram.com/fabioleiite/</td></tr><tr><td>Falar com a equipe</td><td>wa.me do WhatsApp de atendimento humano</td></tr></tbody></table></div>
+<p>O pedido de avaliação no Google <strong>não pode oferecer cupom ou brinde em troca</strong>: o Google proíbe e pode remover as avaliações da loja.</p>
+<h2 id="mapa-de-botões">Mapa de botões</h2>
+<p>Cada mensagem tem um botão principal: a ação que o cliente deve fazer. &quot;Falar com a equipe&quot; só entra quando há problema ou dinheiro envolvido. Botões de novidades, grupo e Instagram só no e-mail.</p>
+<p><strong>WhatsApp</strong></p>
+<div class="tw"><table><thead><tr><th>Mensagem</th><th>Categoria</th><th>Botões</th></tr></thead><tbody><tr><td>1. Carrinho abandonado (opcional)</td><td>Marketing</td><td>Finalizar compra</td></tr><tr><td>2. Pagamento negado</td><td>Utilidade</td><td>Tentar de novo · Falar com a equipe</td></tr><tr><td>3. Pagamento expirando</td><td>Utilidade</td><td>Pagar agora · Falar com a equipe</td></tr><tr><td>4. Compra aprovada</td><td>Utilidade</td><td>Ver meu pedido</td></tr><tr><td>5. Pedido despachado</td><td>Utilidade</td><td>Rastrear pedido</td></tr><tr><td>6. Pedido entregue</td><td>Utilidade (ver aviso 1)</td><td>Feedback pra equipe</td></tr><tr><td>7. Retirada na loja</td><td>Utilidade</td><td>Como chegar · Falar com a equipe</td></tr><tr><td>8. Pedido retirado (novo)</td><td>Utilidade (ver aviso 1)</td><td>Feedback pra equipe</td></tr><tr><td>9. Resposta automática</td><td>Utilidade</td><td>Falar com a equipe</td></tr></tbody></table></div>
+<p><strong>E-mail</strong></p>
+<div class="tw"><table><thead><tr><th>E-mail</th><th>Botão principal</th><th>Secundários (menores, embaixo)</th></tr></thead><tbody><tr><td>Carrinho abandonado 1, 2 e 3</td><td>FINALIZAR MINHA COMPRA</td><td>nenhum</td></tr><tr><td>Pagamento negado</td><td>TENTAR PAGAMENTO DE NOVO</td><td>nenhum</td></tr><tr><td>Pagamento expirando</td><td>FINALIZAR PAGAMENTO</td><td>nenhum</td></tr><tr><td>Pagamento expirado</td><td>FAZER NOVO PEDIDO</td><td>nenhum</td></tr><tr><td>Compra aprovada</td><td>VER MEU PEDIDO</td><td>SEGUIR @FABIOLEIITE · GRUPO DE NOVIDADES</td></tr><tr><td>Pedido faturado</td><td>VER MEU PEDIDO</td><td>nenhum</td></tr><tr><td>Pedido despachado</td><td>RASTREAR NOS CORREIOS</td><td>nenhum</td></tr><tr><td>Pedido entregue</td><td>MANDAR MEU FEEDBACK</td><td>NOVIDADES NO SITE</td></tr><tr><td>Avaliação Google após entrega (novo)</td><td>AVALIAR NO GOOGLE</td><td>nenhum</td></tr><tr><td>Retirada na loja</td><td>COMO CHEGAR</td><td>nenhum</td></tr><tr><td>Avaliação Google após retirada (novo)</td><td>AVALIAR NO GOOGLE</td><td>nenhum</td></tr></tbody></table></div>
+<h2 id="whatsapp-templates-prontos">WhatsApp: templates prontos</h2>
+<p>Variáveis: [nome] = {{customer.firstName}}, [número] = {{numero_pedido}}, [código] = {{codigo_rastreio}}. Ligar cada uma ao campo correspondente do Bevean. Todos levam o rodapé &quot;🤖 Sou robô e não leio respostas aqui&quot;.</p>
+<h3 id="1-carrinho-abandonado-marketing-opcional">1. Carrinho abandonado (Marketing, opcional)</h3>
+<p>Quando: 1 envio, cerca de 3h depois do abandono, só para quem aceitou marketing. Apagar a 2ª mensagem antiga.</p>
+<pre><code>Oi, [nome]! Aqui é a Lulu, robô da SP Grifes 🤖
+
+Seu carrinho ficou esperando por você, do jeitinho que você deixou. 🛒 Como o estoque aqui do Brás gira rápido, vale finalizar logo pra não perder o tamanho que escolheu. É só tocar no botão.</code></pre>
+<p>Botão: Finalizar compra</p>
+<h3 id="2-pagamento-negado-utilidade">2. Pagamento negado (Utilidade)</h3>
+<pre><code>Oi, [nome]! Aqui é a Lulu, robô da SP Grifes 🤖
+
+O pagamento do pedido nº [número] não foi aprovado pelo banco. 😕 Isso acontece bastante e costuma ser simples de resolver: você pode tentar outro cartão ou pagar no Pix, que não tem o acréscimo do cartão e sai mais barato. Seu pedido continua aqui te esperando.
+
+🔒 A Lulu nunca pede Pix por mensagem. Pague só pelo link do pedido.</code></pre>
+<p>Botões: Tentar de novo · Falar com a equipe</p>
+<h3 id="3-pagamento-expirando-utilidade">3. Pagamento expirando (Utilidade)</h3>
+<pre><code>Oi, [nome]! Aqui é a Lulu, robô da SP Grifes 🤖
+
+O prazo de pagamento do pedido nº [número] está terminando. ⏰ Se vencer, o sistema cancela o pedido automaticamente e as peças voltam pro estoque. Pra garantir, é só finalizar pelo botão abaixo.
+
+🔒 A Lulu nunca pede Pix por mensagem. Pague só pelo link do pedido.</code></pre>
+<p>Botões: Pagar agora · Falar com a equipe</p>
+<h3 id="4-compra-aprovada-utilidade">4. Compra aprovada (Utilidade)</h3>
+<pre><code>Oi, [nome]! Aqui é a Lulu, robô da SP Grifes 🤖
+
+Pagamento do pedido nº [número] aprovado! 🎉 A equipe já começou a separar suas peças com todo o cuidado, e eu te aviso por aqui assim que ele sair pra entrega.</code></pre>
+<p>Botão: Ver meu pedido</p>
+<h3 id="5-pedido-despachado-utilidade">5. Pedido despachado (Utilidade)</h3>
+<pre><code>Oi, [nome]! Aqui é a Lulu, robô da SP Grifes 🤖
+
+Seu pedido nº [número] saiu do Brás e já está a caminho! 🚚 Seu código de rastreio é [código]. Toque no botão abaixo pra acompanhar pelos Correios.</code></pre>
+<p>Botão: Rastrear pedido</p>
+<h3 id="6-pedido-entregue-utilidade-ver-aviso-1">6. Pedido entregue (Utilidade, ver aviso 1)</h3>
+<pre><code>Oi, [nome]! Aqui é a Lulu, robô da SP Grifes 🤖
+
+O pedido nº [número] foi entregue. 📦 Espero que você goste muito das peças! Se faltou alguma coisa ou chegou algo diferente, ou se quiser contar como foi sua experiência, é só tocar no botão.</code></pre>
+<p>Botão: Feedback pra equipe</p>
+<h3 id="7-retirada-na-loja-utilidade">7. Retirada na loja (Utilidade)</h3>
+<pre><code>Oi, [nome]! Aqui é a Lulu, robô da SP Grifes 🤖
+
+Seu pedido nº [número] está separado e pronto, te esperando na loja. 🛍️
+
+📍 Shopping Feira da Madrugada, Piso 1, Corredor D, Loja 1202 (Setor Vermelho)
+Rua Monsenhor de Andrade, 987 – Brás, São Paulo
+🕒 Das 7h às 16h
+🪪 Traga um documento oficial com foto.
+⚠️ Prazo para retirada: 7 dias. Depois disso, o pedido volta para o estoque.</code></pre>
+<p>Botões: Como chegar · Falar com a equipe</p>
+<h3 id="8-pedido-retirado-utilidade-novo-ver-avisos-1-e-3">8. Pedido retirado (Utilidade, NOVO, ver avisos 1 e 3)</h3>
+<p>Quando: na hora em que a equipe marca o pedido como retirado.</p>
+<pre><code>Oi, [nome]! Aqui é a Lulu, robô da SP Grifes 🤖
+
+Confirmado: o pedido nº [número] foi retirado na loja. ✅ Obrigada pela visita, foi um prazer te receber! Se precisar de alguma coisa com as peças, é só tocar no botão.</code></pre>
+<p>Botão: Feedback pra equipe</p>
+<h3 id="9-resposta-automática-quando-o-cliente-responde-a-lulu">9. Resposta automática (quando o cliente responde a Lulu)</h3>
+<pre><code>Oi! Aqui é a Lulu, robô da SP Grifes 🤖
+
+Eu adoraria conversar, mas só sei mandar avisos, então as mensagens enviadas aqui não chegam a ninguém. Pra falar com uma pessoa da equipe, é só tocar no botão abaixo. 💬</code></pre>
+<p>Botão: Falar com a equipe</p>
+<h2 id="e-mail-fluxos-prontos">E-mail: fluxos prontos</h2>
+<p>Remetente: Lulu da SP Grifes. Responder para: endereço sem resposta (noreply). Blocos de produto ([produtos do carrinho] / [produtos do pedido]) continuam como estão hoje.</p>
+<p><strong>Rodapé padrão (todos os e-mails):</strong></p>
+<pre><code>Lulu, robô da SP Grifes 🤖
+Este e-mail é automático e eu não leio respostas.
+Dúvidas? Fale com a equipe: WhatsApp (11) 98897-1928
+Acompanhe a SP Grifes no Instagram: @fabioleiite
+SP Grifes · Shopping Feira da Madrugada, Piso 1, Corredor D, Loja 1202 · Brás, São Paulo/SP</code></pre>
+<p><strong>Bloco de segurança (pagamento negado e expirando, logo abaixo do botão):</strong></p>
+<pre><code>🔒 Segurança: a SP Grifes nunca pede Pix por WhatsApp, direct ou telefone. Pague somente pelo link oficial do pedido no site.</code></pre>
+<h3 id="carrinho-abandonado-e-mail-1-30-min-após-o-abandono">Carrinho abandonado: e-mail 1 (30 min após o abandono)</h3>
+<ul><li><p>Assunto: Seu carrinho ficou te esperando 🛒</p></li><li><p>Prévia: As peças que você escolheu ainda estão lá</p></li><li><p>Título: Seu carrinho ficou te esperando</p></li><li><p>Subtítulo: Do jeitinho que você deixou</p></li></ul>
+<pre><code>[nome], aqui é a Lulu, robô da SP Grifes! 🤖 Vi que você separou umas peças e não chegou a finalizar. Guardei tudo no carrinho pra você voltar direto de onde parou. Como o estoque aqui do Brás gira rápido, vale finalizar logo pra garantir o tamanho que você escolheu.</code></pre>
+<p>[produtos do carrinho] · Botão: FINALIZAR MINHA COMPRA</p>
+<h3 id="carrinho-abandonado-e-mail-2-150-min-após-o-e-mail-1">Carrinho abandonado: e-mail 2 (150 min após o e-mail 1)</h3>
+<ul><li><p>Assunto: Vim correndo te avisar ⏰</p></li><li><p>Prévia: Algumas peças do seu carrinho estão acabando</p></li><li><p>Título: Restam poucas unidades</p></li><li><p>Subtítulo: Depois que acabar, só na próxima remessa</p></li></ul>
+<pre><code>[nome], passei de novo porque algumas peças do seu carrinho estão com poucas unidades, e nem sempre a gente consegue repor o mesmo modelo. Se ainda quiser, é só tocar no botão e finalizar em poucos minutos.</code></pre>
+<p>[produtos do carrinho] · Botão: FINALIZAR MINHA COMPRA</p>
+<h3 id="carrinho-abandonado-e-mail-3-cerca-de-11h-após-o-whatsapp">Carrinho abandonado: e-mail 3 (cerca de 11h após o WhatsApp)</h3>
+<ul><li><p>Assunto: Último aviso da Lulu sobre o seu carrinho</p></li><li><p>Prévia: Depois de hoje, as peças voltam pro estoque</p></li><li><p>Título: Esse é o meu último aviso</p></li><li><p>Subtítulo: Prometo que não insisto mais</p></li></ul>
+<pre><code>[nome], essa é a última vez que eu passo aqui, prometo! 🤞 Depois de hoje, as peças do seu carrinho voltam pro estoque e ficam disponíveis pra outros clientes. Se ainda fizer sentido pra você, finaliza agora e garante o seu visual.</code></pre>
+<p>[produtos do carrinho] · Botão: FINALIZAR MINHA COMPRA</p>
+<h3 id="pagamento-negado">Pagamento negado</h3>
+<ul><li><p>Assunto: Seu pagamento não foi aprovado</p></li><li><p>Prévia: É simples de resolver, e no Pix sai mais barato</p></li><li><p>Título: Seu pagamento não foi aprovado</p></li><li><p>Subtítulo: Mas calma, dá pra resolver rapidinho</p></li></ul>
+<pre><code>[nome], aqui é a Lulu, robô da SP Grifes! 🤖 O pagamento do seu pedido não foi aprovado pelo banco. Isso acontece bastante: pode ser limite, algum dado digitado errado ou uma trava do próprio banco. Você pode tentar outro cartão ou pagar no Pix, que não tem o acréscimo do cartão e sai mais barato. Seu pedido continua aqui te esperando.</code></pre>
+<p>Botão: TENTAR PAGAMENTO DE NOVO · Bloco de segurança</p>
+<h3 id="pagamento-expirando">Pagamento expirando</h3>
+<ul><li><p>Assunto: Seu pagamento vence em breve ⏰</p></li><li><p>Prévia: Finalize agora pra não perder o seu pedido</p></li><li><p>Título: Seu pagamento está quase vencendo</p></li><li><p>Subtítulo: Se o prazo passar, o pedido é cancelado</p></li></ul>
+<pre><code>[nome], o prazo de pagamento do seu pedido está terminando. Se vencer, o sistema cancela automaticamente e as peças voltam pro estoque. Pra garantir tudo do jeito que você escolheu, é só finalizar pelo botão abaixo.</code></pre>
+<p>Botão: FINALIZAR PAGAMENTO · Bloco de segurança</p>
+<h3 id="pagamento-expirado">Pagamento expirado</h3>
+<ul><li><p>Assunto: Seu pedido expirou, mas ainda dá tempo 💪</p></li><li><p>Prévia: As peças que você escolheu podem ainda estar disponíveis</p></li><li><p>Título: Seu pedido expirou</p></li><li><p>Subtítulo: Mas ainda dá pra garantir as peças</p></li></ul>
+<pre><code>[nome], o pagamento não chegou a tempo e o pedido foi cancelado automaticamente. A boa notícia é que as peças podem ainda estar disponíveis: é só fazer um novo pedido pelo site. Só não demora muito, porque o estoque aqui do Brás gira rápido.</code></pre>
+<p>Botão: FAZER NOVO PEDIDO</p>
+<h3 id="compra-aprovada">Compra aprovada</h3>
+<ul><li><p>Assunto: Pagamento aprovado! 🎉</p></li><li><p>Prévia: Suas peças já estão sendo separadas</p></li><li><p>Título: Pagamento aprovado!</p></li><li><p>Subtítulo: Suas peças já estão sendo separadas</p></li></ul>
+<pre><code>[nome], deu tudo certo! 🎉 Seu pagamento foi aprovado e a equipe já começou a separar suas peças com todo o cuidado. Assim que o pedido sair pra entrega, eu te aviso.
+
+Enquanto seu pedido não chega, acompanha os bastidores da loja no Instagram do Fábio, dono da SP Grifes.</code></pre>
+<p>[produtos do pedido] · Botão: VER MEU PEDIDO · Secundários: SEGUIR @FABIOLEIITE · GRUPO DE NOVIDADES</p>
+<h3 id="pedido-faturado">Pedido faturado</h3>
+<ul><li><p>Assunto: Seu pedido foi faturado 📄</p></li><li><p>Prévia: Próximo passo: despacho pra você</p></li><li><p>Título: Pedido faturado</p></li><li><p>Subtítulo: Próximo passo: despacho pra você</p></li></ul>
+<pre><code>[nome], mais uma etapa concluída: seu pedido foi faturado e agora está sendo embalado pra sair. Assim que ele for despachado, eu te mando o código de rastreio.</code></pre>
+<p>Botão: VER MEU PEDIDO</p>
+<h3 id="pedido-despachado">Pedido despachado</h3>
+<ul><li><p>Assunto: Seu pedido está a caminho! 🚚</p></li><li><p>Prévia: Seu código de rastreio está aqui dentro</p></li><li><p>Título: Seu pedido foi despachado!</p></li><li><p>Subtítulo: Já está a caminho de você</p></li></ul>
+<pre><code>[nome], suas peças saíram do Brás e já estão a caminho! 🚚 Você pode acompanhar a entrega com o código abaixo.
+
+Código de rastreio: [código]</code></pre>
+<p>Botão: RASTREAR NOS CORREIOS</p>
+<h3 id="pedido-entregue">Pedido entregue</h3>
+<ul><li><p>Assunto: Seu pedido chegou! 📦</p></li><li><p>Prévia: Conta pra gente o que você achou</p></li><li><p>Título: Seu pedido foi entregue!</p></li><li><p>Subtítulo: Agora é só estrear</p></li></ul>
+<pre><code>[nome], seu pedido da SP Grifes foi entregue! 📦 Espero que você goste muito das peças. Se puder, conta pra gente o que achou: sua opinião ajuda a equipe a escolher as próximas novidades.</code></pre>
+<p>Botão: MANDAR MEU FEEDBACK · Secundário: NOVIDADES NO SITE</p>
+<h3 id="avaliação-no-google-após-entrega-novo-3-dias-após-a-entrega">Avaliação no Google após entrega (NOVO, 3 dias após a entrega)</h3>
+<ul><li><p>Assunto: Gostou das peças? Conta pro Brás inteiro ⭐</p></li><li><p>Prévia: Leva menos de um minuto e ajuda muito a loja</p></li><li><p>Título: Sua avaliação faz diferença</p></li><li><p>Subtítulo: Leva menos de um minuto</p></li></ul>
+<pre><code>[nome], aqui é a Lulu de novo! 🤖 Já faz uns dias que seu pedido chegou e espero que as peças já tenham ido passear com você. Se você curtiu a experiência, deixa uma avaliação da SP Grifes no Google. É rapidinho e ajuda outros clientes a conhecerem a loja.</code></pre>
+<p>Botão: AVALIAR NO GOOGLE</p>
+<h3 id="retirada-na-loja">Retirada na loja</h3>
+<ul><li><p>Assunto: Seu pedido está pronto pra retirar 🛍️</p></li><li><p>Prévia: Te esperamos na loja do Brás, traga um documento com foto</p></li><li><p>Título: Pedido pronto para retirada</p></li><li><p>Subtítulo: Separado e te esperando na loja</p></li></ul>
+<pre><code>[nome], seu pedido está separado e pronto, te esperando na loja! 🛍️
+
+📍 Shopping Feira da Madrugada, Piso 1, Corredor D, Loja 1202 (Setor Vermelho)
+Rua Monsenhor de Andrade, 987 – Brás, São Paulo
+🕒 Das 7h às 16h
+
+Como chegar:
+1️⃣ Entre no Shopping Circuito de Compras – Feira da Madrugada
+2️⃣ Procure o Banco do Brasil
+3️⃣ Suba a escada sobre o banco
+4️⃣ Vire à esquerda e chegou!
+
+🪪 Traga um documento oficial com foto.
+⚠️ Prazo para retirada: 7 dias. Depois disso, o pedido volta para o estoque.</code></pre>
+<p>Botão: COMO CHEGAR</p>
+<h3 id="avaliação-no-google-após-retirada-novo-1-dia-após-a-retirada">Avaliação no Google após retirada (NOVO, 1 dia após a retirada)</h3>
+<ul><li><p>Assunto: Foi bom te ver na loja! ⭐</p></li><li><p>Prévia: Conta pra todo mundo como foi, leva menos de um minuto</p></li><li><p>Título: Obrigada pela visita!</p></li><li><p>Subtítulo: Sua avaliação ajuda muito a loja</p></li></ul>
+<pre><code>[nome], aqui é a Lulu! 🤖 Ontem você passou na SP Grifes pra retirar seu pedido e espero que tenha sido uma ótima experiência. Se você curtiu, deixa uma avaliação da loja no Google. É rapidinho e ajuda outros clientes a encontrarem a gente aqui no Brás.</code></pre>
+<p>Botão: AVALIAR NO GOOGLE</p>
+<h2 id="imagens-por-fluxo">Imagens por fluxo</h2>
+<p>As imagens finais serão enviadas pelo Fábio e encaixadas aqui. Usar como cabeçalho (Header de imagem) do template de WhatsApp e no topo do e-mail. Imagem no cabeçalho não muda o custo da Meta.</p>
+<div class="tw"><table><thead><tr><th>Fluxo</th><th>Imagem prevista</th></tr></thead><tbody><tr><td>Carrinho: WhatsApp e e-mail 1</td><td>Lulu na loja segurando a polo</td></tr><tr><td>Carrinho: e-mail 2</td><td>Lulu de patins com sacolas</td></tr><tr><td>Carrinho: e-mail 3</td><td>Lulu na rua do Brás</td></tr><tr><td>Pagamento negado e expirado</td><td>Lulu chorando</td></tr><tr><td>Pagamento expirando</td><td>Lulu com o celular &quot;Falta pagar com Pix&quot;</td></tr><tr><td>Compra aprovada</td><td>Lulu com sacolas e confete</td></tr><tr><td>Pedido faturado (e-mail)</td><td>Lulu embalando o pedido</td></tr><tr><td>Pedido despachado</td><td>Lulu nos Correios</td></tr><tr><td>Pedido entregue</td><td>Lulu fazendo joinha</td></tr><tr><td>Avaliação Google após entrega</td><td>a definir</td></tr><tr><td>Retirada na loja</td><td>Lulu acenando na loja</td></tr><tr><td>Pedido retirado (WhatsApp)</td><td>a definir</td></tr><tr><td>Avaliação Google após retirada</td><td>a definir</td></tr><tr><td>Resposta automática</td><td>Lulu com o WhatsApp na mesa</td></tr></tbody></table></div>
+<p>Não usar no WhatsApp a imagem da Lulu com código de rastreio na tela: o código é falso e o cliente pode confundir com o dele.</p>
+
+</main>
+<a id="cc-voltar" href="/Rh/central/" style="position:fixed;z-index:2147483000;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));font:600 13px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;background:rgba(20,20,20,.86);text-decoration:none;padding:10px 14px;border-radius:99px;box-shadow:0 2px 10px rgba(0,0,0,.18)">← Central</a>
+</body>
+</html>
