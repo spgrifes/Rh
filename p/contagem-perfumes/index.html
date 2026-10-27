@@ -1,0 +1,157 @@
+<!doctype html><html><head><meta name="robots" content="noindex,nofollow"><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Contagem de Perfumes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter+Tight:wght@400;500;600&display=swap">
+<style>
+/* Layout: uma coluna para celular, cabeçalho fixo com progresso, uma linha por perfume com botões grandes de - e + */
+:root{--bg:#f6f4f2;--card:#ffffff;--fg:#17130f;--mute:#6f6760;--line:#e4dfda;--red:#c8102e;--redsoft:#fbe7ea;--ok:#1f7a4a;--oksoft:#e3f3ea;
+--disp:'Archivo',system-ui,sans-serif;--body:'Inter Tight',system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141110;--card:#1f1b19;--fg:#f3eeea;--mute:#a59b93;--line:#36302c;--red:#ff4d63;--redsoft:#3a1a20;--ok:#5fd394;--oksoft:#16301f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141110;--card:#1f1b19;--fg:#f3eeea;--mute:#a59b93;--line:#36302c;--red:#ff4d63;--redsoft:#3a1a20;--ok:#5fd394;--oksoft:#16301f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:560px;margin:0 auto}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding-block:14px 10px;border-bottom:1px solid var(--line)}
+h1{font-family:var(--disp);font-weight:800;font-size:22px;margin:0;letter-spacing:-.01em}
+h1 span{color:var(--red)}
+.prog{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--red);width:0;transition:width .2s}
+.intro{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:14px 0;display:grid;gap:10px;font-size:15px;line-height:1.45}
+.intro b{font-weight:600}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--mute)}
+input[type=text]{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%}
+details{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+summary{list-style:none;cursor:pointer;padding:14px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--disp);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.03em}
+summary::-webkit-details-marker{display:none}
+summary .c{font-family:var(--body);font-weight:600;font-size:12px;padding:3px 8px;border-radius:99px;background:var(--line);color:var(--mute);text-transform:none;letter-spacing:0;white-space:nowrap}
+summary .c.done{background:var(--oksoft);color:var(--ok)}
+.it{border-top:1px solid var(--line);padding:12px 14px;display:grid;gap:10px}
+.it.done{background:color-mix(in srgb,var(--oksoft) 45%,transparent)}
+.nm{font-weight:600;font-size:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cnt{display:grid;gap:4px}
+.cnt small{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.step{display:grid;grid-template-columns:44px 1fr 44px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.step button{font:inherit;font-size:22px;border:0;background:transparent;color:var(--fg);height:44px;cursor:pointer}
+.step button:active{background:var(--line)}
+.step input{font:inherit;font-size:18px;font-weight:600;text-align:center;border:0;background:transparent;color:var(--fg);width:100%;min-width:0;font-variant-numeric:tabular-nums}
+.step input::placeholder{color:var(--mute);font-weight:400}
+.ts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.pill{font:inherit;font-size:13px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+.pill.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.obs{font-size:14px!important;padding:8px 10px!important}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.add{padding:14px;border-top:1px solid var(--line);display:grid;gap:8px}
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:6}
+.foot .wrap{display:flex;gap:10px}
+.big{flex:1;font-family:var(--disp);font-weight:700;font-size:16px;padding:14px;border-radius:10px;border:0;background:var(--red);color:#fff;cursor:pointer}
+.big.sec{background:transparent;color:var(--fg);border:1px solid var(--line);flex:0 0 auto}
+#fim{margin-top:16px;background:var(--card);border:2px solid var(--red);border-radius:12px;padding:14px;display:grid;gap:10px}
+#fim h2{font-family:var(--disp);margin:0;font-size:18px}
+#fim a.big{text-align:center;text-decoration:none;display:block}
+#txt{width:100%;min-height:160px;font:13px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg);color:var(--fg)}
+#msg{font-size:13px;color:var(--ok)}
+.warn{font-size:13px;color:var(--red)}
+</style>
+<div class="wrap">
+<header>
+  <h1>Contagem de <span>Perfumes</span></h1>
+  <div class="prog"><div class="bar"><i id="pb"></i></div><span id="pt">0 de 0</span></div>
+</header>
+<div class="intro">
+  <div>Contem cada perfume e creme <b>fechado</b>. O tester (frasco de prova) <b>não entra</b> na conta, só marquem se tem.</div>
+  <div><b>Loja</b> = o que está na loja física. <b>Site</b> = o que está separado no depósito do site. Se não tem nenhum, toquem no <b>−</b> até aparecer <b>0</b>.</div>
+  <label class="f" for="quem">Quem está contando<input type="text" id="quem" placeholder="Seu nome"></label>
+</div>
+<div id="lista"></div>
+<div id="fim" hidden>
+  <h2>Pronto para mandar</h2>
+  <div id="falta" class="warn"></div>
+  <a class="big" id="wa" href="#" target="_blank" rel="noopener">Mandar no WhatsApp do Fábio</a>
+  <button class="big sec" id="cp" type="button" style="width:100%">Copiar o texto</button>
+  <div id="msg"></div>
+  <textarea id="txt" readonly></textarea>
+</div>
+</div>
+<div class="foot"><div class="wrap"><button class="big sec" id="topo" type="button">Topo</button><button class="big" id="ok" type="button">Terminei a contagem</button></div></div>
+<script>
+const CATS=[{"n": "ÁRABES (LATTAFA) 100 ml", "i": ["Fakhar Lattafa dourado", "Fakhar Lattafa prata", "Fakhar Lattafa preto", "Fakhar Lattafa branco", "Yara pink", "Yara amarelo", "Yara rosa bebê", "Yara branco", "Yara marrom", "Yara", "Bade'e Al Oud Sublime", "Bade'e Al Oud Noble Blush", "Bade'e Al Oud Amethyst", "Bade'e Al Oud Honor & Glory", "Bade'e Al Oud Oud for Glory", "Bade'e Al Oud", "Khamrah preto (tradicional)", "Khamrah marrom (Qahwa)", "Khamrah vinho (Dukhan)", "Khamrah", "Al Noble Ameer", "Al Noble Safeer", "Al Noble Wazeer", "Violet West", "Gold West", "Red West", "Asad Bourbon (perfume)"]}, {"n": "CREMES CORPORAIS", "i": ["1743 Althair", "Fakhar Platin", "Sabah Al Ward", "1 Million", "212 VIP Rosé", "212 Men", "Dalila", "Asad", "Jadore", "Coco", "Yara", "Fakhar Rose", "Sauvage", "Asad Bourbon", "Club de Nuit", "Angel"]}, {"n": "ORIGINAIS", "i": ["Chanel rosa (Chance) 100 ml", "Chanel verde (Chance) 100 ml", "Chanel Bleu EDP 100 ml", "Chanel Bleu Parfum 100 ml", "Chanel mini verde 50 ml", "Chanel mini rosa 50 ml", "Dior Sauvage EDP", "Dior Sauvage Parfum", "LV Ombre Nomade", "LV Spell on You", "LV Fleur du Désert", "LV Pacific Chill", "LV Les Sables Roses", "LV L'Immensité", "LV Coeur Battant", "LV Afternoon Swim", "LV Attrape Rêves", "LV Lovers", "LV Nuit de Feu", "LV Pur Oud"]}, {"n": "LIVENCE MINI 25 ml", "i": ["188", "105", "087", "315", "151", "295", "136", "012", "395", "021", "125", "126", "193", "168", "087 (2ª linha)", "250", "070", "315 (2ª linha)", "296", "008", "100", "033", "009", "034", "031", "365", "132", "214", "116", "350", "007", "Jadore mini"]}, {"n": "LIVENCE 100 ml", "i": ["015", "004", "007", "017", "020 Seductor", "006", "018", "033", "021", "005", "019", "016 Club in the Night", "022", "034", "028", "010 (bola)", "024", "026", "025", "014", "032 (nuvem)", "027", "031 (roxo)", "030", "011", "012", "008", "Red (Good Girl)", "003 One Billionaire"]}, {"n": "SÓ TESTER NA PRATELEIRA (confirmar estoque zero)", "i": ["312 VIP preto", "312 Rose", "Saviour", "Dark X", "VIP dourado", "Livence Gold", "Robô prata", "Robô dourado", "Robô de vidro", "Sapato preto/dourado 25 ml", "Sapato vermelho cristal 25 ml", "Sapato vinho veludo", "Raio preto/dourado"]}];
+const FONE='5511916162100';
+let S={};try{S=JSON.parse(localStorage.getItem('contagem_v1')||'{}')}catch(e){}
+S.extra=S.extra||[];S.v=S.v||{};
+function save(){try{localStorage.setItem('contagem_v1',JSON.stringify(S))}catch(e){}}
+const key=(c,i)=>c+'|'+i;
+const lista=document.getElementById('lista');
+const quem=document.getElementById('quem');quem.value=S.quem||'';quem.oninput=()=>{S.quem=quem.value;save()};
+function stepper(k,f,lbl){
+  const v=S.v[k]||{};const d=document.createElement('div');d.className='cnt';
+  d.innerHTML=`<small>${lbl}</small><div class="step"><button type="button" aria-label="menos">−</button><input inputmode="numeric" pattern="[0-9]*" placeholder="–" aria-label="${lbl}"><button type="button" aria-label="mais">+</button></div>`;
+  const [m,inp,p]=d.querySelectorAll('button,input');const ib=d.querySelector('input');
+  ib.value=v[f]??'';ib.id='q_'+btoa(unescape(encodeURIComponent(k))).replace(/[^a-z0-9]/gi,'')+f;
+  const set=n=>{S.v[k]=S.v[k]||{};if(n===''||n===null){delete S.v[k][f]}else{S.v[k][f]=Math.max(0,n|0)};ib.value=S.v[k][f]??'';save();refresh()};
+  d.querySelectorAll('button')[0].onclick=()=>{const c=S.v[k]?.[f];set(c==null?0:Math.max(0,c-1))};
+  d.querySelectorAll('button')[1].onclick=()=>{const c=S.v[k]?.[f];set(c==null?1:c+1)};
+  ib.oninput=()=>{const t=ib.value.replace(/\D/g,'');set(t===''?'':+t)};
+  return d;
+}
+function item(cat,nome,box){
+  const k=key(cat,nome);const el=document.createElement('div');el.className='it';el.dataset.k=k;
+  el.innerHTML=`<div class="nm"></div>`;el.querySelector('.nm').textContent=nome;
+  const r=document.createElement('div');r.className='row';r.append(stepper(k,'l','Loja'),stepper(k,'s','Site'));el.append(r);
+  const ts=document.createElement('div');ts.className='ts';ts.innerHTML='Tem tester? ';
+  ['Sim','Não'].forEach(o=>{const b=document.createElement('button');b.type='button';b.className='pill';b.textContent=o;
+    if((S.v[k]||{}).t===o)b.classList.add('on');
+    b.onclick=()=>{S.v[k]=S.v[k]||{};S.v[k].t=S.v[k].t===o?undefined:o;ts.querySelectorAll('.pill').forEach(x=>x.classList.toggle('on',x.textContent===S.v[k].t));save()};ts.append(b)});
+  const ob=document.createElement('button');ob.type='button';ob.className='pill';ob.textContent='+ Observação';ts.append(ob);el.append(ts);
+  const oi=document.createElement('input');oi.type='text';oi.className='obs';oi.placeholder='Ex.: caixa amassada, vazando';oi.id='o_'+el.querySelector('input').id;
+  oi.value=(S.v[k]||{}).o||'';oi.hidden=!oi.value;ob.onclick=()=>{oi.hidden=false;oi.focus()};
+  oi.oninput=()=>{S.v[k]=S.v[k]||{};S.v[k].o=oi.value;save()};el.append(oi);
+  box.append(el);
+}
+const rows=[];
+function build(){
+  lista.innerHTML='';
+  const all=[...CATS,{n:'Achei e não está na lista',i:S.extra,extra:true}];
+  all.forEach((c,ci)=>{
+    const d=document.createElement('details');if(ci===0)d.open=true;
+    d.innerHTML=`<summary><span></span><span class="c"></span></summary>`;d.querySelector('summary span').textContent=c.n;
+    c.i.forEach(n=>item(c.n,n,d));
+    if(c.extra){const a=document.createElement('div');a.className='add';
+      a.innerHTML='<input type="text" id="novo" placeholder="Nome do perfume que faltou"><button class="big sec" type="button" style="width:100%">Adicionar</button>';
+      a.querySelector('button').onclick=()=>{const v=a.querySelector('input').value.trim();if(!v)return;S.extra.push(v);save();build();lista.lastChild.open=true};
+      d.append(a)}
+    d.dataset.cat=c.n;lista.append(d);
+  });
+  refresh();
+}
+function isDone(k){const v=S.v[k]||{};return v.l!=null&&v.s!=null}
+function refresh(){
+  let tot=0,ok=0;
+  lista.querySelectorAll('details').forEach(d=>{let t=0,o=0;d.querySelectorAll('.it').forEach(it=>{t++;const dn=isDone(it.dataset.k);if(dn)o++;it.classList.toggle('done',dn)});
+    tot+=t;ok+=o;const c=d.querySelector('.c');c.textContent=t?`${o}/${t}`:'';c.classList.toggle('done',t>0&&o===t)});
+  document.getElementById('pt').textContent=`${ok} de ${tot}`;document.getElementById('pb').style.width=(tot?ok/tot*100:0)+'%';
+  return [ok,tot];
+}
+function texto(){
+  const d=new Date();const ln=[`*CONTAGEM PERFUMES SP GRIFES*`,`Quem contou: ${S.quem||'(sem nome)'}`,`Data: ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`,`Formato: Loja / Site / Tester`,``];
+  [...CATS,{n:'NÃO ESTAVA NA LISTA',i:S.extra}].forEach(c=>{if(!c.i.length)return;ln.push(`*${c.n}*`);
+    c.i.forEach(n=>{const v=S.v[key(c.n==='NÃO ESTAVA NA LISTA'?'Achei e não está na lista':c.n,n)]||{};
+      ln.push(`${n}: ${v.l??'?'} / ${v.s??'?'} / ${v.t?v.t[0]:'-'}${v.o?' ('+v.o+')':''}`)});ln.push('')});
+  return ln.join('\n');
+}
+document.getElementById('ok').onclick=()=>{
+  const [o,t]=refresh();const f=document.getElementById('fim');f.hidden=false;
+  document.getElementById('falta').textContent=o<t?`Ainda faltam ${t-o} itens sem número (aparecem com ? no texto).`:'';
+  const tx=texto();document.getElementById('txt').value=tx;
+  document.getElementById('wa').href=`https://wa.me/${FONE}?text=`+encodeURIComponent(tx);
+  f.scrollIntoView({behavior:'smooth'});
+};
+document.getElementById('cp').onclick=async()=>{const t=document.getElementById('txt');const m=document.getElementById('msg');
+  try{await navigator.clipboard.writeText(t.value);m.textContent='Copiado. Agora cole no WhatsApp do Fábio.'}catch(e){t.focus();t.select();m.textContent='Texto selecionado. Toque e segure para copiar.'}};
+document.getElementById('topo').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+build();
+</script>
+
+<a id="cc-voltar" href="/Rh/central/" style="position:fixed;z-index:2147483000;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));font:600 13px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;background:rgba(20,20,20,.86);text-decoration:none;padding:10px 14px;border-radius:99px;box-shadow:0 2px 10px rgba(0,0,0,.18)">← Central</a>
+</body></html>

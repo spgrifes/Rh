@@ -1,0 +1,348 @@
+<!doctype html><html><head><meta name="robots" content="noindex,nofollow"><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Estante Colmeia SP Grifes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: ficha técnica de marcenaria — cabeçalho curto, 3D no topo, desenhos cotados lado a lado, lista de corte embaixo */
+:root{
+  --bg:#f6f5f3; --surface:#ffffff; --ink:#141414; --muted:#6b6966; --line:#dddad5;
+  --red:#c8102e; --panel2:#8a8784; --cota:#c8102e;
+  --f-display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121212; --surface:#1b1b1b; --ink:#ecebe8; --muted:#a3a09b; --line:#333230;
+  --red:#ff4d5e; --panel2:#5d5b58; --cota:#ff6b78; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121212; --surface:#1b1b1b; --ink:#ecebe8; --muted:#a3a09b; --line:#333230;
+  --red:#ff4d5e; --panel2:#5d5b58; --cota:#ff6b78; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:36px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,6vw,56px);line-height:.95;margin:0;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+h1 span{color:var(--red)}
+h2{font-family:var(--f-display);font-weight:600;font-size:26px;text-transform:uppercase;letter-spacing:.03em;margin:0 0 12px}
+.meta{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);display:grid;grid-template-columns:auto auto;gap:2px 14px}
+.meta b{color:var(--ink);font-weight:500}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.kpi{background:var(--surface);padding:14px 16px}
+.kpi .v{font-family:var(--f-display);font-size:30px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12.5px;color:var(--muted);margin-top:4px}
+.viewer{position:relative;background:#e9e7e3;border:1px solid var(--line);aspect-ratio:16/10;max-width:100%;overflow:hidden}
+@media (max-width:700px){.viewer{aspect-ratio:4/5}}
+.viewer canvas{display:block;width:100%;height:100%;touch-action:none}
+.vbar{position:absolute;left:12px;top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.vbar button{font:500 12.5px var(--f-body);background:#141414;color:#fff;border:0;padding:8px 12px;cursor:pointer}
+.vbar button[aria-pressed="false"]{background:#ffffffd9;color:#141414}
+.vbar button:focus-visible{outline:2px solid #c8102e;outline-offset:2px}
+.hint{position:absolute;right:12px;bottom:10px;font:12px var(--f-mono);color:#555}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:24px}
+@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);padding:18px;min-width:0}
+.draw{overflow-x:auto}
+.draw svg{display:block;width:100%;height:auto;min-width:300px;margin:0 auto}
+#side svg{max-width:280px;min-width:0}
+#nichos svg{max-width:420px;min-width:0}
+.cap{font-size:13px;color:var(--muted);margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:500}
+td.n{font-family:var(--f-mono);white-space:nowrap}
+tr.grp td{font-family:var(--f-display);font-size:18px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;padding-top:18px;border-bottom:2px solid var(--ink)}
+.tbl{overflow-x:auto}
+ol.notes{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;max-width:72ch}
+ol.notes b{font-weight:600}
+.tag{display:inline-block;font:500 11px var(--f-mono);background:var(--red);color:#fff;padding:2px 6px;margin-right:6px;letter-spacing:.04em}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Estante colmeia <span>·</span> cuecas</h1>
+      <div style="color:var(--muted);margin-top:6px">Móvel preto com nicho do quadro Forbes no centro — SP Grifes</div>
+    </div>
+    <div class="meta">
+      <span>Largura</span><b>144,5 cm (vão 145,5)</b>
+      <span>Altura</span><b>260 cm</b>
+      <span>Profundidade</span><b>35 cm</b>
+      <span>Material</span><b>MDF 18 mm preto</b>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v">38</div><div class="l">nichos (28 embaixo + 10 nas laterais)</div></div>
+    <div class="kpi"><div class="v">≈ 200</div><div class="l">caixas de cueca expostas</div></div>
+    <div class="kpi"><div class="v">3 cm</div><div class="l">respiro liso em volta do quadro</div></div>
+    <div class="kpi"><div class="v">2</div><div class="l">módulos (inferior + superior)</div></div>
+  </div>
+
+  <section>
+    <h2>Projeção 3D</h2>
+    <div class="viewer" id="viewer">
+      <div class="vbar">
+        <button id="bFront" aria-pressed="true">Frente</button>
+        <button id="bPersp" aria-pressed="false">Perspectiva</button>
+        <button id="bBoxes" aria-pressed="true">Caixas</button>
+      </div>
+      <div class="hint">arraste para girar · pinça/scroll para zoom</div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h2>Vista frontal cotada</h2>
+      <div class="draw" id="front"></div>
+      <div class="cap">Medidas em centímetros. Vermelho = cotas. Cinza = painel liso recuado atrás do quadro.</div>
+    </div>
+    <div class="card">
+      <h2>Vista lateral (corte)</h2>
+      <div class="draw" id="side"></div>
+      <div class="cap">O painel liso fica 5 cm para dentro. O quadro (3 cm de espessura) fica 2 cm recuado da frente do móvel, encaixado no nicho.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Como as caixas ficam</h2>
+    <div class="grid2" style="gap:18px">
+      <div class="draw" id="nichos"></div>
+      <ol class="notes">
+        <li><b>Colmeia de baixo (18,6 × 24,8 cm):</b> caixa em pé, de frente, mostrando a marca. Cabem ~6 caixas uma atrás da outra.</li>
+        <li><b>Colunas do lado do quadro (11,65 × 25,4 cm):</b> a caixa não cabe de frente (tem 15 cm). Fica em pé de lado, como livro, mostrando a lateral com o nome da marca. Cabem 2 lado a lado × 2 para trás.</li>
+        <li>Confirme com trena a maior caixa (altura e largura). Se alguma passar de 23 cm de altura, me avise que eu reajusto as linhas.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Lista de corte</h2>
+    <div class="tbl">
+      <table id="cut">
+        <thead><tr><th>Peça</th><th>Qtd</th><th>Medida (cm)</th><th>Material</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="cap">Profundidade das peças internas 34,4 cm + fundo de 6 mm pregado atrás = 35 cm. Fita de borda preta em todas as frentes. Marceneiro confere as medidas finais no local.</div>
+  </section>
+
+  <section class="card">
+    <h2>Observações para o marceneiro</h2>
+    <ol class="notes">
+      <li><span class="tag">FOLGA</span><b>Móvel com 144,5 cm num vão de 145,5.</b> Sobra 0,5 cm de cada lado para entrar sem raspar. Fecha com mata-junta preto fino.</li>
+      <li><span class="tag">MÓDULOS</span><b>Fazer em dois módulos:</b> inferior de 116,2 cm e superior de 143,8 cm, com a testeira. Uma peça de 2,60 m inteira não fica em pé se o teto for baixo, e não passa pela loja.</li>
+      <li><span class="tag">QUADRO</span><b>Fixar o quadro com cantoneira tipo "francesa" (french cleat)</b> parafusada no painel liso, que tem travessas de reforço atrás. O quadro grande é pesado.</li>
+      <li><span class="tag">FIXAÇÃO</span><b>Parafusar o módulo superior na parede</b> (2 cantoneiras no topo) e unir os dois módulos com parafusos por dentro das laterais.</li>
+      <li><span class="tag">ACABAMENTO</span><b>MDF preto com textura fosca ou trama, igual à colmeia das calças.</b> Painel liso do quadro no mesmo preto, sem emenda.</li>
+      <li><span class="tag">OPCIONAL</span><b>Fita de LED 4000K</b> embutida na testeira, por baixo, iluminando o quadro de cima para baixo.</li>
+    </ol>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* ===== Geometria (cm). x da esquerda, y do chão, z do fundo (0) para a frente (35) ===== */
+const W=144.5, D=35, T=1.8, B=0.6, DI=D-B; // DI = profundidade das peças
+const parts=[]; // {n,x,y,z,w,h,d,k}  k: 'p' painel, 'liso', 'quadro', 'fundo','rod'
+const P=(n,x,y,z,w,h,d,k='p')=>parts.push({n,x,y,z,w,h,d,k});
+const IW=W-2*T; // 140.9
+// --- módulo inferior ---
+const LH=116.2, ROD=8, RH=24.8, COLS=7, CW=(IW-(COLS-1)*T)/COLS; // 18.586
+P('lat',0,0,B,T,LH,DI); P('lat',W-T,0,B,T,LH,DI);
+P('rod',T,0,B,IW,ROD,DI-4,'rod');
+P('base',T,ROD,B,IW,T,DI);
+const rowsY=[]; let y=ROD+T;
+for(let r=0;r<4;r++){ rowsY.push(y); for(let c=1;c<COLS;c++){ P('div',T+c*CW+(c-1)*T,y,B,T,RH,DI);} y+=RH; P(r<3?'prat':'tampo',T,y,B,IW,T,DI); y+=T; }
+P('fundo',0,0,0,W,LH,B,'fundo');
+// --- módulo superior ---
+const U0=LH, UH=137.6, TEST=6.2, NH=134, RS=3, QW=108, QH=128, SC=(IW-QW-2*RS-2*T)/2; // 11.65
+P('lat',0,U0,B,T,UH,DI); P('lat',W-T,U0,B,T,UH,DI);
+P('base',T,U0,B,IW,T,DI); P('tampo',T,U0+UH-T,B,IW,T,DI);
+const xL=T+SC, xR=W-T-SC-T; // divisórias das colunas
+P('divc',xL,U0+T,B,T,NH,DI); P('divc',xR,U0+T,B,T,NH,DI);
+const SRH=(NH-4*T)/5; // 25.36
+const sideRows=[]; let ys=U0+T;
+for(let r=0;r<5;r++){ sideRows.push(ys); ys+=SRH; if(r<4){ P('pratc',T,ys,B,SC,T,DI); P('pratc',xR+T,ys,B,SC,T,DI); ys+=T; } }
+const lisoX=xL+T, lisoW=xR-lisoX; // 114
+P('liso',lisoX,U0+T,D-5-T,lisoW,NH,T,'liso');
+P('quadro',lisoX+RS,U0+T+RS,D-5,QW,QH,3,'quadro');
+P('test',0,U0+UH,D-T,W,TEST,T);
+P('fundo',0,U0,0,W,UH,B,'fundo');
+const H=U0+UH+TEST; // 260
+
+/* ===== Lista de corte ===== */
+const f=v=>(Math.round(v*100)/100).toLocaleString('pt-BR',{maximumFractionDigits:2});
+const cut=[
+ ['Módulo inferior — 144,5 × 116,2 × 35'],
+ ['Laterais',2,`${f(LH)} × ${f(DI)}`,'MDF 18 mm preto'],
+ ['Base + tampo',2,`${f(IW)} × ${f(DI)}`,'MDF 18 mm preto'],
+ ['Prateleiras (inteiras)',3,`${f(IW)} × ${f(DI)}`,'MDF 18 mm preto'],
+ ['Divisórias da colmeia',24,`${f(RH)} × ${f(DI)}`,'MDF 18 mm preto'],
+ ['Rodapé (recuado 4 cm)',1,`${f(IW)} × ${f(ROD)}`,'MDF 18 mm preto'],
+ ['Fundo',1,`${f(W)} × ${f(LH)}`,'MDF 6 mm preto'],
+ ['Módulo superior — 144,5 × 143,8 × 35'],
+ ['Laterais',2,`${f(UH)} × ${f(DI)}`,'MDF 18 mm preto'],
+ ['Base + tampo',2,`${f(IW)} × ${f(DI)}`,'MDF 18 mm preto'],
+ ['Divisórias das colunas',2,`${f(NH)} × ${f(DI)}`,'MDF 18 mm preto'],
+ ['Prateleirinhas das colunas',8,`${f(SC)} × ${f(DI)}`,'MDF 18 mm preto'],
+ ['Painel liso do quadro',1,`${f(lisoW)} × ${f(NH)}`,'MDF 18 mm preto'],
+ ['Travessas de reforço do painel',3,`${f(lisoW)} × 7`,'MDF 18 mm'],
+ ['Testeira (faixa superior)',1,`${f(W)} × ${f(TEST)}`,'MDF 18 mm preto'],
+ ['Fundo',1,`${f(W)} × ${f(UH)}`,'MDF 6 mm preto'],
+];
+const tb=document.querySelector('#cut tbody');
+cut.forEach(r=>{const tr=document.createElement('tr'); if(r.length===1){tr.className='grp';tr.innerHTML=`<td colspan="4">${r[0]}</td>`;} else tr.innerHTML=`<td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td>${r[3]}</td>`; tb.appendChild(tr);});
+
+/* ===== Desenho frontal (SVG) ===== */
+const NS='http://www.w3.org/2000/svg';
+function svgEl(t,a,parent){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);parent&&parent.appendChild(e);return e;}
+function drawFront(){
+  const m={l:46,r:62,t:22,b:40}, s=2.4;
+  const vw=W*s+m.l+m.r, vh=H*s+m.t+m.b;
+  const svg=svgEl('svg',{viewBox:`0 0 ${vw} ${vh}`,role:'img','aria-label':'Vista frontal cotada da estante'});
+  const X=x=>m.l+x*s, Y=y=>m.t+(H-y)*s;
+  const g=svgEl('g',{},svg);
+  parts.filter(p=>p.k!=='fundo').forEach(p=>{
+    const fill=p.k==='liso'?'var(--panel2)':p.k==='quadro'?'var(--surface)':p.k==='rod'?'var(--muted)':'var(--ink)';
+    svgEl('rect',{x:X(p.x),y:Y(p.y+p.h),width:p.w*s,height:p.h*s,fill,stroke:p.k==='quadro'?'var(--ink)':'none','stroke-width':p.k==='quadro'?4:0},g);
+  });
+  // texto no quadro
+  const tq=svgEl('text',{x:X(lisoX+RS+QW/2),y:Y(U0+T+RS+QH/2)-6,'text-anchor':'middle','font-family':'var(--f-display)','font-size':30,'font-weight':600,fill:'var(--ink)'},g);tq.textContent='QUADRO';
+  const tq2=svgEl('text',{x:X(lisoX+RS+QW/2),y:Y(U0+T+RS+QH/2)+24,'text-anchor':'middle','font-family':'var(--f-mono)','font-size':18,fill:'var(--muted)'},g);tq2.textContent='108 × 128';
+  // contorno geral
+  svgEl('rect',{x:X(0),y:Y(H),width:W*s,height:H*s,fill:'none',stroke:'var(--ink)','stroke-width':1.5},g);
+  const c=svgEl('g',{stroke:'var(--cota)',fill:'var(--cota)','font-family':'var(--f-mono)','font-size':13},svg);
+  function dimH(x1,x2,yy,label,off=0){
+    svgEl('line',{x1:X(x1),x2:X(x2),y1:yy,y2:yy,'stroke-width':1},c);
+    [x1,x2].forEach(x=>svgEl('line',{x1:X(x)-4,x2:X(x)+4,y1:yy+4,y2:yy-4,'stroke-width':1.4},c));
+    const t=svgEl('text',{x:(X(x1)+X(x2))/2+off,y:yy-5,'text-anchor':'middle',stroke:'none'},c);t.textContent=label;
+  }
+  function dimV(y1,y2,xx,label,side=1){
+    svgEl('line',{x1:xx,x2:xx,y1:Y(y1),y2:Y(y2),'stroke-width':1},c);
+    [y1,y2].forEach(y=>svgEl('line',{x1:xx-4,x2:xx+4,y1:Y(y)+4,y2:Y(y)-4,'stroke-width':1.4},c));
+    const cx=xx+(side>0?7:-7), cy=(Y(y1)+Y(y2))/2;
+    const t=svgEl('text',{x:cx,y:cy,'text-anchor':'middle',stroke:'none',transform:`rotate(-90 ${cx} ${cy})`,'dominant-baseline':side>0?'hanging':'auto'},c);t.textContent=label;
+  }
+  dimH(0,W,vh-14,'144,5');
+  dimH(T,T+CW,Y(rowsY[2])+ (RH*s)/2,'18,6');
+  dimV(0,H,m.l-26,'260',-1);
+  dimV(0,LH,X(W)+14,'116,2');
+  dimV(LH,H,X(W)+14,'143,8');
+  dimV(H-TEST,H,X(W)+40,'6,2');
+  dimV(0,ROD,X(W)+40,'8');
+  dimV(rowsY[1],rowsY[1]+RH,X(T+CW*1.5+T),'24,8');
+  return svg;
+}
+document.getElementById('front').appendChild(drawFront());
+
+function drawSide(){
+  const m={l:30,r:50,t:22,b:40}, s=2.4;
+  const vw=D*s+m.l+m.r+60, vh=H*s+m.t+m.b;
+  const svg=svgEl('svg',{viewBox:`0 0 ${vw} ${vh}`,role:'img','aria-label':'Corte lateral'});
+  const X=z=>m.l+z*s, Y=y=>m.t+(H-y)*s;
+  const g=svgEl('g',{},svg);
+  // laterais em contorno, peças horizontais cortadas
+  svgEl('rect',{x:X(0),y:Y(H),width:D*s,height:H*s,fill:'none',stroke:'var(--line)'},g);
+  parts.forEach(p=>{
+    if(['lat','div','divc','pratc'].includes(p.n)) return;
+    if(p.n==='test'){svgEl('rect',{x:X(p.z),y:Y(p.y+p.h),width:p.d*s,height:p.h*s,fill:'var(--ink)'},g);return;}
+    const fill=p.k==='liso'?'var(--panel2)':p.k==='quadro'?'var(--red)':p.k==='rod'?'var(--muted)':'var(--ink)';
+    svgEl('rect',{x:X(p.z),y:Y(p.y+p.h),width:p.d*s,height:p.h*s,fill},g);
+  });
+  const c=svgEl('g',{stroke:'var(--cota)',fill:'var(--cota)','font-family':'var(--f-mono)','font-size':13},svg);
+  const yy=vh-14;
+  svgEl('line',{x1:X(0),x2:X(D),y1:yy,y2:yy},c);
+  [0,D].forEach(z=>svgEl('line',{x1:X(z)-4,x2:X(z)+4,y1:yy+4,y2:yy-4,'stroke-width':1.4},c));
+  const t=svgEl('text',{x:X(D/2),y:yy-5,'text-anchor':'middle',stroke:'none'},c);t.textContent='35';
+  const qy=Y(U0+T+RS+QH/2);
+  const l1=svgEl('text',{x:X(D)+8,y:qy-8,stroke:'none','font-size':12},c);l1.textContent='quadro';
+  const l2=svgEl('text',{x:X(D)+8,y:qy+8,stroke:'none','font-size':12,fill:'var(--muted)'},c);l2.textContent='recuo 2';
+  const l3=svgEl('text',{x:X(D)+8,y:Y(LH/2),stroke:'none','font-size':12,fill:'var(--muted)'},c);l3.textContent='colmeia';
+  return svg;
+}
+document.getElementById('side').appendChild(drawSide());
+
+function drawNichos(){
+  const s=5, svg=svgEl('svg',{viewBox:'0 0 260 180',role:'img','aria-label':'Caixas dentro dos nichos'});
+  function niche(x0,w,h,label,boxes){
+    const g=svgEl('g',{},svg), y0=150-h*s;
+    svgEl('rect',{x:x0-T*s,y:y0-T*s,width:(w+2*T)*s,height:(h+2*T)*s,fill:'var(--ink)'},g);
+    svgEl('rect',{x:x0,y:y0,width:w*s,height:h*s,fill:'var(--surface)'},g);
+    boxes.forEach(b=>svgEl('rect',{x:x0+b[0]*s,y:150-b[3]*s,width:b[2]*s,height:b[3]*s,fill:'var(--bg)',stroke:'var(--muted)','stroke-width':1.2},g));
+    label.forEach((ln,i)=>{const t=svgEl('text',{x:x0+w*s/2,y:162+i*9,'text-anchor':'middle','font-family':'var(--f-mono)','font-size':7.5,fill:'var(--muted)'},svg);t.textContent=ln;});
+  }
+  // escala menor no svg
+  const k=0.95;
+  niche(20,CW*k,RH*k,['18,6 × 24,8 cm','caixa de frente'],[[ (CW*k-15*k)/2,0,15*k,21*k ]]);
+  niche(160,SC*k,SRH*k,['11,65 × 25,4 cm','caixa de lado'],[[ (SC*k-10*k)/2,0,5*k,21*k ],[ (SC*k-10*k)/2+5*k,0,5*k,21*k ]]);
+  return svg;
+}
+document.getElementById('nichos').appendChild(drawNichos());
+
+/* ===== 3D ===== */
+(function(){
+  if(!window.THREE) return;
+  const host=document.getElementById('viewer');
+  const renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  host.prepend(renderer.domElement);
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(0xe9e7e3);
+  const cam=new THREE.PerspectiveCamera(35,1,1,5000);
+  const ctr=new THREE.OrbitControls(cam,renderer.domElement);
+  ctr.enableDamping=true; ctr.maxPolarAngle=Math.PI*0.52; ctr.minDistance=120; ctr.maxDistance=1200;
+  scene.add(new THREE.HemisphereLight(0xffffff,0xb8b2aa,0.75));
+  const sun=new THREE.DirectionalLight(0xffffff,0.75); sun.position.set(160,380,320); sun.castShadow=true;
+  sun.shadow.mapSize.set(2048,2048); Object.assign(sun.shadow.camera,{left:-200,right:200,top:300,bottom:-50,near:10,far:1000}); scene.add(sun);
+  const fill=new THREE.PointLight(0xfff4e6,0.35,900); fill.position.set(W/2,200,180); scene.add(fill);
+  // chão e parede
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(800,800),new THREE.MeshStandardMaterial({color:0xcfcac3,roughness:.9}));
+  floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+  const wall=new THREE.Mesh(new THREE.PlaneGeometry(800,400),new THREE.MeshStandardMaterial({color:0xefece7,roughness:1}));
+  wall.position.set(W/2,200,-0.2); wall.receiveShadow=true; scene.add(wall);
+  const g=new THREE.Group(); g.position.x=-W/2; scene.add(g); wall.position.x=0; floor.position.x=0;
+  const mBlack=new THREE.MeshStandardMaterial({color:0x151515,roughness:.62,metalness:.05});
+  const mLiso=new THREE.MeshStandardMaterial({color:0x1c1c1c,roughness:.5});
+  // textura do quadro
+  const cv=document.createElement('canvas'); cv.width=540; cv.height=640; const x=cv.getContext('2d');
+  const gr=x.createLinearGradient(0,0,0,640); gr.addColorStop(0,'#2a2622'); gr.addColorStop(1,'#0e0d0c'); x.fillStyle=gr; x.fillRect(0,0,540,640);
+  x.fillStyle='#f4efe6'; x.font='700 120px Georgia,serif'; x.textAlign='center'; x.fillText('Forbes',270,170);
+  x.fillStyle='#c79a3a'; x.beginPath(); x.ellipse(270,330,95,120,0,0,Math.PI*2); x.fill();
+  x.fillStyle='#f4efe6'; x.font='700 70px "Barlow Condensed",Arial Narrow,sans-serif'; x.fillText('LEÃO',360,520);
+  x.fillStyle='#f2c200'; x.fillText('DO ANO',360,590);
+  const tex=new THREE.CanvasTexture(cv); tex.encoding=THREE.sRGBEncoding;
+  const mQf=new THREE.MeshStandardMaterial({map:tex,roughness:.25,metalness:.1});
+  const mFr=new THREE.MeshStandardMaterial({color:0x0a0a0a,roughness:.4});
+  parts.forEach(p=>{
+    const mat=p.k==='liso'?mLiso:p.k==='quadro'?[mFr,mFr,mFr,mFr,mQf,mFr]:mBlack;
+    const m=new THREE.Mesh(new THREE.BoxGeometry(p.w,p.h,p.d),mat);
+    m.position.set(p.x+p.w/2,p.y+p.h/2,p.z+p.d/2); m.castShadow=true; m.receiveShadow=true; g.add(m);
+  });
+  // caixas de cueca (genéricas, sem marca)
+  const boxes=new THREE.Group(); g.add(boxes);
+  const cols=[0xf3f2ef,0x1f1f1f,0xf3f2ef,0x2b2d42,0xf3f2ef,0x1f1f1f,0x8b0e1e];
+  const mats=cols.map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.55}));
+  const gFront=new THREE.BoxGeometry(15,21,5), gSide=new THREE.BoxGeometry(5,21,15);
+  rowsY.forEach((ry,r)=>{for(let c=0;c<COLS;c++){const cx=T+c*(CW+T)+CW/2; const mat=mats[(c+r*2)%mats.length];
+    for(let i=0;i<6;i++){const b=new THREE.Mesh(gFront,mat); b.position.set(cx,ry+10.5,D-3.5-i*5.4); b.castShadow=true; boxes.add(b);} }});
+  sideRows.forEach((ry,r)=>{[T, xR+T].forEach((x0,si)=>{const mat=mats[(r+si*3+1)%mats.length];
+    for(let j=0;j<2;j++)for(let i=0;i<2;i++){const b=new THREE.Mesh(gSide,mat); b.position.set(x0+(SC-10.4)/2+2.5+j*5.4,ry+10.5,D-8.5-i*15.5); b.castShadow=true; boxes.add(b);} });});
+  // views
+  const views={front:{p:[0,140,560],t:[0,130,0]},persp:{p:[-300,190,380],t:[0,125,10]}};
+  function setView(v){cam.position.set(...views[v].p); ctr.target.set(...views[v].t); ctr.update();
+    document.getElementById('bFront').setAttribute('aria-pressed',v==='front'); document.getElementById('bPersp').setAttribute('aria-pressed',v==='persp');}
+  document.getElementById('bFront').onclick=()=>setView('front');
+  document.getElementById('bPersp').onclick=()=>setView('persp');
+  document.getElementById('bBoxes').onclick=e=>{boxes.visible=!boxes.visible; e.currentTarget.setAttribute('aria-pressed',boxes.visible);};
+  function size(){const w=host.clientWidth,h=host.clientHeight; renderer.setSize(w,h,false); cam.aspect=w/h;
+    cam.fov=w/h<1?48:35; cam.updateProjectionMatrix();}
+  new ResizeObserver(size).observe(host); size(); setView('persp');
+  (function loop(){ctr.update(); renderer.render(scene,cam); requestAnimationFrame(loop);})();
+})();
+</script>
+
+<a id="cc-voltar" href="/Rh/central/" style="position:fixed;z-index:2147483000;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));font:600 13px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;background:rgba(20,20,20,.86);text-decoration:none;padding:10px 14px;border-radius:99px;box-shadow:0 2px 10px rgba(0,0,0,.18)">← Central</a>
+</body></html>
