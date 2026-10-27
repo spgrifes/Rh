@@ -243,6 +243,15 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
 .frm .chk label{display:flex;gap:6px;align-items:center;font-weight:600;color:var(--ink);background:var(--bg);padding:7px 10px;border-radius:10px}
 .frm .acts{display:flex;gap:8px;flex-wrap:wrap}
 .btn.sec2{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+#cx .sub{opacity:.85}
+.cxsair{border:1px solid rgba(255,255,255,.3);background:transparent;color:inherit;border-radius:999px;padding:6px 14px;font:600 .8rem inherit;cursor:pointer}
+.cxf .tps{display:flex;flex-wrap:wrap;gap:8px}
+.cxf .tps button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:10px 16px;font:700 .9rem inherit;cursor:pointer}
+.cxf .tps button[aria-pressed=true]{background:var(--head);color:#fff;border-color:var(--head)}
+.cxf .valor{font-size:1.6rem!important;font-weight:800}
+.cxf .foto{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--line);border-radius:12px;padding:16px;font-weight:700;color:var(--ink);cursor:pointer;background:var(--bg)}
+.cxf .foto.ok{border-color:var(--green);color:var(--green)}
+.cxf .btn{font-size:1.05rem;padding:15px 18px;flex:1}
 .rg{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:4px}
 .rg .h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .rg .t1{font-weight:800}
@@ -282,13 +291,26 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
   <form class="lockbox" id="lockForm" autocomplete="off">
     <div class="logo"><b>SP</b><span>Grifes · Recursos Humanos</span></div>
     <h1>Painel de Recursos Humanos</h1>
-    <p>Acesso só para o Fábio e a Taine.</p>
+    <p>Acesso restrito. Cada pessoa entra com a sua senha.</p>
     <label for="pw" style="font-weight:600;font-size:.9rem">Senha</label>
     <input id="pw" type="password" autocapitalize="none" placeholder="Digite a senha">
     <div class="err" id="pwErr"></div>
     <button class="btn" type="submit">Entrar</button>
   </form>
 </section>
+
+<div id="cx" hidden>
+  <header class="top gut"><div class="wrap">
+    <div class="topline"><div class="logo"><b>SP</b><span>Grifes · Vales e compras</span></div><div class="topr"><span class="quem" id="cxquem"></span><button type="button" class="cxsair" id="cxsair">Sair</button></div></div>
+    <h1>Vales e compras</h1>
+    <p class="sub">Escolha o funcionário, o valor, o motivo e tire a foto do papel assinado. A data e a hora entram sozinhas e vai direto para o RH.</p>
+  </div></header>
+  <main class="gut"><div class="wrap">
+    <div class="frm cxf" id="cxform"></div>
+    <h2 style="margin:22px 0 2px">Seus lançamentos</h2><div class="sy2" style="margin-bottom:10px">Últimos 45 dias</div>
+    <div class="grid" id="cxlist"></div>
+  </div></main>
+</div>
 
 <div id="app" hidden>
   <header class="top gut">
@@ -305,6 +327,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <button type="button" data-tab="agenda" aria-pressed="false">Agenda de pagamentos</button>
     <button type="button" data-tab="equipe" aria-pressed="false">Equipe</button>
     <button type="button" data-tab="comissoes" aria-pressed="false">Comissões</button>
+    <button type="button" data-tab="vales" aria-pressed="false">Vales e compras</button>
     <button type="button" data-tab="documentos" aria-pressed="false">Documentos</button>
     <button type="button" data-tab="saude" aria-pressed="false">Saúde</button>
     <button type="button" data-tab="ponto" aria-pressed="false">Ponto e jornada</button>
@@ -616,7 +639,12 @@ const nomeF=id=>{const e=D.EQUIPE.find(x=>x.id===id)||AGEQ.find(x=>x.id===id);re
 const dBR=x=>{if(!x)return '';const [a,m,d]=String(x).slice(0,10).split('-');return d?`${d}/${m}/${a}`:x;};
 const DOCS=['Contrato / ficha de registro','Documentos pessoais (RG, CPF, CTPS)','Exame admissional (ASO)','Termo do vale-transporte','Holerite do mês','Recibo de pagamento (Pix ou dinheiro)','Folha de ponto assinada','Aviso e recibo de férias','Advertência / suspensão assinada','Rescisão (TRCT)','Outro'];
 const OBRIG=['Contrato / ficha de registro','Documentos pessoais (RG, CPF, CTPS)','Exame admissional (ASO)','Termo do vale-transporte'];
+const VTIPOS=['Vale em dinheiro','Compra na loja','Outro'];
+const valNum=v=>{const t=String(v??'').trim();if(!t)return 0;return Number(t.includes(',')?t.replace(/\./g,'').replace(',','.'):t)||0;};
 const TIPOS={
+ vales:{tipo:'vale',titulo:'Vales e compras',intro:'Vales em dinheiro e compras na loja lançados pelo caixa (a Cris) ou por vocês, com a foto do papel assinado. Quando descontar na folha, edite e marque "Descontado".',law:'Desconto no salário só com autorização assinada pelo funcionário. Guarde a foto do papel.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'tipo',l:'Tipo',t:'select',o:VTIPOS},{k:'valor',l:'Valor (R$)',t:'money'},{k:'motivo',l:'Motivo',t:'textarea'},{k:'st',l:'Situação',t:'select',o:['A descontar','Descontado']},{k:'arqs',l:'Foto do papel assinado',t:'file'}],
+   linha:r=>[(r.d.tipo||'Vale')+' · '+(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A descontar'),r.d.motivo,'Lançado em '+new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})]},
  documentos:{tipo:'doc',titulo:'Documentos',intro:'A pasta de cada funcionário. Suba a foto ou o PDF de cada documento. É isso que defende a empresa num processo.',law:'Guarde por pelo menos 5 anos: holerites, ponto, recibos e contrato. Exames e FGTS: por muito mais tempo.',
    campos:[{k:'func',l:'Funcionário',t:'func'},{k:'cat',l:'Tipo de documento',t:'select',o:DOCS},{k:'ref',l:'Mês de referência',t:'month'},{k:'obs',l:'Observação',t:'textarea'},{k:'arqs',l:'Foto ou PDF',t:'file'}],
    linha:r=>[r.d.cat,r.d.ref?'ref. '+r.d.ref.split('-').reverse().join('/'):'',r.d.obs]},
@@ -648,7 +676,7 @@ function formHTML(cfg,r){
     if(c.t==='textarea')return `<label style="grid-column:1/-1">${c.l}<textarea data-k="${c.k}" rows="2" placeholder="Pode ditar pelo microfone do teclado">${esc(v)}</textarea></label>`;
     if(c.t==='check')return `<div style="grid-column:1/-1"><div style="font-size:.8rem;font-weight:700;color:var(--soft);margin-bottom:4px">${c.l}</div><div class="chk">${c.o.map(o=>`<label><input type="checkbox" data-ck="${esc(o)}" ${(d.check||[]).includes(o)?'checked':''}>${esc(o)}</label>`).join('')}</div></div>`;
     if(c.t==='file')return `<label style="grid-column:1/-1">${c.l}<input type="file" id="arq" accept="image/*,application/pdf" multiple>${(d.arqs||[]).length?`<span style="font-weight:500">${d.arqs.length} arquivo(s) já guardado(s)</span>`:''}</label>`;
-    return `<label>${c.l}<input type="${c.t}" data-k="${c.k}" value="${esc(v)}" ${c.t==='number'?'step="0.5" inputmode="decimal"':''}></label>`;}).join('');
+    return `<label>${c.l}<input type="${c.t==='money'?'text':c.t}" data-k="${c.k}" value="${esc(v)}" ${c.t==='number'?'step="0.5" inputmode="decimal"':''}${c.t==='money'?'inputmode="decimal" placeholder="0,00"':''}></label>`;}).join('');
   return `<div class="frm"><b>${r?'Editar registro':'Novo registro'} · ${cfg.titulo}</b><div class="row">${c}</div>
    <div class="acts"><button type="button" class="btn" id="rsave">${r?'Salvar alterações':'Salvar'}</button><button type="button" class="btn sec2" id="rcancel">Cancelar</button><span class="sy2" id="rst"></span></div></div>`;
 }
@@ -666,6 +694,12 @@ function extraTopo(t){
       const hor=mud?`${mud.d.entrada||'?'} às ${mud.d.saida||'?'}${mud.d.almoco?' · almoço '+mud.d.almoco:''} <span style="color:var(--soft)">(desde ${dBR(mud.d.data)})</span>`:esc(e.hor||'—');
       return `<tr><td><b>${esc(e.nome)}</b></td><td>${hor}</td><td>${he?he.toString().replace('.',',')+' h':'—'}</td><td>${fl||'—'}</td></tr>`;}).join('');
     return `<h2>Mapa de horários</h2><div class="mat"><table><tr><th>Funcionário</th><th>Horário atual</th><th>Horas extras no mês</th><th>Faltas no mês</th></tr>${rows}</table></div><div class="sy2" style="margin:-6px 0 14px">Para mudar o horário de alguém, registre "Mudança de horário" com a data de início.</div>`;}
+  if(t==='vales'){
+    const rows=D.EQUIPE.map(e=>{const vs=REGS.filter(r=>r.tipo==='vale'&&r.func===e.id);if(!vs.length)return '';
+      const pend=vs.filter(r=>(r.d.st||'A descontar')!=='Descontado').reduce((s,r)=>s+valNum(r.d.valor),0);
+      const mes=vs.filter(r=>String(r.ce).slice(0,7)===mesYM()).reduce((s,r)=>s+valNum(r.d.valor),0);
+      return `<tr><td><b>${esc(e.nome)}</b></td><td>${F(mes)}</td><td class="${pend?'no2':'ok2'}">${F(pend)}</td><td>${vs.length}</td></tr>`;}).join('');
+    return rows?`<div class="mat"><table><tr><th>Funcionário</th><th>Lançado no mês</th><th>Falta descontar</th><th>Lançamentos</th></tr>${rows}</table></div>`:'';}
   if(t==='ferias'){
     const hoje=new Date();
     const rows=D.EQUIPE.map(e=>{if(!e.ent)return `<tr><td><b>${esc(e.nome)}</b></td><td colspan="3" style="color:var(--amber)">Falta a data de entrada</td></tr>`;
@@ -828,6 +862,7 @@ micSetup();
 $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(correcoes());toast('Correções copiadas. Cole no grupo RH.');}catch(e){toast('Não deu para copiar neste aparelho');}});
 
 async function carregar(){const d=await rpc('rh_get',{p_senha:SENHA,p_mes:MESATUAL});
+  if(d.papel==='caixa'){CX=d;QUEM=d.quem;return;}
   D=d.dados||{};D.EQUIPE=D.EQUIPE||[];D.EQUIPE.forEach(e=>{e.setor=e.setor||(/vend/i.test(e.funcao||'')?'Vendas':'Equipe');e.extra=e.extra||[];});
   D.AGENDA=(d.agenda||{}).AGENDA;D.ALERTAS=(d.agenda||{}).ALERTAS||[];AGEQ=d.agenda_eq||D.EQUIPE;AGEQ.forEach(e=>{e.setor=e.setor||'Equipe'});
   QUEM=d.quem;MESATUAL=d.mes;MESES=d.meses||[];REGS=d.registros||[];LOG=d.log||[];
@@ -844,8 +879,58 @@ function saudar(){
   const app=$('app');app.insertBefore(b,app.children[1]||null);
   setTimeout(()=>{if(b.isConnected)b.remove();},12000);
 }
+/* ===== Acesso do caixa: só vales e compras ===== */
+let CX=null, cxTipo='Vale em dinheiro', cxEdit=null;
+function cxForm(){
+  const r=cxEdit?CX.registros.find(x=>x.id===cxEdit):null, d=r?r.d:{};
+  if(r)cxTipo=d.tipo||cxTipo;
+  $('cxform').innerHTML=`<b>${r?'Editar lançamento':'Novo lançamento'}</b>
+   <label>Funcionário<select id="cxfunc"><option value="">Escolha o funcionário</option>${CX.equipe.map(e=>`<option value="${esc(e.id)}" ${r&&r.func===e.id?'selected':''}>${esc(e.nome)}${e.funcao?' · '+esc(e.funcao):''}</option>`).join('')}</select></label>
+   <div class="tps">${VTIPOS.map(t=>`<button type="button" data-cxt="${esc(t)}" aria-pressed="${t===cxTipo}">${esc(t)}</button>`).join('')}</div>
+   <label>Valor (R$)<input id="cxval" class="valor" type="text" inputmode="decimal" placeholder="0,00" value="${esc(d.valor||'')}"></label>
+   <label>Motivo<textarea id="cxmot" rows="2" placeholder="Ex.: vale pedido para o aluguel / camiseta e bermuda">${esc(d.motivo||'')}</textarea></label>
+   <label class="foto" id="cxfotol"><input type="file" id="cxfoto" accept="image/*,application/pdf" hidden><span id="cxfotot">${(d.arqs||[]).length?'Foto já guardada · toque para trocar':'Tirar foto do papel assinado'}</span></label>
+   <div class="acts"><button type="button" class="btn" id="cxsave">${r?'Salvar alteração':'Lançar no RH'}</button>${r?'<button type="button" class="btn sec2" id="cxcancel">Cancelar</button>':''}<span class="sy2" id="cxst"></span></div>`;
+}
+function cxLista(){
+  const L=CX.registros;
+  $('cxlist').innerHTML=L.map(r=>{const e=CX.equipe.find(x=>x.id===r.func);const desc=r.d.st==='Descontado';
+    return `<div class="rg"><div class="h"><div class="t1">${esc(e?e.nome:'—')}</div><div style="font-weight:800">${F(valNum(r.d.valor))}</div></div>
+     <div style="font-weight:700">${esc(r.d.tipo||'Vale')}${desc?' · <span class="tag t-green">descontado</span>':''}</div>
+     ${r.d.motivo?`<div class="t2">${esc(r.d.motivo)}</div>`:''}
+     <div class="bt">${(r.d.arqs||[]).map(a=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}</button>`).join('')}${desc?'':`<button type="button" data-cxedit="${r.id}">Editar</button><button type="button" class="del" data-cxdel="${r.id}">Excluir</button>`}</div>
+     <div class="by">${new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div>`;}).join('')||'<div class="rg"><div class="t2">Nenhum lançamento ainda.</div></div>';
+}
+function renderCaixa(){$('cxquem').textContent='Olá, '+CX.quem;cxForm();cxLista();}
+async function cxSalvar(){
+  const func=$('cxfunc').value, v=$('cxval').value.trim(), mot=$('cxmot').value.trim(), fi=$('cxfoto');
+  const r=cxEdit?CX.registros.find(x=>x.id===cxEdit):null;
+  if(!func){$('cxst').textContent='Escolha o funcionário.';return;}
+  if(!(valNum(v)>0)){$('cxst').textContent='Coloque o valor.';return;}
+  if(!mot){$('cxst').textContent='Escreva o motivo.';return;}
+  if(!r&&!fi.files.length&&!confirm('Lançar sem a foto do papel assinado?'))return;
+  const d=r?{...r.d}:{}; d.tipo=cxTipo; d.valor=v; d.motivo=mot;
+  $('cxsave').disabled=true;$('cxst').textContent='Salvando...';
+  try{
+    if(fi.files.length){$('cxst').textContent='Enviando a foto...';d.arqs=await subirArquivos([...fi.files],'vales');}
+    await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:r?r.id:null,p_tipo:'vale',p_func:func,p_dados:d});
+    cxEdit=null;cxTipo='Vale em dinheiro';await carregar();renderCaixa();toast('Lançado no RH');window.scrollTo(0,0);
+  }catch(e){$('cxsave').disabled=false;$('cxst').textContent='Não salvou. Verifique a internet e tente de novo.';}
+}
+document.addEventListener('click',async ev=>{
+  if($('cx').hidden)return;
+  const t=ev.target.closest('[data-cxt]');if(t){cxTipo=t.dataset.cxt;document.querySelectorAll('[data-cxt]').forEach(b=>b.setAttribute('aria-pressed',b===t));return;}
+  if(ev.target.closest('#cxsave'))return cxSalvar();
+  if(ev.target.closest('#cxcancel')){cxEdit=null;cxForm();return;}
+  const ed=ev.target.closest('[data-cxedit]');if(ed){cxEdit=ed.dataset.cxedit;cxForm();window.scrollTo(0,0);return;}
+  const dl=ev.target.closest('[data-cxdel]');if(dl){if(!confirm('Excluir este lançamento?'))return;try{await rpc('rh_reg_excluir',{p_senha:SENHA,p_id:dl.dataset.cxdel});await carregar();renderCaixa();toast('Excluído');}catch(e){toast('Não consegui excluir');}return;}
+  if(ev.target.closest('#cxsair')){try{sessionStorage.removeItem('rh_pw')}catch(e){}location.reload();}
+});
+document.addEventListener('change',ev=>{if(ev.target.id==='cxfoto'){const n=ev.target.files.length;$('cxfotot').textContent=n?'Foto pronta ✓ (toque para trocar)':'Tirar foto do papel assinado';$('cxfotol').classList.toggle('ok',!!n);}});
+
 async function entrar(p){
   SENHA=p; await carregar();
+  if(CX){$('lock').hidden=true;$('cx').hidden=false;renderCaixa();return;}
   $('lock').hidden=true;$('app').hidden=false;render();sync('Atualizado · '+hora());
   saudar();
   setInterval(async()=>{if(document.activeElement&&(document.activeElement.classList.contains('nt')||document.activeElement.closest('.frm')))return;if(regEdit||$('formf').innerHTML)return;try{await carregar();render();sync('Atualizado · '+hora());}catch(e){}},30000);
