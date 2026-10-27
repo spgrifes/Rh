@@ -74,6 +74,8 @@ h1{font-family:var(--display);font-weight:700;font-size:26px;margin:0;letter-spa
 .mini{height:3px;background:var(--surface)}
 .mini i{display:block;height:100%;background:var(--ok)}
 .items{border-top:1px solid var(--line)}
+.emp{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:9px 14px 7px;background:var(--bg);border-bottom:1px solid var(--line);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.emp b{color:var(--fg);font-weight:600}
 .it{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line)}
 .it:last-child{border-bottom:0}
 .day{font-family:var(--display);font-weight:600;font-size:17px;line-height:1;text-align:center;font-variant-numeric:tabular-nums}
@@ -255,6 +257,31 @@ const GUESS=[
   [/claude|chatgpt|capcut|google|gmail|bagy|olist|pontua|sistema|wbuy|site/i,'Sistemas e tecnologia'],
   [/vivo|claro|\btim\b|internet|fibra|telef/i,'Comunicação']
 ];
+const EMPRESAS=[
+  [/claro|embratel/i,'Claro'],[/\bvivo\b|telef[oô]nica/i,'Vivo'],[/\btim\b/i,'TIM'],
+  [/pick\s*money|ninho\s*verde|momentum/i,'Lotes Ninho Verde (Pick Money)'],[/rural/i,'Terreno Rural Transações'],
+  [/econ|gran\s*sky/i,'Apartamento Gran Sky (Econ)'],[/linkpay|di\s*1|projeto imobili/i,'Apartamento (LinkPay)'],
+  [/feira pop|c\s*f\s*pop/i,'Feira Pop'],[/shopping central|modas shop|box central/i,'Shopping Central'],
+  [/circuito|forte securit|l0196|l1202|l1203|l1267|box bon[eé]|box (da )?feira|cozinha|estoque \(ref/i,'Boxes da Feira (Circuito)'],
+  [/aluguel cd|villa romana/i,'Aluguel do CD'],[/pjbank|aluguel (da )?casa/i,'Aluguel da casa'],
+  [/mova|nova op[cç][aã]o|creta|hyundai/i,'Carro (Nova Opção)'],[/estapar/i,'Estapar'],
+  [/enel|eletropaulo|\bluz\b/i,'Enel (luz)'],[/sabesp|[aá]gua/i,'Sabesp (água)'],
+  [/claude|anthropic/i,'Claude'],[/chatgpt|openai/i,'ChatGPT'],[/google|youtube/i,'Google'],[/apple|icloud/i,'Apple'],
+  [/instagram|meta verified|facebook|whatsapp/i,'Meta'],[/nubank/i,'Nubank'],[/sicredi/i,'Sicredi'],[/\binter\b/i,'Banco Inter'],[/stone/i,'Stone'],
+  [/advogad|epaminondas|rodrigo cesar/i,'Advogados'],[/contador|contabil/i,'Contador']
+];
+function empresaOf(r){
+  if(r.empresa)return r.empresa;
+  const n=r.nome||'';for(const [re,e] of EMPRESAS){if(re.test(n))return e}
+  return n.replace(/\s*[(,—–-].*$/,'').trim()||'Outros';
+}
+function itemsHtml(its){
+  const g=new Map();for(const r of its){const e=empresaOf(r);if(!g.has(e))g.set(e,[]);g.get(e).push(r)}
+  if(g.size<2&&its.length<2)return its.map(item).join('');
+  const s=a=>a.reduce((t,r)=>t+(r.status!=='paga'?(r.valor||0):0),0);
+  return [...g.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0])).map(([e,a])=>
+    `<div class="emp"><b>${esc(e)}</b><span>${a.length} conta${a.length>1?'s':''}${s(a)?' · '+brl(s(a)):''}</span></div>${a.map(item).join('')}`).join('');
+}
 const tipoOf=r=>r.tipo==='Empresa'?'Empresa':'Pessoal';
 const areaNames=t=>AREAS[t].map(a=>a[0]);
 function areaOf(r){
@@ -352,7 +379,7 @@ function render(){
           <span class="av">${val}</span>
           <span class="chev">${its.length?'›':''}</span></button>
         ${its.length?`<div class="mini"><i style="width:${pp}%"></i></div>`:''}
-        ${open?`<div class="items">${its.map(item).join('')}</div>`:''}
+        ${open?`<div class="items">${itemsHtml(its)}</div>`:''}
       </div>`;
     }
     if(!algum)html+='<p class="empty">Nenhuma conta aqui neste mês.</p>';
@@ -380,6 +407,7 @@ function editorHtml(k,r){
     <label>Valor (R$)<input id="e-valor" inputmode="decimal" value="${r.valor!=null?String(r.valor).replace('.',','):''}" placeholder="varia"></label>
     ${fx?`<label>Todo dia<input id="e-dia" inputmode="numeric" value="${r.dia??''}"></label>`:`<label>Vencimento<input id="e-venc" type="date" value="${esc(r.venc||'')}"></label>`}
     <label>Empresa ou pessoal<select id="e-tipo">${['Pessoal','Empresa'].map(x=>`<option ${t===x?'selected':''}>${x}</option>`).join('')}</select></label>
+    <label class="full">Empresa (quem cobra)<input id="e-emp" list="emp-list" value="${esc(r.empresa||empresaOf(r))}"><datalist id="emp-list">${[...new Set(EMPRESAS.map(x=>x[1]))].map(x=>`<option value="${esc(x)}">`).join('')}</datalist></label>
     <label>Área<select id="e-cat">${areaNames(t).map(x=>`<option ${a===x?'selected':''}>${x}</option>`).join('')}</select></label>
     ${fx?'':`<label class="full">Tipo de conta<select id="e-fixa"><option value="1" ${isFixa(r)?'selected':''}>Fixa (todo mês)</option><option value="0" ${isFixa(r)?'':'selected'}>Variável</option></select></label>`}
     <label class="full">O que mudou? <span class="mic">toque e use o microfone do teclado 🎤</span><textarea id="e-nota" placeholder="Ex.: esse boleto agora vence dia 10 e é 350 reais">${esc(r.nota||'')}</textarea></label>
@@ -426,7 +454,7 @@ document.addEventListener('click',async e=>{
     if(b.dataset.eact==='cancel'){editing=null;render();return}
     const box=b.closest('.editor');
     const v=document.getElementById('e-valor').value.trim().replace(/[R$\s]/g,'').replace(/\.(?=\d{3})/g,'').replace(',','.');
-    const data={nome:document.getElementById('e-nome').value.trim(),valor:v&&!isNaN(Number(v))?Number(v):null,tipo:document.getElementById('e-tipo').value,cat:document.getElementById('e-cat').value,nota:document.getElementById('e-nota').value.trim(),editadoEm:new Date().toISOString()};
+    const data={nome:document.getElementById('e-nome').value.trim(),valor:v&&!isNaN(Number(v))?Number(v):null,tipo:document.getElementById('e-tipo').value,cat:document.getElementById('e-cat').value,empresa:document.getElementById('e-emp').value.trim()||null,nota:document.getElementById('e-nota').value.trim(),editadoEm:new Date().toISOString()};
     if(box.dataset.ek==='fixa'){const dd=parseInt(document.getElementById('e-dia').value,10);data.dia=dd>=1&&dd<=31?dd:null}
     else{data.venc=document.getElementById('e-venc').value||null;data.fixa=document.getElementById('e-fixa').value==='1'}
     b.disabled=true;b.textContent='Salvando…';
