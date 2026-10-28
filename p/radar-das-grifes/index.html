@@ -70,7 +70,8 @@ select.sem { font:600 .9rem var(--body); color:var(--fg); background:var(--tile)
 
 .card { border:1px solid var(--line); border-radius:20px; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; }
 .foto { position:relative; aspect-ratio:4/5; background:var(--tile); display:block; overflow:hidden; }
-.foto img { width:100%; height:100%; object-fit:cover; display:block; }
+.foto { background:#fff; }
+.foto img { width:100%; height:100%; object-fit:contain; display:block; }
 .foto .sem { position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:20px; color:var(--muted); font-weight:600; }
 .foto .sem b { display:block; font:900 1.8rem/1 var(--display); color:var(--fg); margin-bottom:8px; }
 .selo { position:absolute; left:12px; top:12px; background:rgba(20,18,18,.78); color:#fff; font:800 .78rem/1 var(--display); letter-spacing:.06em; text-transform:uppercase; padding:7px 10px; border-radius:999px; }
@@ -79,6 +80,7 @@ select.sem { font:600 .9rem var(--body); color:var(--fg); background:var(--tile)
 .info { padding:14px 16px 4px; }
 .colecao { font:900 1.15rem/1.1 var(--display); font-stretch:108%; margin:0; }
 .peca { margin:4px 0 0; font-weight:600; }
+.preco { margin:4px 0 0; font-weight:700; color:var(--gold); font-size:.92rem; }
 .desc { margin:6px 0 0; color:var(--muted); font-size:.92rem; }
 .cores { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
 .cores span { font-size:.78rem; border:1px solid var(--line); border-radius:999px; padding:3px 9px; color:var(--muted); }
@@ -244,9 +246,10 @@ function card(i) {
       (vs.length ? '<span class="voto-selo">' + vs.map(function (v) { return '<span>' + v + '</span>'; }).join('') + '</span>' : '') + '</a>' +
     '<div class="info"><p class="colecao">' + esc(i.colecao || i.marca) + '</p>' +
       (i.peca ? '<p class="peca">' + esc(i.peca) + '</p>' : '') +
+      (i.preco || i.loja ? '<p class="preco">' + esc([i.preco, i.loja].filter(Boolean).join(' · ')) + '</p>' : '') +
       (i.descricao ? '<p class="desc">' + esc(i.descricao) + '</p>' : '') +
       (i.cores && i.cores.length ? '<div class="cores">' + i.cores.map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>' : '') +
-      (i.link ? '<a class="ver" href="' + esc(i.link) + '" target="_blank" rel="noopener">Ver lançamento →</a>' : '') +
+      (i.link ? '<a class="ver" href="' + esc(i.link) + '" target="_blank" rel="noopener">Ver na loja →</a>' : '') +
       (fvoto === 'todas-semanas' ? '<p class="desc">Semana de ' + dataBR(i.semana) + '</p>' : '') +
     '</div>' +
     '<div class="votos">' +
