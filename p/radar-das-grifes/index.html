@@ -227,7 +227,7 @@ function desenha() {
   if (!itens.length) { document.getElementById('lista').innerHTML = '<div class="vazio">Nada aqui com esse filtro.</div>'; return; }
   var html = '';
   GRUPOS.forEach(function (g) {
-    var gi = itens.filter(function (i) { return i.grupo === g; });
+    var gi = itens.filter(function (i) { return i.grupo === g; }).sort(function (a, b) { return (b.imagem ? 1 : 0) - (a.imagem ? 1 : 0); });
     if (!gi.length) return;
     var marcas = []; gi.forEach(function (i) { if (marcas.indexOf(i.marca) < 0) marcas.push(i.marca); });
     html += '<h2 class="grupo-t">' + g + '<small>' + marcas.length + ' marcas</small></h2><div class="grid">' + gi.map(card).join('') + '</div>';
