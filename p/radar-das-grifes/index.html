@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Radar">
+<title>Radar das Grifes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --bg:#ffffff; --tile:#f6f3f2; --fg:#141212; --muted:#6f6765; --line:#ece7e5; --accent:#c8102e; --accent-soft:#fbe9ec;
+  --ok:#1f8a55; --ok-soft:#e5f4ec; --no:#c8102e; --no-soft:#fbe9ec; --gold:#b8892b; --gold-soft:#f7efdc;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Figtree","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#0f0d0d; --tile:#1c1919; --fg:#f4f0ef; --muted:#a39b99; --line:#2c2727; --accent:#ff4d63; --accent-soft:#3a1a20;
+  --ok:#3ccf86; --ok-soft:#15301f; --no:#ff4d63; --no-soft:#3a1a20; --gold:#e0b45a; --gold-soft:#2e2615; } }
+:root[data-theme="dark"] { --bg:#0f0d0d; --tile:#1c1919; --fg:#f4f0ef; --muted:#a39b99; --line:#2c2727; --accent:#ff4d63; --accent-soft:#3a1a20;
+  --ok:#3ccf86; --ok-soft:#15301f; --no:#ff4d63; --no-soft:#3a1a20; --gold:#e0b45a; --gold-soft:#2e2615; }
+* { box-sizing:border-box; }
+html,body { margin:0; }
+body { background:var(--bg); color:var(--fg); font:16px/1.4 var(--body); padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+button { font:inherit; color:inherit; cursor:pointer; }
+[hidden] { display:none !important; }
+.wrap { max-width:1180px; margin:0 auto; padding:0 16px 64px; }
+a { color:inherit; }
+
+/* senha */
+#lock { position:fixed; inset:0; z-index:50; background:var(--bg); display:grid; place-items:center; padding:16px; }
+.lockbox { width:100%; max-width:22rem; display:flex; flex-direction:column; gap:16px; }
+.lockbox h1 { font:900 2.2rem/.95 var(--display); font-stretch:112%; margin:0; letter-spacing:-.02em; }
+.lockbox h1 span { color:var(--accent); }
+.lockbox p { margin:0; color:var(--muted); }
+.pw { display:flex; gap:8px; }
+.pw input { flex:1; min-width:0; font:600 1.1rem var(--body); color:var(--fg); background:var(--tile); border:1px solid var(--line); border-radius:14px; padding:14px 16px; outline:none; }
+.pw input:focus { border-color:var(--accent); }
+.pw button { border:0; background:var(--fg); color:var(--bg); border-radius:14px; padding:0 18px; font-weight:700; }
+.err { color:var(--accent); font-weight:600; min-height:1.4em; }
+
+/* topo */
+header.top { position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+.bar { max-width:1180px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:12px; }
+.back { text-decoration:none; color:var(--muted); font-weight:600; font-size:.9rem; white-space:nowrap; }
+.bar h1 { margin:0; font:900 1.25rem/1 var(--display); font-stretch:112%; letter-spacing:-.01em; flex:1; }
+.bar h1 span { color:var(--accent); }
+select.sem { font:600 .9rem var(--body); color:var(--fg); background:var(--tile); border:1px solid var(--line); border-radius:10px; padding:8px 10px; }
+
+.hero { padding:22px 0 8px; }
+.hero h2 { margin:0 0 6px; font:900 clamp(1.9rem,6vw,3rem)/.95 var(--display); font-stretch:115%; letter-spacing:-.025em; }
+.hero p { margin:0; color:var(--muted); max-width:46rem; }
+
+.chips { display:flex; gap:8px; overflow-x:auto; padding:14px 0 4px; scrollbar-width:none; }
+.chips::-webkit-scrollbar { display:none; }
+.chip { flex:none; border:1px solid var(--line); background:var(--bg); border-radius:999px; padding:8px 14px; font-weight:600; font-size:.9rem; white-space:nowrap; }
+.chip[aria-pressed="true"] { background:var(--fg); color:var(--bg); border-color:var(--fg); }
+.chip .n { opacity:.6; margin-left:4px; font-weight:500; }
+
+.insights { display:grid; gap:12px; grid-template-columns:1fr; margin:14px 0 6px; }
+@media (min-width:820px) { .insights { grid-template-columns:1fr 1fr; } }
+.box { background:var(--tile); border-radius:18px; padding:16px 18px; }
+.box h3 { margin:0 0 8px; font:800 .78rem/1 var(--display); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.box ul { margin:0; padding-left:18px; }
+.box li { margin:4px 0; }
+.box.sp { background:var(--fg); color:var(--bg); }
+.box.sp h3 { color:color-mix(in srgb, var(--bg) 70%, transparent); }
+.box.sp p { margin:0; white-space:pre-line; }
+
+.grupo-t { margin:28px 0 12px; font:900 1.35rem/1 var(--display); font-stretch:112%; display:flex; align-items:baseline; gap:10px; }
+.grupo-t small { font:600 .85rem var(--body); color:var(--muted); }
+.grid { display:grid; gap:16px; grid-template-columns:1fr; }
+@media (min-width:600px) { .grid { grid-template-columns:repeat(2,1fr); } }
+@media (min-width:960px) { .grid { grid-template-columns:repeat(3,1fr); } }
+
+.card { border:1px solid var(--line); border-radius:20px; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; }
+.foto { position:relative; aspect-ratio:4/5; background:var(--tile); display:block; overflow:hidden; }
+.foto img { width:100%; height:100%; object-fit:cover; display:block; }
+.foto .sem { position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:20px; color:var(--muted); font-weight:600; }
+.foto .sem b { display:block; font:900 1.8rem/1 var(--display); color:var(--fg); margin-bottom:8px; }
+.selo { position:absolute; left:12px; top:12px; background:rgba(20,18,18,.78); color:#fff; font:800 .78rem/1 var(--display); letter-spacing:.06em; text-transform:uppercase; padding:7px 10px; border-radius:999px; }
+.voto-selo { position:absolute; right:12px; top:12px; display:flex; gap:6px; }
+.voto-selo span { background:rgba(255,255,255,.92); color:#141212; font:700 .75rem var(--body); padding:6px 9px; border-radius:999px; }
+.info { padding:14px 16px 4px; }
+.colecao { font:900 1.15rem/1.1 var(--display); font-stretch:108%; margin:0; }
+.peca { margin:4px 0 0; font-weight:600; }
+.desc { margin:6px 0 0; color:var(--muted); font-size:.92rem; }
+.cores { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.cores span { font-size:.78rem; border:1px solid var(--line); border-radius:999px; padding:3px 9px; color:var(--muted); }
+.ver { display:inline-block; margin-top:10px; font-weight:700; font-size:.9rem; color:var(--accent); text-decoration:none; }
+.votos { padding:12px 16px 16px; display:grid; gap:8px; margin-top:auto; }
+.par { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.v { border:1px solid var(--line); background:var(--tile); border-radius:12px; padding:11px 8px; font-weight:700; font-size:.92rem; }
+.v.sim[aria-pressed="true"] { background:var(--ok); border-color:var(--ok); color:#fff; }
+.v.nao[aria-pressed="true"] { background:var(--no); border-color:var(--no); color:#fff; }
+.nota { display:flex; gap:8px; }
+.nota input { flex:1; min-width:0; font:500 .92rem var(--body); color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:10px 12px; outline:none; }
+.nota input:focus { border-color:var(--fg); }
+.mic { border:1px solid var(--line); background:var(--bg); border-radius:12px; width:44px; display:grid; place-items:center; }
+.mic svg { width:20px; height:20px; }
+.mic.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+.vazio { padding:40px 0; text-align:center; color:var(--muted); }
+.resumo { display:grid; gap:10px; grid-template-columns:repeat(2,1fr); margin:14px 0; }
+@media (min-width:820px) { .resumo { grid-template-columns:repeat(4,1fr); } }
+.stat { background:var(--tile); border-radius:16px; padding:14px; }
+.stat b { display:block; font:900 1.8rem/1 var(--display); }
+.stat span { color:var(--muted); font-size:.85rem; font-weight:600; }
+.toast { position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:10px 16px; border-radius:999px; font-weight:600; font-size:.9rem; z-index:60; opacity:0; transition:opacity .2s; pointer-events:none; }
+.toast.on { opacity:1; }
+</style>
+</head><body>
+
+<div id="lock">
+  <div class="lockbox">
+    <h1>Radar das <span>Grifes</span></h1>
+    <p>O que as grandes marcas estão lançando.</p>
+    <form class="pw" onsubmit="entrar(event)">
+      <input id="senha" type="password" autocomplete="current-password" placeholder="Senha" aria-label="Senha">
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<div id="site" hidden>
+  <header class="top"><div class="bar">
+    <a class="back" href="https://spgrifes.github.io/Rh/central/">← Central</a>
+    <h1>Radar das <span>Grifes</span></h1>
+    <select class="sem" id="sem" aria-label="Semana" onchange="trocaSemana(this.value)"></select>
+  </div></header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h2 id="titulo">Lançamentos da semana</h2>
+      <p>Toque em <b>Gostei</b> e <b>Venderia</b> em cada peça. Tudo fica guardado para você rever depois.</p>
+    </section>
+
+    <div class="chips" id="fGrupo" role="group" aria-label="Categoria"></div>
+    <div class="chips" id="fVoto" role="group" aria-label="Minha avaliação"></div>
+
+    <div class="insights" id="insights"></div>
+    <div id="lista"></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var SB = 'https://hkhbyeygzfdhwxsdgaxl.supabase.co';
+var KEY = 'sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1';
+var GRUPOS = ['Luxo', 'Streetwear de luxo', 'Clássicas', 'Esporte premium'];
+var VOTOS = [['todos','Todas'],['sem','Sem avaliação'],['gostei','Gostei'],['naogostei','Não gostei'],['venderia','Venderia'],['naovenderia','Não venderia'],['todas-semanas','Tudo que gostei (todas as semanas)']];
+var D = { itens: [], semanas: [] }, semana = null, grupo = 'Todos', fvoto = 'todos', SENHA = '';
+
+function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
+function norm(s) { return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(function () { e.classList.remove('on'); }, 1600); }
+function rpc(fn, body) {
+  return fetch(SB + '/rest/v1/rpc/' + fn, { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.status === 204 ? null : r.json(); });
+}
+function dataBR(d) { var p = d.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+
+function entrar(ev) {
+  if (ev) ev.preventDefault();
+  var s = norm(document.getElementById('senha').value);
+  if (s !== 'abencoado') { document.getElementById('err').textContent = 'Senha errada.'; return; }
+  SENHA = 'abencoado'; ls('cc-pw', s); carregar();
+}
+function carregar() {
+  rpc('radar_listar', { senha: SENHA }).then(function (d) {
+    D = d || { itens: [], semanas: [] };
+    document.getElementById('lock').hidden = true; document.getElementById('site').hidden = false;
+    var sems = []; D.itens.forEach(function (i) { if (sems.indexOf(i.semana) < 0) sems.push(i.semana); });
+    D.semanas.forEach(function (s) { if (sems.indexOf(s.semana) < 0) sems.push(s.semana); });
+    sems.sort().reverse();
+    var sel = document.getElementById('sem');
+    sel.innerHTML = sems.map(function (s, k) { return '<option value="' + s + '">' + (k === 0 ? 'Esta semana · ' : 'Semana de ') + dataBR(s) + '</option>'; }).join('') || '<option>Sem relatórios</option>';
+    semana = sems[0] || null;
+    desenha();
+  }).catch(function () {
+    ls('cc-pw', null);
+    document.getElementById('lock').hidden = false; document.getElementById('site').hidden = true;
+    document.getElementById('err').textContent = 'Não consegui abrir agora. Tente de novo.';
+  });
+}
+function trocaSemana(v) { semana = v; desenha(); window.scrollTo(0, 0); }
+
+function passaVoto(i) {
+  if (fvoto === 'sem') return i.gostei == null && i.venderia == null;
+  if (fvoto === 'gostei' || fvoto === 'todas-semanas') return i.gostei === true;
+  if (fvoto === 'naogostei') return i.gostei === false;
+  if (fvoto === 'venderia') return i.venderia === true;
+  if (fvoto === 'naovenderia') return i.venderia === false;
+  return true;
+}
+function desenha() {
+  var daSemana = D.itens.filter(function (i) { return fvoto === 'todas-semanas' || i.semana === semana; });
+  // filtros
+  var fg = document.getElementById('fGrupo');
+  fg.innerHTML = ['Todos'].concat(GRUPOS).map(function (g) {
+    var n = g === 'Todos' ? daSemana.length : daSemana.filter(function (i) { return i.grupo === g; }).length;
+    return '<button class="chip" aria-pressed="' + (grupo === g) + '" onclick="grupo=\'' + g + '\';desenha()">' + g + '<span class="n">' + n + '</span></button>';
+  }).join('');
+  document.getElementById('fVoto').innerHTML = VOTOS.map(function (v) {
+    return '<button class="chip" aria-pressed="' + (fvoto === v[0]) + '" onclick="fvoto=\'' + v[0] + '\';desenha()">' + v[1] + '</button>';
+  }).join('');
+
+  document.getElementById('titulo').textContent = fvoto === 'todas-semanas' ? 'Tudo que você gostou' : (semana ? 'Lançamentos · ' + dataBR(semana) : 'Lançamentos da semana');
+
+  // tendências e sugestão
+  var s = D.semanas.filter(function (x) { return x.semana === semana; })[0];
+  var ins = '';
+  if (s && fvoto !== 'todas-semanas') {
+    if (s.tendencias && s.tendencias.length) ins += '<div class="box"><h3>O que se repete entre as marcas</h3><ul>' + s.tendencias.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
+    if (s.sugestao) ins += '<div class="box sp"><h3>O que a SP Grifes pode trazer</h3><p>' + esc(s.sugestao) + '</p></div>';
+  }
+  var av = daSemana.filter(function (i) { return i.gostei != null || i.venderia != null; }).length;
+  if (fvoto !== 'todas-semanas' && daSemana.length) {
+    ins += '<div class="resumo" style="grid-column:1/-1">' +
+      '<div class="stat"><b>' + daSemana.length + '</b><span>lançamentos</span></div>' +
+      '<div class="stat"><b>' + av + '</b><span>avaliados</span></div>' +
+      '<div class="stat"><b>' + daSemana.filter(function (i) { return i.gostei === true; }).length + '</b><span>gostei</span></div>' +
+      '<div class="stat"><b>' + daSemana.filter(function (i) { return i.venderia === true; }).length + '</b><span>venderia</span></div></div>';
+  }
+  document.getElementById('insights').innerHTML = ins;
+
+  var itens = daSemana.filter(function (i) { return (grupo === 'Todos' || i.grupo === grupo) && passaVoto(i); });
+  if (!itens.length) { document.getElementById('lista').innerHTML = '<div class="vazio">Nada aqui com esse filtro.</div>'; return; }
+  var html = '';
+  GRUPOS.forEach(function (g) {
+    var gi = itens.filter(function (i) { return i.grupo === g; });
+    if (!gi.length) return;
+    var marcas = []; gi.forEach(function (i) { if (marcas.indexOf(i.marca) < 0) marcas.push(i.marca); });
+    html += '<h2 class="grupo-t">' + g + '<small>' + marcas.length + ' marcas</small></h2><div class="grid">' + gi.map(card).join('') + '</div>';
+  });
+  document.getElementById('lista').innerHTML = html;
+}
+function card(i) {
+  var foto = i.imagem ? '<img src="' + esc(i.imagem) + '" alt="' + esc(i.marca + ' — ' + (i.peca || '')) + '" loading="lazy" referrerpolicy="no-referrer" onerror="semFoto(this)">' : '';
+  var sem = '<div class="sem"' + (i.imagem ? ' hidden' : '') + '><div><b>' + esc(i.marca) + '</b>Foto no site da marca</div></div>';
+  var vs = [];
+  if (i.gostei === true) vs.push('Gostei'); if (i.gostei === false) vs.push('Não gostei');
+  if (i.venderia === true) vs.push('Venderia'); if (i.venderia === false) vs.push('Não venderia');
+  return '<article class="card" id="i' + i.id + '">' +
+    '<a class="foto" href="' + esc(i.link || '#') + '" target="_blank" rel="noopener">' + foto + sem +
+      '<span class="selo">' + esc(i.marca) + '</span>' +
+      (vs.length ? '<span class="voto-selo">' + vs.map(function (v) { return '<span>' + v + '</span>'; }).join('') + '</span>' : '') + '</a>' +
+    '<div class="info"><p class="colecao">' + esc(i.colecao || i.marca) + '</p>' +
+      (i.peca ? '<p class="peca">' + esc(i.peca) + '</p>' : '') +
+      (i.descricao ? '<p class="desc">' + esc(i.descricao) + '</p>' : '') +
+      (i.cores && i.cores.length ? '<div class="cores">' + i.cores.map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>' : '') +
+      (i.link ? '<a class="ver" href="' + esc(i.link) + '" target="_blank" rel="noopener">Ver lançamento →</a>' : '') +
+      (fvoto === 'todas-semanas' ? '<p class="desc">Semana de ' + dataBR(i.semana) + '</p>' : '') +
+    '</div>' +
+    '<div class="votos">' +
+      '<div class="par"><button class="v sim" aria-pressed="' + (i.gostei === true) + '" onclick="vota(' + i.id + ',\'gostei\',true)">Gostei</button>' +
+      '<button class="v nao" aria-pressed="' + (i.gostei === false) + '" onclick="vota(' + i.id + ',\'gostei\',false)">Não gostei</button></div>' +
+      '<div class="par"><button class="v sim" aria-pressed="' + (i.venderia === true) + '" onclick="vota(' + i.id + ',\'venderia\',true)">Venderia</button>' +
+      '<button class="v nao" aria-pressed="' + (i.venderia === false) + '" onclick="vota(' + i.id + ',\'venderia\',false)">Não venderia</button></div>' +
+      '<div class="nota"><input id="n' + i.id + '" value="' + esc(i.nota || '') + '" placeholder="Comentário (ex.: trazer em preto)" onchange="salvaNota(' + i.id + ')">' +
+      '<button class="mic" aria-label="Falar comentário" onclick="falar(' + i.id + ',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>' +
+    '</div></article>';
+}
+function semFoto(img) { var s = img.parentNode.querySelector('.sem'); if (s) s.hidden = false; img.remove(); }
+function acha(id) { return D.itens.filter(function (x) { return x.id === id; })[0]; }
+function grava(i) {
+  return rpc('radar_votar', { senha: SENHA, item: i.id, p_gostei: i.gostei, p_venderia: i.venderia, p_nota: i.nota || '' })
+    .then(function () { toast('Salvo'); }).catch(function () { toast('Não salvou. Tente de novo.'); });
+}
+function vota(id, campo, val) {
+  var i = acha(id); if (!i) return;
+  i[campo] = i[campo] === val ? null : val;
+  var y = window.scrollY; desenha(); window.scrollTo(0, y);
+  grava(i);
+}
+function salvaNota(id) { var i = acha(id); if (!i) return; i.nota = document.getElementById('n' + id).value; grava(i); }
+function falar(id, btn) {
+  var R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!R) { document.getElementById('n' + id).focus(); toast('Use o microfone do teclado'); return; }
+  var r = new R(); r.lang = 'pt-BR'; r.interimResults = false;
+  btn.classList.add('on');
+  r.onresult = function (e) { var inp = document.getElementById('n' + id); inp.value = (inp.value ? inp.value + ' ' : '') + e.results[0][0].transcript; salvaNota(id); };
+  r.onend = function () { btn.classList.remove('on'); };
+  r.onerror = function () { btn.classList.remove('on'); toast('Use o microfone do teclado'); };
+  r.start();
+}
+
+(function () { var s = ls('cc-pw'); if (s && norm(s) === 'abencoado') { SENHA = 'abencoado'; carregar(); } })();
+</script>
+</body></html>
