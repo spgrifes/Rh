@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lojistas">
-<title>Lojistas e Atacado</title>
+<title>Club do Lojista</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
 :root { --bg:#ffffff; --tile:#f6f3f2; --fg:#141212; --muted:#6f6765; --line:#ece7e5; --accent:#c8102e; --ok:#1f8a55; --gold:#b8892b;
@@ -59,14 +59,14 @@ label { display:grid; gap:4px; font-weight:600; font-size:.88rem; }
 .toast.on { opacity:1; }
 </style></head><body>
 <div id="lock"><div class="lockbox">
-  <h1>Lojistas e <span>Atacado</span></h1>
+  <h1>Club do <span>Lojista</span></h1>
   <p>Digite a senha uma vez. O celular lembra nas próximas vezes.</p>
   <form class="pw" onsubmit="entrar(event)"><input id="senha" type="password" placeholder="Senha" aria-label="Senha"><button class="b">Entrar</button></form>
   <div class="err" id="err"></div>
 </div></div>
 
 <div id="app" hidden>
-<header class="top"><div class="bar"><a href="https://spgrifes.github.io/Rh/central/">← Central</a><h1>Lojistas e <span>Atacado</span></h1>
+<header class="top"><div class="bar"><a href="https://spgrifes.github.io/Rh/central/">← Central</a><h1>Club do <span>Lojista</span></h1>
   <button class="b" onclick="novo()">+ Lojista</button></div></header>
 <main class="wrap">
   <div class="stats" id="stats"></div>
@@ -83,8 +83,8 @@ label { display:grid; gap:4px; font-weight:600; font-size:.88rem; }
   <div id="lista"></div>
 
   <div class="box">
-    <h2>Grupo de lojistas no WhatsApp</h2>
-    <p>Cole aqui o link do grupo de lojistas. Quem se cadastrar no Kit vê o botão para entrar.</p>
+    <h2>Grupo do Club no WhatsApp</h2>
+    <p>Cole aqui o link do grupo de lojistas. Quem entrar no Club vê o botão para entrar.</p>
     <div class="row"><input id="link" placeholder="https://..."><button class="b" onclick="salvarLink()">Salvar</button></div>
   </div>
 
@@ -93,7 +93,7 @@ label { display:grid; gap:4px; font-weight:600; font-size:.88rem; }
     <p>Chega toda segunda: ideias para o consumidor e para o lojista.</p>
     <div id="pautas"></div>
   </div>
-  <p style="color:var(--muted);font-size:.85rem">Página pública para os lojistas se cadastrarem: <a href="https://spgrifes.github.io/Rh/p/kit-do-lojista/" target="_blank" rel="noopener">spgrifes.github.io/Rh/p/kit-do-lojista</a></p>
+  <p style="color:var(--muted);font-size:.85rem">Página pública para os lojistas se cadastrarem: <a href="https://spgrifes.github.io/Rh/p/club-do-lojista/" target="_blank" rel="noopener">spgrifes.github.io/Rh/p/club-do-lojista</a></p>
 </main>
 </div>
 
@@ -141,7 +141,7 @@ function desenhar() {
     return '<div class="lj"><div class="n">' + esc(l.nome) + (l.loja ? ' · ' + esc(l.loja) : '') + '</div>' +
       '<div class="m">' + at + esc([l.cidade, l.uf].filter(Boolean).join('/')) + (l.tipo ? ' · ' + esc(l.tipo) : '') + ig + '</div>' +
       (l.interesse ? '<div class="m">Vende mais: ' + esc(l.interesse) + '</div>' : '') + (l.obs ? '<div class="m">Obs.: ' + esc(l.obs) + '</div>' : '') +
-      '<div class="m">' + (l.origem === 'manual' ? 'Cadastrado pela equipe' : 'Veio pelo Kit') + ' em ' + new Date(l.criado).toLocaleDateString('pt-BR') + (l.acessos ? ' · abriu o kit ' + l.acessos + 'x' : '') + '</div>' +
+      '<div class="m">' + (l.origem === 'manual' ? 'Cadastrado pela equipe' : 'Veio pelo Club') + ' em ' + new Date(l.criado).toLocaleDateString('pt-BR') + (l.acessos ? ' · abriu o Club ' + l.acessos + 'x' : '') + '</div>' +
       '<div class="row"><a class="wa" href="#" onclick="return enviar(' + l.id + ')">Enviar no WhatsApp</a><button onclick="editar(' + l.id + ')">Editar</button></div></div>';
   }).join('') : '<p style="color:var(--muted)">Nenhum lojista aqui ainda.</p>';
   document.getElementById('pautas').innerHTML = P.length ? P.map(function (p, i) {
