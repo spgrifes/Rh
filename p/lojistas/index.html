@@ -44,7 +44,7 @@ header.top { position:sticky; top:0; z-index:20; background:color-mix(in srgb, v
 .lj .n { font:800 1.05rem/1.2 var(--display); }
 .lj .m { color:var(--muted); font-size:.9rem; }
 .tag { display:inline-block; font:700 .72rem/1 var(--body); padding:5px 8px; border-radius:999px; background:var(--tile); margin-right:6px; }
-.tag.sim { background:var(--ok); color:#fff; } .tag.quero { background:var(--gold); color:#fff; }
+.tag.sim { background:var(--ok); color:#fff; } .tag.st-aprovado { background:var(--ok); color:#fff; } .tag.st-negado, .tag.st-bloqueado { background:var(--accent); color:#fff; } .tag.st-duvida { background:var(--gold); color:#fff; } .tag.quero { background:var(--gold); color:#fff; }
 .lj .row a, .lj .row button { flex:0 0 auto; text-decoration:none; border:1px solid var(--line); background:var(--bg); border-radius:10px; padding:8px 12px; font-weight:700; font-size:.85rem; color:var(--fg); }
 .lj .row a.wa { background:var(--ok); color:#fff; border-color:var(--ok); }
 details summary { cursor:pointer; font-weight:700; }
@@ -125,12 +125,12 @@ function entrar(ev) { ev.preventDefault(); SENHA = document.getElementById('senh
   carregar().then(function () { ls('lj_senha', SENHA); document.getElementById('lock').hidden = true; document.getElementById('app').hidden = false; })
   .catch(function (x) { document.getElementById('err').textContent = String(x.message).indexOf('senha') >= 0 ? 'Senha errada.' : 'Sem internet. Tente de novo.'; }); }
 
-var FS = [['todos','Todos'],['sim','Já compram'],['quero comprar','Querem comprar'],['nao','Só material'],['manual','Cadastrados pela equipe']];
-function passa(l) { if (F === 'todos') return true; if (F === 'manual') return l.origem === 'manual'; return l.compra_atacado === F; }
+var FS = [['todos','Todos'],['st:duvida','Para você decidir'],['st:aprovado','Aprovados'],['st:negado','Negados'],['sim','Já compram'],['quero comprar','Querem comprar'],['nao','Só material'],['manual','Cadastrados pela equipe']];
+function passa(l) { if (F === 'todos') return true; if (F.indexOf('st:') === 0) return l.status === F.slice(3); if (F === 'manual') return l.origem === 'manual'; return l.compra_atacado === F; }
 function desenhar() {
-  var tot = L.length, sim = L.filter(function (l) { return l.compra_atacado === 'sim'; }).length, quero = L.filter(function (l) { return l.compra_atacado === 'quero comprar'; }).length;
+  var duv = L.filter(function (l) { return l.status === 'duvida'; }).length, tot = L.length, sim = L.filter(function (l) { return l.compra_atacado === 'sim'; }).length, quero = L.filter(function (l) { return l.compra_atacado === 'quero comprar'; }).length;
   var semana = L.filter(function (l) { return (Date.now() - new Date(l.criado)) < 7 * 864e5; }).length;
-  document.getElementById('stats').innerHTML = [[tot,'lojistas cadastrados'],[semana,'novos nos últimos 7 dias'],[sim,'já compram no atacado'],[quero,'querem comprar']]
+  document.getElementById('stats').innerHTML = [[tot,'lojistas cadastrados'],[duv,'para você decidir'],[sim,'já compram no atacado'],[quero,'querem comprar']]
     .map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
   document.getElementById('filtros').innerHTML = FS.map(function (f) { return '<button class="chip" aria-pressed="' + (F === f[0]) + '" onclick="F=\'' + f[0] + '\';desenhar()">' + f[1] + '</button>'; }).join('');
   var q = document.getElementById('busca').value.toLowerCase();
@@ -138,11 +138,13 @@ function desenhar() {
   document.getElementById('lista').innerHTML = v.length ? v.map(function (l) {
     var at = l.compra_atacado === 'sim' ? '<span class="tag sim">Já compra</span>' : l.compra_atacado === 'quero comprar' ? '<span class="tag quero">Quer comprar</span>' : '<span class="tag">Só material</span>';
     var ig = l.instagram ? ' · <a href="https://instagram.com/' + esc(String(l.instagram).replace('@','')) + '" target="_blank" rel="noopener">' + esc(l.instagram) + '</a>' : '';
+    var STN = { pendente:'Em análise', aprovado:'Aprovado', duvida:'Para você decidir', negado:'Negado', bloqueado:'Bloqueado' };
+    var st = '<span class="tag st-' + esc(l.status) + '">' + (STN[l.status] || 'Em análise') + (l.nota != null ? ' · nota ' + l.nota : '') + '</span>';
     return '<div class="lj"><div class="n">' + esc(l.nome) + (l.loja ? ' · ' + esc(l.loja) : '') + '</div>' +
-      '<div class="m">' + at + esc([l.cidade, l.uf].filter(Boolean).join('/')) + (l.tipo ? ' · ' + esc(l.tipo) : '') + ig + '</div>' +
-      (l.interesse ? '<div class="m">Vende mais: ' + esc(l.interesse) + '</div>' : '') + (l.obs ? '<div class="m">Obs.: ' + esc(l.obs) + '</div>' : '') +
+      '<div class="m">' + st + at + esc([l.cidade, l.uf].filter(Boolean).join('/')) + (l.tipo ? ' · ' + esc(l.tipo) : '') + ig + '</div>' +
+      (l.interesse ? '<div class="m">Vende mais: ' + esc(l.interesse) + '</div>' : '') + (l.obs ? '<div class="m">Obs.: ' + esc(l.obs) + '</div>' : '') + (l.motivo ? '<div class="m">Análise: ' + esc(l.motivo) + '</div>' : '') +
       '<div class="m">' + (l.origem === 'manual' ? 'Cadastrado pela equipe' : 'Veio pelo Club') + ' em ' + new Date(l.criado).toLocaleDateString('pt-BR') + (l.acessos ? ' · abriu o Club ' + l.acessos + 'x' : '') + '</div>' +
-      '<div class="row"><a class="wa" href="#" onclick="return enviar(' + l.id + ')">Enviar no WhatsApp</a><button onclick="editar(' + l.id + ')">Editar</button></div></div>';
+      '<div class="row"><a class="wa" href="#" onclick="return enviar(' + l.id + ')">Enviar no WhatsApp</a><button onclick="editar(' + l.id + ')">Editar</button>' + (l.status !== 'aprovado' ? '<button onclick="mudar(' + l.id + ',\'aprovado\')">Aprovar</button>' : '') + (l.status !== 'negado' ? '<button onclick="mudar(' + l.id + ',\'negado\')">Negar</button>' : '') + (l.status !== 'bloqueado' ? '<button onclick="mudar(' + l.id + ',\'bloqueado\')">Bloquear</button>' : '') + '</div></div>';
   }).join('') : '<p style="color:var(--muted)">Nenhum lojista aqui ainda.</p>';
   document.getElementById('pautas').innerHTML = P.length ? P.map(function (p, i) {
     var item = function (x) { return '• ' + (x.titulo || '') + (x.texto ? ': ' + x.texto : ''); };
@@ -155,6 +157,7 @@ function enviar(id) {
   if (!m) { toast('Escreva a mensagem primeiro'); return false; }
   window.open('https://wa.me/' + l.whatsapp + '?text=' + encodeURIComponent(m.replace(/\{nome\}/g, String(l.nome).split(' ')[0])), '_blank'); return false;
 }
+function mudar(id, st) { rpc('lojista_status', { senha:SENHA, p_id:id, p_status:st, p_motivo:'Decisão manual da equipe' }).then(function () { toast('Salvo'); return carregar(); }); }
 function novo() { EDIT = null; document.getElementById('dlgT').textContent = 'Novo lojista'; dlg.querySelector('form').reset(); dlg.showModal(); }
 function editar(id) { var l = L.filter(function (x) { return x.id === id; })[0], f = dlg.querySelector('form'); EDIT = id; document.getElementById('dlgT').textContent = 'Editar lojista';
   ['nome','whatsapp','loja','cidade','uf','instagram','tipo','obs'].forEach(function (k) { f[k].value = l[k] || ''; }); f.atacado.value = l.compra_atacado || 'sim'; dlg.showModal(); }

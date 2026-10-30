@@ -39,6 +39,9 @@ input:focus, select:focus { border-color:var(--fg); }
 .card img { width:100%; border-radius:12px; margin-top:10px; display:block; }
 .acoes { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
 .acoes button, .acoes a { border:1px solid var(--line); background:var(--bg); color:var(--fg); border-radius:12px; padding:10px 14px; font-weight:700; font-size:.9rem; text-decoration:none; }
+.aviso { background:var(--tile); border-radius:16px; padding:16px; margin:10px 0 16px; }
+.aviso b { display:block; font:800 1.05rem/1.2 var(--display); margin-bottom:6px; }
+.aviso p { margin:0 0 12px; }
 .sair { background:none; border:0; color:var(--muted); text-decoration:underline; padding:0; margin-top:20px; font-size:.85rem; }
 .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:10px 16px; border-radius:999px; font-weight:600; font-size:.9rem; opacity:0; transition:opacity .2s; pointer-events:none; }
 .toast.on { opacity:1; }
@@ -84,6 +87,7 @@ input:focus, select:focus { border-color:var(--fg); }
 
   <section id="kit" hidden>
     <p class="ola" id="ola"></p>
+    <div class="aviso" id="aviso" hidden></div>
     <a class="btn alt" id="grupo" href="#" target="_blank" rel="noopener" hidden>Entrar no grupo do Club no WhatsApp</a>
     <div id="lista"></div>
     <button class="sair" onclick="sair()">Não é você? Trocar de cadastro</button>
@@ -121,14 +125,26 @@ function abrir(wa) {
     document.getElementById('cad').hidden = true; document.getElementById('kit').hidden = false;
     document.getElementById('ola').textContent = 'Olá, ' + String(d.nome || '').split(' ')[0] + '! Bem-vindo ao Club.';
     var g = document.getElementById('grupo'); if (d.grupo) { g.href = d.grupo; g.hidden = false; }
+    aviso(d.status, d.nome);
     ITENS = d.itens || []; desenhar();
   });
 }
 
+function aviso(st, nome) {
+  var a = document.getElementById('aviso'), h = '';
+  var zap = 'https://wa.me/5511999301300?text=' + encodeURIComponent('Olá! Sou ' + (nome || '') + ', lojista, e quero reivindicar meu cadastro no Club do Lojista.');
+  if (st === 'negado' || st === 'bloqueado') {
+    h = '<b>Seu perfil ainda não foi aprovado</b><p>Nosso sistema não conseguiu confirmar que você é lojista. Precisamos de mais provas, como o Instagram da loja, fotos da loja ou uma nota de compra no atacado.</p><p>Fazemos isso para proteger o nosso material contra pessoas que aplicam golpes na internet. Se você é lojista, fale com a nossa equipe e ela libera o seu acesso.</p><a class="btn alt" href="' + zap + '" target="_blank" rel="noopener">Falar com a equipe no WhatsApp</a>';
+    document.getElementById('ola').textContent = 'Olá, ' + String(nome || '').split(' ')[0] + '.';
+  } else if (st !== 'aprovado') {
+    h = '<b>Seu perfil está em análise</b><p>Enquanto isso, os textos e as ideias já estão liberados. As fotos e o grupo do Club são liberados assim que a análise terminar, normalmente em até 1 dia.</p>';
+  }
+  a.innerHTML = h; a.hidden = !h;
+}
 function semanaTxt(s) { var p = String(s).split('-'); return 'Semana de ' + p[2] + '/' + p[1]; }
 function desenhar() {
   var h = '', ult = '';
-  if (!ITENS.length) h = '<p class="lead">O material desta semana chega na segunda-feira.</p>';
+  if (!ITENS.length && document.getElementById('aviso').hidden) h = '<p class="lead">O material desta semana chega na segunda-feira.</p>';
   ITENS.forEach(function (it, i) {
     if (it.semana !== ult) { ult = it.semana; h += '<div class="sem-t">' + semanaTxt(it.semana) + '</div>'; }
     h += '<div class="card"><span class="tag">' + esc(TIPOS[it.tipo] || it.tipo) + '</span><h3>' + esc(it.titulo) + '</h3>' +
