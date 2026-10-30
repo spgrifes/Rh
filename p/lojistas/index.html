@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lojistas">
+<title>Lojistas e Atacado</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root { --bg:#ffffff; --tile:#f6f3f2; --fg:#141212; --muted:#6f6765; --line:#ece7e5; --accent:#c8102e; --ok:#1f8a55; --gold:#b8892b;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Figtree","Helvetica Neue",Arial,sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f0d0d; --tile:#1c1919; --fg:#f4f0ef; --muted:#a39b99; --line:#2c2727; --accent:#ff4d63; --ok:#3ccf86; --gold:#e0b45a; } }
+:root[data-theme="dark"] { --bg:#0f0d0d; --tile:#1c1919; --fg:#f4f0ef; --muted:#a39b99; --line:#2c2727; --accent:#ff4d63; --ok:#3ccf86; --gold:#e0b45a; }
+* { box-sizing:border-box; } html,body { margin:0; }
+body { background:var(--bg); color:var(--fg); font:16px/1.4 var(--body); }
+[hidden] { display:none !important; } button { font:inherit; color:inherit; cursor:pointer; }
+.wrap { max-width:1000px; margin:0 auto; padding:0 16px 64px; }
+#lock { position:fixed; inset:0; z-index:50; background:var(--bg); display:grid; place-items:center; padding:16px; }
+.lockbox { width:100%; max-width:22rem; display:grid; gap:14px; }
+.lockbox h1 { font:900 2.2rem/.95 var(--display); font-stretch:112%; margin:0; }
+.lockbox h1 span, .bar h1 span { color:var(--accent); }
+.pw { display:flex; gap:8px; }
+input, select, textarea { font:500 1rem var(--body); color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:11px 13px; outline:none; width:100%; }
+input:focus, select:focus, textarea:focus { border-color:var(--fg); }
+.pw input { background:var(--tile); }
+.b { border:0; background:var(--fg); color:var(--bg); border-radius:12px; padding:11px 16px; font-weight:700; white-space:nowrap; }
+.b.l { background:var(--tile); color:var(--fg); border:1px solid var(--line); }
+.err { color:var(--accent); font-weight:600; min-height:1.3em; }
+header.top { position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+.bar { max-width:1000px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:12px; }
+.bar a { text-decoration:none; color:var(--muted); font-weight:600; font-size:.9rem; }
+.bar h1 { margin:0; font:900 1.2rem/1 var(--display); font-stretch:112%; flex:1; }
+.stats { display:grid; gap:10px; grid-template-columns:repeat(2,1fr); margin:18px 0; }
+@media (min-width:760px) { .stats { grid-template-columns:repeat(4,1fr); } }
+.stat { background:var(--tile); border-radius:16px; padding:14px; }
+.stat b { display:block; font:900 1.9rem/1 var(--display); }
+.stat span { color:var(--muted); font-size:.85rem; font-weight:600; }
+.box { background:var(--tile); border-radius:18px; padding:16px; margin:12px 0; }
+.box h2 { margin:0 0 10px; font:900 1.1rem/1.1 var(--display); }
+.box p { margin:0 0 10px; color:var(--muted); font-size:.92rem; }
+.row { display:flex; gap:8px; flex-wrap:wrap; }
+.row > * { flex:1 1 180px; }
+.chips { display:flex; gap:8px; overflow-x:auto; padding:6px 0; }
+.chip { flex:none; border:1px solid var(--line); background:var(--bg); border-radius:999px; padding:8px 14px; font-weight:600; font-size:.88rem; }
+.chip[aria-pressed="true"] { background:var(--fg); color:var(--bg); border-color:var(--fg); }
+.lj { border:1px solid var(--line); border-radius:16px; padding:14px; margin:10px 0; display:grid; gap:6px; }
+.lj .n { font:800 1.05rem/1.2 var(--display); }
+.lj .m { color:var(--muted); font-size:.9rem; }
+.tag { display:inline-block; font:700 .72rem/1 var(--body); padding:5px 8px; border-radius:999px; background:var(--tile); margin-right:6px; }
+.tag.sim { background:var(--ok); color:#fff; } .tag.quero { background:var(--gold); color:#fff; }
+.lj .row a, .lj .row button { flex:0 0 auto; text-decoration:none; border:1px solid var(--line); background:var(--bg); border-radius:10px; padding:8px 12px; font-weight:700; font-size:.85rem; color:var(--fg); }
+.lj .row a.wa { background:var(--ok); color:#fff; border-color:var(--ok); }
+details summary { cursor:pointer; font-weight:700; }
+.pauta { white-space:pre-line; font-size:.92rem; }
+dialog { border:0; border-radius:20px; padding:18px; width:min(560px, calc(100% - 32px)); background:var(--bg); color:var(--fg); }
+dialog::backdrop { background:rgba(0,0,0,.45); }
+dialog form { display:grid; gap:10px; }
+label { display:grid; gap:4px; font-weight:600; font-size:.88rem; }
+.mic { flex:0 0 46px !important; border:1px solid var(--line); background:var(--bg); border-radius:12px; }
+.mic.on { background:var(--accent); color:#fff; }
+.toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:10px 16px; border-radius:999px; font-weight:600; font-size:.9rem; opacity:0; transition:opacity .2s; pointer-events:none; z-index:70; }
+.toast.on { opacity:1; }
+</style></head><body>
+<div id="lock"><div class="lockbox">
+  <h1>Lojistas e <span>Atacado</span></h1>
+  <p>Digite a senha uma vez. O celular lembra nas próximas vezes.</p>
+  <form class="pw" onsubmit="entrar(event)"><input id="senha" type="password" placeholder="Senha" aria-label="Senha"><button class="b">Entrar</button></form>
+  <div class="err" id="err"></div>
+</div></div>
+
+<div id="app" hidden>
+<header class="top"><div class="bar"><a href="https://spgrifes.github.io/Rh/central/">← Central</a><h1>Lojistas e <span>Atacado</span></h1>
+  <button class="b" onclick="novo()">+ Lojista</button></div></header>
+<main class="wrap">
+  <div class="stats" id="stats"></div>
+
+  <div class="box">
+    <h2>Mensagem para os lojistas</h2>
+    <p>Escreva (ou fale no microfone) o aviso, por exemplo "chegou grade de polo". Depois toque em <b>Enviar</b> em cada lojista: o WhatsApp abre com a mensagem pronta e o nome dele.</p>
+    <div class="row"><textarea id="msg" rows="3" placeholder="Fala, {nome}! Chegou grade nova de polo no atacado..."></textarea><button class="mic" id="micMsg" onclick="falar('msg', this)" aria-label="Falar">🎤</button></div>
+    <p style="margin-top:8px">Use <b>{nome}</b> para entrar o primeiro nome de cada um.</p>
+  </div>
+
+  <div class="row" style="margin-top:6px"><input id="busca" placeholder="Buscar nome, loja, cidade" oninput="desenhar()"><button class="b l" onclick="csv()">Baixar planilha</button></div>
+  <div class="chips" id="filtros"></div>
+  <div id="lista"></div>
+
+  <div class="box">
+    <h2>Grupo de lojistas no WhatsApp</h2>
+    <p>Cole aqui o link do grupo de lojistas. Quem se cadastrar no Kit vê o botão para entrar.</p>
+    <div class="row"><input id="link" placeholder="https://..."><button class="b" onclick="salvarLink()">Salvar</button></div>
+  </div>
+
+  <div class="box">
+    <h2>Pauta da semana do grupo</h2>
+    <p>Chega toda segunda: ideias para o consumidor e para o lojista.</p>
+    <div id="pautas"></div>
+  </div>
+  <p style="color:var(--muted);font-size:.85rem">Página pública para os lojistas se cadastrarem: <a href="https://spgrifes.github.io/Rh/p/kit-do-lojista/" target="_blank" rel="noopener">spgrifes.github.io/Rh/p/kit-do-lojista</a></p>
+</main>
+</div>
+
+<dialog id="dlg"><form method="dialog" onsubmit="salvar(event)">
+  <h2 style="margin:0;font:900 1.2rem var(--display)" id="dlgT">Novo lojista</h2>
+  <label>Nome <input name="nome" required></label>
+  <label>WhatsApp <input name="whatsapp" required inputmode="tel"></label>
+  <label>Loja <input name="loja"></label>
+  <div class="row"><label>Cidade <input name="cidade"></label><label style="flex:0 0 80px">UF <input name="uf" maxlength="2"></label></div>
+  <label>Instagram <input name="instagram"></label>
+  <label>Tipo <select name="tipo"><option></option><option>Loja física</option><option>Loja online</option><option>Loja física e online</option><option>Revendedor autônomo</option></select></label>
+  <label>Atacado <select name="atacado"><option value="sim">Já compra</option><option value="quero comprar">Quer comprar</option><option value="nao">Só material</option></select></label>
+  <label>Observação <div class="row"><textarea name="obs" id="obs" rows="2" placeholder="Ex.: compra grade de polo todo mês"></textarea><button type="button" class="mic" onclick="falar('obs', this)" aria-label="Falar">🎤</button></div></label>
+  <div class="row"><button type="button" class="b l" onclick="dlg.close()">Cancelar</button><button class="b">Salvar</button></div>
+</form></dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+var SB = 'https://hkhbyeygzfdhwxsdgaxl.supabase.co', KEY = 'sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1';
+var SENHA = '', L = [], P = [], F = 'todos', EDIT = null, dlg = document.getElementById('dlg');
+function rpc(fn, body) { return fetch(SB + '/rest/v1/rpc/' + fn, { method:'POST', headers:{ apikey:KEY, Authorization:'Bearer ' + KEY, 'Content-Type':'application/json' }, body:JSON.stringify(body) })
+  .then(function (r) { return r.text().then(function (t) { if (!r.ok) throw new Error(t); return t ? JSON.parse(t) : null; }); }); }
+function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.classList.add('on'); setTimeout(function () { e.classList.remove('on'); }, 1800); }
+
+function carregar() { return rpc('lojistas_listar', { senha:SENHA }).then(function (d) { L = d.lojistas || []; P = d.pautas || []; document.getElementById('link').value = d.grupo || ''; desenhar(); }); }
+function entrar(ev) { ev.preventDefault(); SENHA = document.getElementById('senha').value;
+  carregar().then(function () { ls('lj_senha', SENHA); document.getElementById('lock').hidden = true; document.getElementById('app').hidden = false; })
+  .catch(function (x) { document.getElementById('err').textContent = String(x.message).indexOf('senha') >= 0 ? 'Senha errada.' : 'Sem internet. Tente de novo.'; }); }
+
+var FS = [['todos','Todos'],['sim','Já compram'],['quero comprar','Querem comprar'],['nao','Só material'],['manual','Cadastrados pela equipe']];
+function passa(l) { if (F === 'todos') return true; if (F === 'manual') return l.origem === 'manual'; return l.compra_atacado === F; }
+function desenhar() {
+  var tot = L.length, sim = L.filter(function (l) { return l.compra_atacado === 'sim'; }).length, quero = L.filter(function (l) { return l.compra_atacado === 'quero comprar'; }).length;
+  var semana = L.filter(function (l) { return (Date.now() - new Date(l.criado)) < 7 * 864e5; }).length;
+  document.getElementById('stats').innerHTML = [[tot,'lojistas cadastrados'],[semana,'novos nos últimos 7 dias'],[sim,'já compram no atacado'],[quero,'querem comprar']]
+    .map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
+  document.getElementById('filtros').innerHTML = FS.map(function (f) { return '<button class="chip" aria-pressed="' + (F === f[0]) + '" onclick="F=\'' + f[0] + '\';desenhar()">' + f[1] + '</button>'; }).join('');
+  var q = document.getElementById('busca').value.toLowerCase();
+  var v = L.filter(passa).filter(function (l) { return !q || [l.nome, l.loja, l.cidade, l.uf, l.instagram, l.interesse, l.obs].join(' ').toLowerCase().indexOf(q) >= 0; });
+  document.getElementById('lista').innerHTML = v.length ? v.map(function (l) {
+    var at = l.compra_atacado === 'sim' ? '<span class="tag sim">Já compra</span>' : l.compra_atacado === 'quero comprar' ? '<span class="tag quero">Quer comprar</span>' : '<span class="tag">Só material</span>';
+    var ig = l.instagram ? ' · <a href="https://instagram.com/' + esc(String(l.instagram).replace('@','')) + '" target="_blank" rel="noopener">' + esc(l.instagram) + '</a>' : '';
+    return '<div class="lj"><div class="n">' + esc(l.nome) + (l.loja ? ' · ' + esc(l.loja) : '') + '</div>' +
+      '<div class="m">' + at + esc([l.cidade, l.uf].filter(Boolean).join('/')) + (l.tipo ? ' · ' + esc(l.tipo) : '') + ig + '</div>' +
+      (l.interesse ? '<div class="m">Vende mais: ' + esc(l.interesse) + '</div>' : '') + (l.obs ? '<div class="m">Obs.: ' + esc(l.obs) + '</div>' : '') +
+      '<div class="m">' + (l.origem === 'manual' ? 'Cadastrado pela equipe' : 'Veio pelo Kit') + ' em ' + new Date(l.criado).toLocaleDateString('pt-BR') + (l.acessos ? ' · abriu o kit ' + l.acessos + 'x' : '') + '</div>' +
+      '<div class="row"><a class="wa" href="#" onclick="return enviar(' + l.id + ')">Enviar no WhatsApp</a><button onclick="editar(' + l.id + ')">Editar</button></div></div>';
+  }).join('') : '<p style="color:var(--muted)">Nenhum lojista aqui ainda.</p>';
+  document.getElementById('pautas').innerHTML = P.length ? P.map(function (p, i) {
+    var item = function (x) { return '• ' + (x.titulo || '') + (x.texto ? ': ' + x.texto : ''); };
+    return '<details' + (i ? '' : ' open') + '><summary>Semana de ' + p.semana.split('-').reverse().slice(0,2).join('/') + '</summary><div class="pauta">' +
+      (p.datas ? '<p><b>Datas:</b> ' + esc(p.datas) + '</p>' : '') + '<p><b>Para o consumidor</b>\n' + esc((p.consumidor || []).map(item).join('\n')) + '</p><p><b>Para o lojista</b>\n' + esc((p.lojista || []).map(item).join('\n')) + '</p></div></details>';
+  }).join('') : '<p>A primeira pauta chega na segunda-feira.</p>';
+}
+function enviar(id) {
+  var l = L.filter(function (x) { return x.id === id; })[0]; var m = document.getElementById('msg').value.trim();
+  if (!m) { toast('Escreva a mensagem primeiro'); return false; }
+  window.open('https://wa.me/' + l.whatsapp + '?text=' + encodeURIComponent(m.replace(/\{nome\}/g, String(l.nome).split(' ')[0])), '_blank'); return false;
+}
+function novo() { EDIT = null; document.getElementById('dlgT').textContent = 'Novo lojista'; dlg.querySelector('form').reset(); dlg.showModal(); }
+function editar(id) { var l = L.filter(function (x) { return x.id === id; })[0], f = dlg.querySelector('form'); EDIT = id; document.getElementById('dlgT').textContent = 'Editar lojista';
+  ['nome','whatsapp','loja','cidade','uf','instagram','tipo','obs'].forEach(function (k) { f[k].value = l[k] || ''; }); f.atacado.value = l.compra_atacado || 'sim'; dlg.showModal(); }
+function salvar(ev) { ev.preventDefault(); var f = ev.target;
+  rpc('lojista_salvar', { senha:SENHA, p_id:EDIT, p_nome:f.nome.value, p_whatsapp:f.whatsapp.value, p_cidade:f.cidade.value, p_uf:f.uf.value, p_loja:f.loja.value,
+    p_instagram:f.instagram.value, p_tipo:f.tipo.value, p_atacado:f.atacado.value, p_obs:f.obs.value })
+  .then(function () { dlg.close(); toast('Salvo'); return carregar(); }).catch(function () { toast('Confira o WhatsApp com DDD'); }); }
+function salvarLink() { rpc('kit_config_salvar', { senha:SENHA, p_link:document.getElementById('link').value }).then(function () { toast('Link salvo'); }); }
+function csv() {
+  var c = ['nome','whatsapp','loja','cidade','uf','instagram','tipo','compra_atacado','interesse','obs','origem','criado'];
+  var t = c.join(';') + '\n' + L.map(function (l) { return c.map(function (k) { return '"' + String(l[k] == null ? '' : l[k]).replace(/"/g, '""') + '"'; }).join(';'); }).join('\n');
+  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + t], { type:'text/csv' })); a.download = 'lojistas-sp-grifes.csv'; a.click();
+}
+function falar(id, b) {
+  var R = window.SpeechRecognition || window.webkitSpeechRecognition; if (!R) { toast('Microfone não disponível neste navegador'); return; }
+  var r = new R(); r.lang = 'pt-BR'; b.classList.add('on');
+  r.onresult = function (e) { var el = document.getElementById(id); el.value = (el.value ? el.value + ' ' : '') + e.results[0][0].transcript; };
+  r.onend = function () { b.classList.remove('on'); }; r.start();
+}
+(function () { var s = ls('lj_senha'); if (s) { SENHA = s; carregar().then(function () { document.getElementById('lock').hidden = true; document.getElementById('app').hidden = false; }).catch(function () { ls('lj_senha', null); }); } })();
+</script>
+</body></html>
