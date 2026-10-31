@@ -331,7 +331,9 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <button type="button" data-tab="agenda" aria-pressed="false">Agenda de pagamentos</button>
     <button type="button" data-tab="equipe" aria-pressed="false">Equipe</button>
     <button type="button" data-tab="comissoes" aria-pressed="false">Comissões</button>
-    <button type="button" data-tab="vales" aria-pressed="false">Vales e compras</button>
+    <button type="button" data-tab="pagamentos" data-grupo="salario bonus comissaopg vt adiant vales descmerc" aria-pressed="false">Pagamentos</button>
+    <button type="button" data-tab="box" aria-pressed="false">Box da feira</button>
+    <button type="button" data-tab="despesas" aria-pressed="false">Despesas do dia</button>
     <button type="button" data-tab="documentos" aria-pressed="false">Documentos</button>
     <button type="button" data-tab="saude" aria-pressed="false">Saúde</button>
     <button type="button" data-tab="ponto" aria-pressed="false">Ponto e jornada</button>
@@ -602,12 +604,14 @@ function renderAgenda(){
         ${agEd===i.id?`<div class="edit"><input class="nt" id="n_${i.id}" data-id="${i.id}" placeholder="Ex.: valor certo é outro, pagou em dinheiro... (pode ditar)" value="${esc(r.n||'')}"><div class="hint">Salva sozinho.</div></div>`:''}</div>`}).join('')}
     </details>`}).join('');
 }
-function trocarAba(t){aba=t;document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===t));
+let ultPasta='salario';
+function trocarAba(t){if(t==='pagamentos')t=ultPasta;if(TIPOS[t]&&TIPOS[t].grupo==='pagamentos')ultPasta=t;aba=t;
+  document.querySelectorAll('.menu [data-tab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===t||(b.dataset.grupo||'').split(' ').includes(t)));
   const isReg=!!TIPOS[t];
   $('v-agenda').hidden=t!=='agenda';$('v-reg').hidden=!isReg;$('v-premios').hidden=t!=='premios';$('v-painel').hidden=t==='agenda'||isReg||t==='premios';if(t==='premios')carregaPremios();
   if(t==='falta')filtro='falta'; else if(filtro==='falta')filtro='todos';
   $('eqtit').firstChild.textContent=t==='falta'?'Quem tem informação faltando ':'Equipe ';
-  regEdit=null;render();const b=document.querySelector('[data-tab="'+t+'"]');if(b)b.scrollIntoView({inline:'center',block:'nearest'});window.scrollTo(0,0);}
+  regEdit=null;render();const b=document.querySelector('.menu [data-tab="'+t+'"],.menu [data-grupo~="'+t+'"]');if(b)b.scrollIntoView({inline:'center',block:'nearest'});window.scrollTo(0,0);}
 
 
 function renderNews(){
@@ -653,9 +657,33 @@ const OBRIG=['Contrato / ficha de registro','Documentos pessoais (RG, CPF, CTPS)
 const VTIPOS=['Vale em dinheiro','Compra na loja','Outro'];
 const valNum=v=>{const t=String(v??'').trim();if(!t)return 0;return Number(t.includes(',')?t.replace(/\./g,'').replace(',','.'):t)||0;};
 const TIPOS={
- vales:{tipo:'vale',titulo:'Vales e compras',intro:'Vales em dinheiro e compras na loja lançados pelo caixa (a Cris) ou por vocês, com a foto do papel assinado. Quando descontar na folha, edite e marque "Descontado".',law:'Desconto no salário só com autorização assinada pelo funcionário. Guarde a foto do papel.',
-   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'tipo',l:'Tipo',t:'select',o:VTIPOS},{k:'valor',l:'Valor (R$)',t:'money'},{k:'motivo',l:'Motivo',t:'textarea'},{k:'st',l:'Situação',t:'select',o:['A descontar','Descontado']},{k:'arqs',l:'Foto do papel assinado',t:'file'}],
-   linha:r=>[(r.d.tipo||'Vale')+' · '+(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A descontar'),r.d.motivo,'Lançado em '+new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})]},
+ salario:{grupo:'pagamentos',tipo:'salario',titulo:'Salário',intro:'Pagamento do salário de cada funcionário. Lance quando pagar, com a forma (Pix, dinheiro) e, se tiver, a foto do recibo.',law:'Salário pago até o 5º dia útil do mês seguinte. Guarde o recibo ou comprovante do Pix.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'ref',l:'Mês de referência',t:'month'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'data',l:'Data do pagamento',t:'date'},{k:'forma',l:'Forma',t:'select',o:['Pix','Dinheiro','Transferência','Cartão']},{k:'obs',l:'Observação',t:'textarea'},{k:'arqs',l:'Recibo / comprovante',t:'file'}],
+   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+(r.d.data?' · pago em '+dBR(r.d.data):'')+(r.d.forma?' · '+r.d.forma:''),r.d.ref?'ref. '+r.d.ref.split('-').reverse().join('/'):'',r.d.obs]},
+ bonus:{grupo:'pagamentos',tipo:'bonus',titulo:'Bônus fixo',intro:'Bônus fixo combinado com cada funcionário (ex.: quebra de caixa, bônus de função). Lance o valor do mês e quando foi pago.',law:'Bônus pago todo mês com valor fixo pode ser considerado parte do salário. Combine por escrito.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'ref',l:'Mês de referência',t:'month'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'motivo',l:'Motivo do bônus',t:'text'},{k:'st',l:'Situação',t:'select',o:['A pagar','Pago']},{k:'data',l:'Data do pagamento',t:'date'},{k:'arqs',l:'Recibo (opcional)',t:'file'}],
+   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A pagar')+(r.d.data?' · '+dBR(r.d.data):''),r.d.motivo,r.d.ref?'ref. '+r.d.ref.split('-').reverse().join('/'):'']},
+ comissaopg:{grupo:'pagamentos',tipo:'comissaopg',titulo:'Comissão',intro:'Pagamento da comissão das vendedoras (1% sobre as vendas de cada uma). O valor calculado aparece no Ranking de comissão do Painel; aqui você registra quando pagou.',law:'Comissão paga junto com o salário ou em data combinada. Guarde o demonstrativo.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'ref',l:'Mês de referência',t:'month'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'base',l:'Vendeu (R$)',t:'money'},{k:'st',l:'Situação',t:'select',o:['A pagar','Pago']},{k:'data',l:'Data do pagamento',t:'date'},{k:'obs',l:'Observação',t:'textarea'}],
+   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A pagar')+(r.d.data?' · '+dBR(r.d.data):''),r.d.base?'sobre '+F(valNum(r.d.base))+' vendidos':'',r.d.obs]},
+ vt:{grupo:'pagamentos',tipo:'vt',titulo:'Vale-transporte',intro:'Condução paga por mês para cada funcionário. Lance o valor do mês e marque quando pagar.',law:'A empresa pode descontar até 6% do salário pelo vale-transporte, só com o termo assinado.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'ref',l:'Mês de referência',t:'month'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'dias',l:'Dias trabalhados',t:'number'},{k:'st',l:'Situação',t:'select',o:['A pagar','Pago']},{k:'data',l:'Data do pagamento',t:'date'},{k:'forma',l:'Forma',t:'select',o:['Pix','Dinheiro','Bilhete único','Transferência']}],
+   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A pagar')+(r.d.data?' · '+dBR(r.d.data):''),r.d.dias?r.d.dias+' dias':'',r.d.forma]},
+ adiant:{grupo:'pagamentos',tipo:'adiant',titulo:'Adiantamento (dia 20)',intro:'Adiantamento fixo pago todo dia 20 e descontado do salário no fechamento do mês.',law:'O adiantamento é parte do salário: desconte no holerite do mesmo mês e guarde o recibo.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'ref',l:'Mês de referência',t:'month'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'data',l:'Data do pagamento',t:'date'},{k:'forma',l:'Forma',t:'select',o:['Pix','Dinheiro','Transferência']},{k:'st',l:'Situação',t:'select',o:['A descontar','Descontado']},{k:'arqs',l:'Recibo assinado',t:'file'}],
+   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A descontar')+(r.d.data?' · pago em '+dBR(r.d.data):''),r.d.forma,r.d.ref?'ref. '+r.d.ref.split('-').reverse().join('/'):'']},
+ vales:{grupo:'pagamentos',tipo:'vale',filtra:r=>r.tipo==='vale'&&r.d.tipo!=='Compra na loja',titulo:'Vale (fora da data)',intro:'Vale em dinheiro que o funcionário pede fora da data de pagamento, lançado pelo caixa (a Cris) ou por vocês, com a foto do papel assinado. Quando descontar na folha, edite e marque "Descontado".',law:'Desconto no salário só com autorização assinada pelo funcionário. Guarde a foto do papel.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'data',l:'Data',t:'date'},{k:'motivo',l:'Motivo',t:'textarea'},{k:'st',l:'Situação',t:'select',o:['A descontar','Descontado']},{k:'arqs',l:'Foto do papel assinado',t:'file'}],
+   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A descontar')+(r.d.data?' · '+dBR(r.d.data):''),r.d.motivo,'Lançado em '+new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})]},
+ descmerc:{grupo:'pagamentos',tipo:'descmerc',filtra:r=>r.tipo==='descmerc'||(r.tipo==='vale'&&r.d.tipo==='Compra na loja'),titulo:'Desconto de mercadoria',intro:'Compras de roupa na loja feitas pelo funcionário para descontar na folha. Lance a peça, o valor e marque "Descontado" quando fechar o mês.',law:'Desconto de compra só com autorização assinada. Guarde a nota ou o papel.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'peca',l:'O que comprou',t:'text'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'data',l:'Data da compra',t:'date'},{k:'parc',l:'Como desconta',t:'select',o:['De uma vez','Em 2 meses','Em 3 meses']},{k:'st',l:'Situação',t:'select',o:['A descontar','Descontado']},{k:'arqs',l:'Nota / papel assinado',t:'file'}],
+   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A descontar')+(r.d.data?' · '+dBR(r.d.data):''),r.d.peca,r.d.parc&&r.d.parc!=='De uma vez'?'Desconto '+r.d.parc.toLowerCase():'']},
+ box:{tipo:'box',titulo:'Box da feira',intro:'Pagamentos dos boxes alugados dentro da feira. Lance cada box, o valor do mês e marque quando pagar.',law:'Guarde o recibo de cada box: é despesa da empresa e abate no imposto.',
+   campos:[{k:'box',l:'Box (número ou nome)',t:'text'},{k:'ref',l:'Mês de referência',t:'month'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'venc',l:'Vencimento',t:'date'},{k:'st',l:'Situação',t:'select',o:['A pagar','Pago']},{k:'data',l:'Data do pagamento',t:'date'},{k:'forma',l:'Forma',t:'select',o:['Pix','Dinheiro','Transferência','Boleto']},{k:'quem',l:'Quem recebe',t:'text'},{k:'arqs',l:'Recibo',t:'file'}],
+   linha:r=>[(r.d.box?'Box '+r.d.box+' · ':'')+(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A pagar')+(r.d.data?' · pago em '+dBR(r.d.data):r.d.venc?' · vence '+dBR(r.d.venc):''),r.d.quem?'Para: '+r.d.quem:'',r.d.ref?'ref. '+r.d.ref.split('-').reverse().join('/'):'']},
+ despesas:{tipo:'despesa',titulo:'Despesas do dia',intro:'Os gastos do dia a dia da loja, do CD e do site: embalagens e sacolas, café da manhã, água, mercado, papelaria. Lance na hora, com a foto da notinha, para saber quanto sai por dia.',law:'Guarde as notinhas: despesa sem comprovante não entra na contabilidade.',
+   campos:[{k:'cat',l:'O que foi',t:'select',o:['Embalagens / sacolas','Café da manhã','Água','Mercado','Papelaria','Limpeza','Manutenção','Transporte / frete','Outro']},{k:'setor',l:'Setor',t:'select',o:['Loja','CD','Site','Geral']},{k:'valor',l:'Valor (R$)',t:'money'},{k:'data',l:'Data',t:'date'},{k:'func',l:'Quem comprou',t:'func'},{k:'forma',l:'Pago com',t:'select',o:['Dinheiro do caixa','Pix','Cartão da empresa','Do próprio bolso (reembolsar)']},{k:'obs',l:'Observação',t:'textarea'},{k:'arqs',l:'Foto da notinha',t:'file'}],
+   linha:r=>[(r.d.cat||'Despesa')+' · '+(F(valNum(r.d.valor))||'R$ 0,00')+(r.d.setor?' · '+r.d.setor:'')+(r.d.data?' · '+dBR(r.d.data):''),r.d.forma,r.d.obs]},
  documentos:{tipo:'doc',titulo:'Documentos',intro:'A pasta de cada funcionário. Suba a foto ou o PDF de cada documento. É isso que defende a empresa num processo.',law:'Guarde por pelo menos 5 anos: holerites, ponto, recibos e contrato. Exames e FGTS: por muito mais tempo.',
    campos:[{k:'func',l:'Funcionário',t:'func'},{k:'cat',l:'Tipo de documento',t:'select',o:DOCS},{k:'ref',l:'Mês de referência',t:'month'},{k:'obs',l:'Observação',t:'textarea'},{k:'arqs',l:'Foto ou PDF',t:'file'}],
    linha:r=>[r.d.cat,r.d.ref?'ref. '+r.d.ref.split('-').reverse().join('/'):'',r.d.obs]},
@@ -682,7 +710,7 @@ function optsFunc(sel,vazio){return `<option value="">${vazio||'Escolha'}</optio
 function formHTML(cfg,r){
   const d=r?r.d:{}, f=r?r.func:'';
   const c=cfg.campos.map(c=>{const v=d[c.k]??'';
-    if(c.t==='func')return `<label>${c.l}<select data-k="func">${optsFunc(f,'Geral / ninguém')}</select></label>`;
+    if(c.t==='func')return `<label>${c.l}<select data-k="func">${optsFunc(f,cfg.tipo==='despesa'?'Não sei / geral':'Geral / ninguém')}</select></label>`;
     if(c.t==='select')return `<label>${c.l}<select data-k="${c.k}">${c.o.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
     if(c.t==='textarea')return `<label style="grid-column:1/-1">${c.l}<textarea data-k="${c.k}" rows="2" placeholder="Pode ditar pelo microfone do teclado">${esc(v)}</textarea></label>`;
     if(c.t==='check')return `<div style="grid-column:1/-1"><div style="font-size:.8rem;font-weight:700;color:var(--soft);margin-bottom:4px">${c.l}</div><div class="chk">${c.o.map(o=>`<label><input type="checkbox" data-ck="${esc(o)}" ${(d.check||[]).includes(o)?'checked':''}>${esc(o)}</label>`).join('')}</div></div>`;
@@ -691,7 +719,8 @@ function formHTML(cfg,r){
   return `<div class="frm"><b>${r?'Editar registro':'Novo registro'} · ${cfg.titulo}</b><div class="row">${c}</div>
    <div class="acts"><button type="button" class="btn" id="rsave">${r?'Salvar alterações':'Salvar'}</button><button type="button" class="btn sec2" id="rcancel">Cancelar</button><span class="sy2" id="rst"></span></div></div>`;
 }
-function regsDe(cfg){return REGS.filter(r=>r.tipo===cfg.tipo&&(regFunc==='todos'||r.func===regFunc));}
+const ehDe=(r,cfg)=>cfg.filtra?cfg.filtra(r):r.tipo===cfg.tipo;
+function regsDe(cfg){return REGS.filter(r=>ehDe(r,cfg)&&(regFunc==='todos'||r.func===regFunc));}
 function extraTopo(t){
   if(t==='documentos'){
     const rows=D.EQUIPE.map(e=>{const ds=REGS.filter(r=>r.tipo==='doc'&&r.func===e.id);const tem=c=>ds.some(r=>r.d.cat===c);
@@ -705,12 +734,29 @@ function extraTopo(t){
       const hor=mud?`${mud.d.entrada||'?'} às ${mud.d.saida||'?'}${mud.d.almoco?' · almoço '+mud.d.almoco:''} <span style="color:var(--soft)">(desde ${dBR(mud.d.data)})</span>`:esc(e.hor||'—');
       return `<tr><td><b>${esc(e.nome)}</b></td><td>${hor}</td><td>${he?he.toString().replace('.',',')+' h':'—'}</td><td>${fl||'—'}</td></tr>`;}).join('');
     return `<h2>Mapa de horários</h2><div class="mat"><table><tr><th>Funcionário</th><th>Horário atual</th><th>Horas extras no mês</th><th>Faltas no mês</th></tr>${rows}</table></div><div class="sy2" style="margin:-6px 0 14px">Para mudar o horário de alguém, registre "Mudança de horário" com a data de início.</div>`;}
-  if(t==='vales'){
-    const rows=D.EQUIPE.map(e=>{const vs=REGS.filter(r=>r.tipo==='vale'&&r.func===e.id);if(!vs.length)return '';
-      const pend=vs.filter(r=>(r.d.st||'A descontar')!=='Descontado').reduce((s,r)=>s+valNum(r.d.valor),0);
-      const mes=vs.filter(r=>String(r.ce).slice(0,7)===mesYM()).reduce((s,r)=>s+valNum(r.d.valor),0);
+  if(TIPOS[t].grupo==='pagamentos'){
+    const cfg=TIPOS[t], ym=mesYM(), noMes=r=>((r.d.ref||r.d.data||String(r.ce)).slice(0,7)===ym);
+    const pendLab=/desc/i.test((cfg.campos.find(c=>c.k==='st')||{o:['']}).o[0])?'Falta descontar':'Falta pagar';
+    const rows=D.EQUIPE.map(e=>{const vs=REGS.filter(r=>ehDe(r,cfg)&&r.func===e.id);if(!vs.length)return '';
+      const pend=vs.filter(r=>/^(A pagar|A descontar)$/.test(r.d.st||'A descontar')).reduce((s,r)=>s+valNum(r.d.valor),0);
+      const mes=vs.filter(noMes).reduce((s,r)=>s+valNum(r.d.valor),0);
       return `<tr><td><b>${esc(e.nome)}</b></td><td>${F(mes)}</td><td class="${pend?'no2':'ok2'}">${F(pend)}</td><td>${vs.length}</td></tr>`;}).join('');
-    return rows?`<div class="mat"><table><tr><th>Funcionário</th><th>Lançado no mês</th><th>Falta descontar</th><th>Lançamentos</th></tr>${rows}</table></div>`:'';}
+    const tot=REGS.filter(r=>ehDe(r,cfg)&&noMes(r)).reduce((s,r)=>s+valNum(r.d.valor),0);
+    return rows?`<div class="mat"><table><tr><th>Funcionário</th><th>Lançado no mês</th><th>${pendLab}</th><th>Lançamentos</th></tr>${rows}<tr><td><b>Total do mês</b></td><td><b>${F(tot)}</b></td><td></td><td></td></tr></table></div>`:'';}
+  if(t==='box'){
+    const ym=mesYM(), L=REGS.filter(r=>r.tipo==='box'&&((r.d.ref||r.d.venc||String(r.ce)).slice(0,7)===ym));if(!L.length)return '';
+    const tot=L.reduce((s,r)=>s+valNum(r.d.valor),0), pend=L.filter(r=>(r.d.st||'A pagar')!=='Pago').reduce((s,r)=>s+valNum(r.d.valor),0);
+    return `<div class="kpis" style="margin-bottom:14px"><div class="kpi k-blue"><div class="l">Boxes no mês</div><div class="n num">${L.length}</div><div class="s">lançados</div></div><div class="kpi k-green"><div class="l">Total do mês</div><div class="n num">${F(tot)}</div><div class="s">aluguel dos boxes</div></div><div class="kpi ${pend?'k-amber':'k-green'}"><div class="l">Falta pagar</div><div class="n num">${F(pend)}</div><div class="s">${pend?'ainda em aberto':'tudo pago'}</div></div></div>`;}
+  if(t==='despesas'){
+    const ym=mesYM(), L=REGS.filter(r=>r.tipo==='despesa'&&((r.d.data||String(r.ce)).slice(0,7)===ym));if(!L.length)return '';
+    const tot=L.reduce((s,r)=>s+valNum(r.d.valor),0), hoje=new Date().toISOString().slice(0,10);
+    const dia=L.filter(r=>(r.d.data||String(r.ce).slice(0,10))===hoje).reduce((s,r)=>s+valNum(r.d.valor),0);
+    const dias=new Set(L.map(r=>r.d.data||String(r.ce).slice(0,10))).size, media=dias?tot/dias:0;
+    const por=(k)=>{const m={};L.forEach(r=>{const x=r.d[k]||'Outro';m[x]=(m[x]||0)+valNum(r.d.valor);});return Object.entries(m).sort((a,b)=>b[1]-a[1]);};
+    const tb=(tit,arr)=>`<div class="mat"><table><tr><th>${tit}</th><th>No mês</th></tr>${arr.map(([k,v])=>`<tr><td>${esc(k)}</td><td>${F(v)}</td></tr>`).join('')}</table></div>`;
+    const reemb=L.filter(r=>/bolso/i.test(r.d.forma||'')).reduce((s,r)=>s+valNum(r.d.valor),0);
+    return `<div class="kpis" style="margin-bottom:14px"><div class="kpi k-blue"><div class="l">Gasto hoje</div><div class="n num">${F(dia)}</div><div class="s">${dBR(hoje)}</div></div><div class="kpi k-green"><div class="l">Total do mês</div><div class="n num">${F(tot)}</div><div class="s">${L.length} lançamentos</div></div><div class="kpi k-violet"><div class="l">Média por dia</div><div class="n num">${F(media)}</div><div class="s">${dias} dia(s) com gasto</div></div>${reemb?`<div class="kpi k-amber"><div class="l">A reembolsar</div><div class="n num">${F(reemb)}</div><div class="s">pago do próprio bolso</div></div>`:''}</div>
+     <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">${tb('Por tipo',por('cat'))}${tb('Por setor',por('setor'))}</div>`;}
   if(t==='ferias'){
     const hoje=new Date();
     const rows=D.EQUIPE.map(e=>{if(!e.ent)return `<tr><td><b>${esc(e.nome)}</b></td><td colspan="3" style="color:var(--amber)">Falta a data de entrada</td></tr>`;
@@ -723,7 +769,8 @@ function extraTopo(t){
 }
 function renderReg(t){
   const cfg=TIPOS[t]; const L=regsDe(cfg);
-  $('v-reg').innerHTML=`<div class="intro"><h2>${cfg.titulo}</h2><p>${cfg.intro}</p><div class="law">${cfg.law}</div></div>
+  const pastas=cfg.grupo?`<div class="chips" style="margin-bottom:10px">${Object.entries(TIPOS).filter(([k,c])=>c.grupo===cfg.grupo).map(([k,c])=>`<button type="button" class="chip" data-tab="${k}" aria-pressed="${k===t}">${esc(c.titulo)}</button>`).join('')}</div>`:'';
+  $('v-reg').innerHTML=pastas+`<div class="intro"><h2>${cfg.titulo}</h2><p>${cfg.intro}</p><div class="law">${cfg.law}</div></div>
    ${extraTopo(t)}
    <div class="sel"><button type="button" class="btn" id="rnew">+ Novo registro</button><select id="rfil">${optsFunc(regFunc==='todos'?'':regFunc,'Todos os funcionários').replace('value=""','value="todos"')}</select></div>
    <div id="rform">${regEdit?formHTML(cfg,regEdit==='novo'?null:REGS.find(r=>r.id===regEdit)):''}</div>
@@ -753,7 +800,7 @@ async function salvarReg(){
   const fi=$('arq'); $('rst').textContent='Salvando...';
   try{
     if(fi&&fi.files.length){$('rst').textContent='Enviando arquivo...';d.arqs=(d.arqs||[]).concat(await subirArquivos([...fi.files],cfg.tipo+'-'+(func||'geral')));}
-    await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:old?old.id:null,p_tipo:cfg.tipo,p_func:func||null,p_dados:d});
+    await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:old?old.id:null,p_tipo:old?old.tipo:cfg.tipo,p_func:func||null,p_dados:d});
     regEdit=null;await carregar();render();toast('Registro salvo');
   }catch(e){$('rst').textContent='Não salvou. Verifique a internet e tente de novo.';}
 }
