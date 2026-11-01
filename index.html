@@ -208,6 +208,7 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 .menu{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--head);border-bottom:1px solid #262a33;padding-block:10px}
 .mscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mscroll::-webkit-scrollbar{display:none}
+.alres{margin-top:10px}.alres>summary{cursor:pointer;font-weight:700;padding:10px 4px;opacity:.9}.alres .al{opacity:.85}
 .mwrap{position:relative}
 .mseta{display:none;position:absolute;top:0;bottom:0;width:44px;border:0;padding:0;z-index:2;color:#fff;font-size:1.4rem;font-weight:800;cursor:pointer}
 .mseta.dir{right:0;background:linear-gradient(90deg,rgba(17,18,22,0),var(--head) 55%);text-align:right;padding-right:6px}
@@ -259,6 +260,15 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
 .cxf .foto{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--line);border-radius:12px;padding:16px;font-weight:700;color:var(--ink);cursor:pointer;background:var(--bg)}
 .cxf .foto.ok{border-color:var(--green);color:var(--green)}
 .cxf .btn{font-size:1.05rem;padding:15px 18px;flex:1}
+.cxf .parc{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg)}
+.cxf .parc b{display:block;margin-bottom:8px}
+.cxf .prow{display:grid;grid-template-columns:1.2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
+.cxf .prow select,.cxf .prow input{width:100%;font-size:1rem;padding:11px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-weight:700}
+.cxf .prow .px{border:0;background:transparent;color:#c0262d;font-weight:800;font-size:1.2rem;padding:6px 8px;cursor:pointer}
+.cxf .padd{border:1px dashed var(--line);background:#fff;border-radius:999px;padding:9px 14px;font:700 .9rem inherit;cursor:pointer;color:var(--ink)}
+.cxf .pres{font-size:.85rem;margin-top:6px;font-weight:700}
+.parcl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.parcl span{background:#eef2ff;color:#1e3a8a;border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:700}
 .vf{padding:8px 0;border-top:1px solid var(--line)}.vf:first-of-type{border-top:0}
 .vf2{font-size:.86rem;color:var(--soft)}.vf3{font-size:.74rem;color:#9aa0ab}
 .vfb{border:0;background:none;color:var(--blue);font:700 .74rem inherit;padding:0;cursor:pointer;text-decoration:underline}
@@ -338,6 +348,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <button type="button" data-tab="equipe" aria-pressed="false">Equipe</button>
     <button type="button" data-tab="comissoes" aria-pressed="false">Comissões</button>
     <button type="button" data-tab="pagamentos" data-grupo="salario bonus comissaopg vt adiant vales descmerc" aria-pressed="false">Pagamentos</button>
+    <button type="button" id="abrevale" aria-pressed="false" style="border-color:#2563eb;color:#fff;background:#2563eb">+ Lançar vale</button>
     <button type="button" data-tab="box" aria-pressed="false">Box da feira</button>
     <button type="button" data-tab="despesas" aria-pressed="false">Despesas do dia</button>
     <button type="button" data-tab="documentos" aria-pressed="false">Documentos</button>
@@ -465,13 +476,17 @@ function render(){
   $('messel').innerHTML=MESES.map(m=>`<option value="${m.id}" ${m.id===MESATUAL?'selected':''}>${esc(m.nome)}</option>`).join('');$('quem').textContent=QUEM;
   // alertas
   const A=D.ALERTAS||[], abertos=A.filter(a=>(REV['alerta_'+a.id]||{}).s!=='ok');
-  $('alerts').innerHTML=`<h2>Alertas <span class="count">${abertos.length}</span></h2>`+
-    (A.length?A.map(a=>{const done=(REV['alerta_'+a.id]||{}).s==='ok';
+  const alHTML=a=>{const done=(REV['alerta_'+a.id]||{}).s==='ok';
       const r=REV['alerta_'+a.id]||{}, ed=editAl===a.id;
-      return `<div class="al ${a.nivel==='alto'?'alto':''} ${done?'done':''}"><div class="t"><div class="q">${esc(a.quem)}</div><div class="x">${esc(a.texto)}</div>
-        ${r.n&&!ed?`<div class="cm">Comentário: ${esc(r.n)}</div>`:''}
+      return `<div class="al ${a.nivel==='alto'&&!done?'alto':''} ${done?'done':''}"><div class="t"><div class="q">${esc(a.quem)}</div><div class="x">${esc(a.texto)}</div>
+        ${r.n&&!ed?`<div class="cm">${done?'Resposta':'Comentário'}${r.p?' de '+esc(r.p):''}: ${esc(r.n)}</div>`:''}
         ${ed?`<div class="aled"><input class="nt" id="n_alerta_${a.id}" data-id="alerta_${a.id}" placeholder="Ex.: isso não está certo, o valor é outro... (pode ditar)" value="${esc(r.n||'')}"><button type="button" data-alok="${a.id}">Pronto</button></div>`:''}</div>
-      <div class="abtn"><button type="button" data-al="${a.id}">${done?'Reabrir':'Resolvido'}</button><button type="button" class="sec" data-aled="${a.id}">${r.n?'Editar comentário':'Comentar'}</button></div></div>`}).join(''):'<div class="ok">Nenhum alerta.</div>');
+      <div class="abtn"><button type="button" data-al="${a.id}">${done?'Reabrir':'Resolvido'}</button><button type="button" class="sec" data-aled="${a.id}">${r.n?'Editar comentário':'Comentar'}</button></div></div>`};
+  const resolvidos=A.filter(a=>(REV['alerta_'+a.id]||{}).s==='ok');
+  const abResOpen=!!document.querySelector('details.alres[open]');
+  $('alerts').innerHTML=`<h2>Alertas <span class="count">${abertos.length}</span></h2>`+
+    (abertos.length?abertos.map(alHTML).join(''):'<div class="ok">Nenhum alerta aberto.</div>')+
+    (resolvidos.length?`<details class="alres" ${abResOpen?'open':''}><summary>Resolvidos (${resolvidos.length}) · ver o que foi respondido</summary>${resolvidos.map(alHTML).join('')}</details>`:'');
   // números
   const eq=D.EQUIPE, folha=eq.reduce((s,e)=>s+(e.sal||0),0), semSal=eq.filter(e=>!e.sal).length;
   const reg=eq.filter(e=>e.reg===true).length, atS=REGS.filter(r=>r.tipo==='saude'&&(r.d.inicio||'').slice(0,7)===mesYM()).length, at=eq.filter(e=>e.atest).length+atS;
@@ -523,7 +538,7 @@ const valesDe=e=>REGS.filter(r=>r.tipo==='vale'&&r.func===e.id);
 const valesPend=e=>valesDe(e).filter(r=>(r.d.st||'A descontar')!=='Descontado').reduce((t,r)=>t+valNum(r.d.valor),0);
 function valesFicha(e){const vs=valesDe(e);
   const it=vs.map(r=>`<div class="vf"><div class="vf1"><b>${F(valNum(r.d.valor))}</b> · ${esc(r.d.tipo||'Vale')}${r.d.st==='Descontado'?' <span class="tag t-green">descontado</span>':''}</div>
-    ${r.d.motivo?`<div class="vf2">${esc(r.d.motivo)}</div>`:''}
+    ${r.d.motivo?`<div class="vf2">${esc(r.d.motivo)}</div>`:''}${parcHTML(r.d)}
     <div class="vf3">${new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})} · lançado por ${esc(r.cp||'')}${(r.d.arqs||[]).map(a=>` · <button type="button" class="vfb" data-ver="${esc(a.path)}">ver foto</button>`).join('')}</div></div>`).join('');
   return `<div class="blk money3"><h3>Vales e compras${vs.length?` · falta descontar ${F(valesPend(e))}`:''}</h3>${it||'<div class="vf2" style="padding:6px 0">Nenhum vale lançado.</div>'}</div>`;}
 function fieldHTML(c){
@@ -923,6 +938,7 @@ function desenhaPremios(){
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-prc]');if(b){prCat=b.dataset.prc;desenhaPremios();}});
 micSetup();
+$('abrevale').addEventListener('click',abrirVales);
 $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(correcoes());toast('Correções copiadas. Cole no grupo RH.');}catch(e){toast('Não deu para copiar neste aparelho');}});
 
 async function carregar(){const d=await rpc('rh_get',{p_senha:SENHA,p_mes:MESATUAL});
@@ -952,9 +968,32 @@ function cxForm(){
    <label>Funcionário<select id="cxfunc"><option value="">Escolha o funcionário</option>${CX.equipe.map(e=>`<option value="${esc(e.id)}" ${r&&r.func===e.id?'selected':''}>${esc(e.nome)}${e.funcao?' · '+esc(e.funcao):''}</option>`).join('')}</select></label>
    <div class="tps">${VTIPOS.map(t=>`<button type="button" data-cxt="${esc(t)}" aria-pressed="${t===cxTipo}">${esc(t)}</button>`).join('')}</div>
    <label>Valor (R$)<input id="cxval" class="valor" type="text" inputmode="decimal" placeholder="0,00" value="${esc(d.valor||'')}"></label>
+   <div class="parc"><b>Descontar em qual mês?</b><div id="cxparc"></div>
+     <button type="button" class="padd" id="cxpadd">+ Dividir em mais um mês (parcelado)</button><div class="pres" id="cxpres"></div></div>
    <label>Motivo<textarea id="cxmot" rows="2" placeholder="Ex.: vale pedido para o aluguel / camiseta e bermuda">${esc(d.motivo||'')}</textarea></label>
    <label class="foto" id="cxfotol"><input type="file" id="cxfoto" accept="image/*,application/pdf" hidden><span id="cxfotot">${(d.arqs||[]).length?'Foto já guardada · toque para trocar':'Tirar foto do papel assinado'}</span></label>
    <div class="acts"><button type="button" class="btn" id="cxsave">${r?'Salvar alteração':'Lançar no RH'}</button>${r?'<button type="button" class="btn sec2" id="cxcancel">Cancelar</button>':''}<span class="sy2" id="cxst"></span></div>`;
+  cxParc=(d.parcelas&&d.parcelas.length)?d.parcelas.map(x=>({mes:x.mes,valor:x.valor})):[{mes:mesesFut()[0][0],valor:''}];
+  desenhaParc();
+}
+let cxParc=[];
+const MESN=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function mesesFut(){const h=new Date(),L=[];for(let i=0;i<13;i++){const d=new Date(h.getFullYear(),h.getMonth()+i,1);L.push([d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),MESN[d.getMonth()].slice(0,3)+'/'+d.getFullYear()]);}return L;}
+const nomeMes=m=>{const [a,mm]=String(m).split('-');return MESN[Number(mm)-1]?MESN[Number(mm)-1]+' '+a:m;};
+function desenhaParc(){
+  const op=mesesFut(); cxParc.forEach(p=>{if(!op.some(o=>o[0]===p.mes))op.unshift([p.mes,nomeMes(p.mes)]);});
+  const so=cxParc.length===1;
+  $('cxparc').innerHTML=cxParc.map((p,i)=>`<div class="prow"><select data-pm="${i}" aria-label="Mês do desconto">${op.map(o=>`<option value="${o[0]}" ${o[0]===p.mes?'selected':''}>${o[1]}</option>`).join('')}</select>
+    <input data-pv="${i}" type="text" inputmode="decimal" placeholder="${so?'valor todo':'R$ 0,00'}" value="${esc(p.valor||'')}" aria-label="Valor neste mês">
+    ${so?'<span></span>':`<button type="button" class="px" data-pdel="${i}" aria-label="Tirar este mês">×</button>`}</div>`).join('');
+  resumoParc();
+}
+function resumoParc(){
+  const tot=valNum($('cxval')?$('cxval').value:0)||0, el=$('cxpres'); if(!el)return;
+  if(cxParc.length===1){el.style.color='var(--soft)';el.textContent=tot?'Desconta '+F(valNum(cxParc[0].valor)||tot)+' em '+nomeMes(cxParc[0].mes)+'.':'';return;}
+  const soma=cxParc.reduce((t,p)=>t+(valNum(p.valor)||0),0), falta=Math.round((tot-soma)*100)/100;
+  el.style.color=Math.abs(falta)<0.01?'var(--green)':'#c0262d';
+  el.textContent=Math.abs(falta)<0.01?'Certo: as parcelas somam '+F(tot)+'.':falta>0?'Falta distribuir '+F(falta)+' nos meses.':'As parcelas passaram '+F(-falta)+' do valor total.';
 }
 function cxLista(){
   const L=CX.registros;
@@ -962,10 +1001,16 @@ function cxLista(){
     return `<div class="rg"><div class="h"><div class="t1">${esc(e?e.nome:'—')}</div><div style="font-weight:800">${F(valNum(r.d.valor))}</div></div>
      <div style="font-weight:700">${esc(r.d.tipo||'Vale')}${desc?' · <span class="tag t-green">descontado</span>':''}</div>
      ${r.d.motivo?`<div class="t2">${esc(r.d.motivo)}</div>`:''}
+     ${parcHTML(r.d)}
      <div class="bt">${(r.d.arqs||[]).map(a=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}</button>`).join('')}${desc?'':`<button type="button" data-cxedit="${r.id}">Editar</button><button type="button" class="del" data-cxdel="${r.id}">Excluir</button>`}</div>
      <div class="by">${new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div>`;}).join('')||'<div class="rg"><div class="t2">Nenhum lançamento ainda.</div></div>';
 }
-function renderCaixa(){$('cxquem').textContent='Olá, '+CX.quem;cxForm();cxLista();}
+function renderCaixa(){$('cxquem').textContent='Olá, '+CX.quem;$('cxsair').textContent=CX.admin?'‹ Voltar ao painel':'Sair';cxForm();cxLista();}
+const parcHTML=d=>(d.parcelas&&d.parcelas.length)?`<div class="parcl">${d.parcelas.map(p=>`<span>${esc(nomeMes(p.mes))}: ${F(valNum(p.valor))}</span>`).join('')}</div>`:'';
+/* Fábio e Taine também lançam vales, na mesma tela da Cris */
+function cxAtualiza(){if(CX&&CX.admin)CX={admin:true,quem:QUEM,equipe:(D.EQUIPE||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao})),registros:REGS.filter(r=>r.tipo==='vale')};}
+function abrirVales(){CX={admin:true};cxAtualiza();cxEdit=null;$('app').hidden=true;$('cx').hidden=false;renderCaixa();window.scrollTo(0,0);}
+function fecharVales(){CX=null;cxEdit=null;$('cx').hidden=true;$('app').hidden=false;render();window.scrollTo(0,0);}
 async function cxSalvar(){
   const func=$('cxfunc').value, v=$('cxval').value.trim(), mot=$('cxmot').value.trim(), fi=$('cxfoto');
   const r=cxEdit?CX.registros.find(x=>x.id===cxEdit):null;
@@ -973,23 +1018,31 @@ async function cxSalvar(){
   if(!(valNum(v)>0)){$('cxst').textContent='Coloque o valor.';return;}
   if(!mot){$('cxst').textContent='Escreva o motivo.';return;}
   if(!r&&!fi.files.length&&!confirm('Lançar sem a foto do papel assinado?'))return;
-  const d=r?{...r.d}:{}; d.tipo=cxTipo; d.valor=v; d.motivo=mot;
+  const tot=valNum(v);
+  let parc=cxParc.map(p=>({mes:p.mes,valor:cxParc.length===1&&!(valNum(p.valor)>0)?v:p.valor}));
+  if(parc.length>1){if(parc.some(p=>!(valNum(p.valor)>0))){$('cxst').textContent='Coloque o valor de cada mês.';return;}
+    const soma=parc.reduce((t,p)=>t+valNum(p.valor),0);if(Math.abs(soma-tot)>0.01){$('cxst').textContent='As parcelas precisam somar '+F(tot)+'.';return;}}
+  const d=r?{...r.d}:{}; d.tipo=cxTipo; d.valor=v; d.motivo=mot; d.parcelas=parc;
   $('cxsave').disabled=true;$('cxst').textContent='Salvando...';
   try{
     if(fi.files.length){$('cxst').textContent='Enviando a foto...';d.arqs=await subirArquivos([...fi.files],'vales');}
     await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:r?r.id:null,p_tipo:'vale',p_func:func,p_dados:d});
-    cxEdit=null;cxTipo='Vale em dinheiro';await carregar();renderCaixa();toast('Lançado no RH');window.scrollTo(0,0);
+    cxEdit=null;cxTipo='Vale em dinheiro';await carregar();cxAtualiza();renderCaixa();toast('Lançado no RH');window.scrollTo(0,0);
   }catch(e){$('cxsave').disabled=false;$('cxst').textContent='Não salvou. Verifique a internet e tente de novo.';}
 }
 document.addEventListener('click',async ev=>{
   if($('cx').hidden)return;
   const t=ev.target.closest('[data-cxt]');if(t){cxTipo=t.dataset.cxt;document.querySelectorAll('[data-cxt]').forEach(b=>b.setAttribute('aria-pressed',b===t));return;}
   if(ev.target.closest('#cxsave'))return cxSalvar();
+  if(ev.target.closest('#cxpadd')){const L=mesesFut(),ult=cxParc[cxParc.length-1].mes,ix=L.findIndex(o=>o[0]===ult);cxParc.push({mes:(L[ix+1]||L[L.length-1])[0],valor:''});desenhaParc();return;}
+  const pd=ev.target.closest('[data-pdel]');if(pd){cxParc.splice(+pd.dataset.pdel,1);desenhaParc();return;}
   if(ev.target.closest('#cxcancel')){cxEdit=null;cxForm();return;}
   const ed=ev.target.closest('[data-cxedit]');if(ed){cxEdit=ed.dataset.cxedit;cxForm();window.scrollTo(0,0);return;}
-  const dl=ev.target.closest('[data-cxdel]');if(dl){if(!confirm('Excluir este lançamento?'))return;try{await rpc('rh_reg_excluir',{p_senha:SENHA,p_id:dl.dataset.cxdel});await carregar();renderCaixa();toast('Excluído');}catch(e){toast('Não consegui excluir');}return;}
-  if(ev.target.closest('#cxsair')){try{sessionStorage.removeItem('rh_pw')}catch(e){}location.reload();}
+  const dl=ev.target.closest('[data-cxdel]');if(dl){if(!confirm('Excluir este lançamento?'))return;try{await rpc('rh_reg_excluir',{p_senha:SENHA,p_id:dl.dataset.cxdel});await carregar();cxAtualiza();renderCaixa();toast('Excluído');}catch(e){toast('Não consegui excluir');}return;}
+  if(ev.target.closest('#cxsair')){if(CX&&CX.admin){fecharVales();return;}try{sessionStorage.removeItem('rh_pw')}catch(e){}location.reload();}
 });
+document.addEventListener('input',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pv!=null){cxParc[+t.dataset.pv].valor=t.value;resumoParc();}else if(t.id==='cxval')resumoParc();});
+document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pm!=null){cxParc[+t.dataset.pm].mes=t.value;resumoParc();}});
 document.addEventListener('change',ev=>{if(ev.target.id==='cxfoto'){const n=ev.target.files.length;$('cxfotot').textContent=n?'Foto pronta ✓ (toque para trocar)':'Tirar foto do papel assinado';$('cxfotol').classList.toggle('ok',!!n);}});
 
 async function entrar(p){
@@ -997,7 +1050,7 @@ async function entrar(p){
   if(CX){$('lock').hidden=true;$('cx').hidden=false;renderCaixa();return;}
   $('lock').hidden=true;$('app').hidden=false;render();sync('Atualizado · '+hora());
   saudar();
-  setInterval(async()=>{if(document.activeElement&&(document.activeElement.classList.contains('nt')||document.activeElement.closest('.frm')))return;if(regEdit||$('formf').innerHTML)return;try{await carregar();render();sync('Atualizado · '+hora());}catch(e){}},30000);
+  setInterval(async()=>{if(CX&&CX.admin)return;if(document.activeElement&&(document.activeElement.classList.contains('nt')||document.activeElement.closest('.frm')))return;if(regEdit||$('formf').innerHTML)return;try{await carregar();render();sync('Atualizado · '+hora());}catch(e){}},30000);
 }
 $('lockForm').addEventListener('submit',async ev=>{
   ev.preventDefault();const p=$('pw').value.trim();$('pwErr').textContent='Verificando...';
