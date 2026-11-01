@@ -180,9 +180,17 @@ section.arquivo .ico { filter: saturate(.4); }
 .fl { font: 900 1rem/1 var(--display); font-stretch: 85%; letter-spacing: -0.04em; color: #fff; }
 .seal .fl { font-size: 1.9rem; }
 .brand i { background: linear-gradient(145deg, #e0243f, #8f0b20); box-shadow: 0 4px 12px -4px rgba(200,16,46,.7); }
-#lock { background: radial-gradient(120% 70% at 50% 0%, #3a0a14 0%, #0f0d0d 60%); color: #f4f0ef; }
-#lock p { color: #b9aeac; }
-#lock .pw input { background: #1c1919; border-color: #3a3232; color: #fff; }
+/* Fundo da tela de senha: Painel da visualização — uma mansão por dia (fotos Unsplash, uso livre) */
+#lock { background: #0f0d0d center / cover no-repeat; color: #f4f0ef; }
+@media (max-width: 760px) { #lock { place-items: end center; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); } }
+.visao { position: absolute; z-index: 1; top: calc(env(safe-area-inset-top, 0px) + 22px); left: 50%; transform: translateX(-50%); width: min(92vw, 40rem); text-align: center; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.55); pointer-events: none; }
+.visao b { display: block; font: 700 .68rem var(--display); letter-spacing: .2em; text-transform: uppercase; color: #f0c76a; margin-bottom: 6px; }
+.visao span { display: block; font: 800 clamp(1.15rem, 4.6vw, 1.7rem)/1.15 var(--display); letter-spacing: -0.01em; }
+#lock::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,8,10,.35) 0%, rgba(10,8,10,0) 28%, rgba(10,8,10,.05) 60%, rgba(10,8,10,.4) 100%); pointer-events: none; }
+#lock .lockbox { position: relative; z-index: 1; padding: 28px 24px; border-radius: 22px; background: rgba(15,13,13,.5); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.12); }
+#lock p { color: #e6e0de; }
+@media (min-width: 761px) { #lock { place-items: center start; padding-left: 7vw; } }
+#lock .pw input { background: rgba(28,25,25,.75); border-color: rgba(255,255,255,.18); color: #fff; }
 #lock .pw button { background: var(--accent); color: #fff; }
 .seal { box-shadow: 0 10px 40px rgba(200,16,46,.55); }
 .hero { position: relative; overflow: hidden; border-radius: 24px; padding: 28px 22px 24px; color: #fff; background: radial-gradient(90% 120% at 100% 0%, rgba(200,16,46,.85) 0%, rgba(200,16,46,0) 55%), radial-gradient(70% 90% at 0% 100%, rgba(184,137,43,.45) 0%, rgba(184,137,43,0) 60%), #121010; display: flex; flex-direction: column; gap: 14px; }
@@ -217,6 +225,7 @@ a.app:hover .ico, a.app:focus-visible .ico { background: linear-gradient(145deg,
 
 <!-- Tela de senha -->
 <div id="lock" class="gutter">
+  <div class="visao" aria-hidden="true"><b>Painel da visualização</b><span id="visao-frase"></span></div>
   <form class="lockbox" id="lockform" method="post" action="#">
     <span class="seal"><b class="fl">FL</b></span>
     <h1>Central de <span>Comando</span></h1>
@@ -399,6 +408,32 @@ function svg(k, w) { return '<svg viewBox="0 0 24 24" fill="none" stroke="curren
 function url(id) { return id.charAt(0) === '#' || id.indexOf('http') === 0 ? id : B + id; }
 function link(x) { var u = url(x[1]); var mesma = u.indexOf('https://spgrifes.github.io/') === 0; return '<a href="' + u + '"' + (mesma ? '' : ' target="_blank" rel="noopener"') + '>' + svg(x[2]) + '<span>' + x[0] + '</span></a>'; }
 function store(get, val) { try { if (get) return localStorage.getItem('cc-ok'); if (val === null) localStorage.removeItem('cc-ok'); else localStorage.setItem('cc-ok', val); } catch (e) { return null; } }
+
+/* ---------- Painel da visualização: uma mansão e uma frase por dia na tela de senha ---------- */
+(function () {
+  var fotos = [
+    ['1613490493576-7fde63acd811', '50% 60%'],
+    ['1580587771525-78b9dba3b914', '50% 55%'],
+    ['1613977257363-707ba9348227', '50% 60%'],
+    ['1600585154340-be6161a56a0c', '45% 55%'],
+    ['1600596542815-ffad4c1539a9', '60% 55%']
+  ];
+  var frases = [
+    'Essa casa é minha. Cada venda de hoje me leva até ela.',
+    'Eu me vejo acordando aqui. O trabalho de hoje paga essa vista.',
+    'Minha família vai ter esse lugar. Hoje eu construo mais um tijolo.',
+    'A SP Grifes vai me dar essa casa. Foco no que vende hoje.',
+    'Eu já sei onde vou morar. Agora é só executar todo dia.',
+    'Cada cliente bem atendido é um passo até essa porta.',
+    'Deus abençoa quem trabalha. Essa casa vem.'
+  ];
+  var d = new Date(), dia = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
+  var f = fotos[dia % fotos.length], lk = document.getElementById('lock');
+  var w = window.innerWidth <= 760 ? 1600 : 2600;
+  lk.style.backgroundImage = "url('https://images.unsplash.com/photo-" + f[0] + "?fm=jpg&q=80&w=" + w + "&auto=format&fit=crop')";
+  lk.style.backgroundPosition = f[1];
+  document.getElementById('visao-frase').textContent = frases[dia % frases.length];
+})();
 
 /* ---------- Senha ---------- */
 function norm(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
