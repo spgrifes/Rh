@@ -208,6 +208,12 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 .menu{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--head);border-bottom:1px solid #262a33;padding-block:10px}
 .mscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mscroll::-webkit-scrollbar{display:none}
+.mwrap{position:relative}
+.mseta{display:none;position:absolute;top:0;bottom:0;width:44px;border:0;padding:0;z-index:2;color:#fff;font-size:1.4rem;font-weight:800;cursor:pointer}
+.mseta.dir{right:0;background:linear-gradient(90deg,rgba(17,18,22,0),var(--head) 55%);text-align:right;padding-right:6px}
+.mseta.esq{left:0;background:linear-gradient(270deg,rgba(17,18,22,0),var(--head) 55%);text-align:left;padding-left:6px}
+.mwrap.tem-dir .mseta.dir,.mwrap.tem-esq .mseta.esq{display:block}
+@media (min-width:760px){.mscroll{flex-wrap:wrap;overflow:visible}.mseta{display:none!important}}
 .menu button{flex:none;border:1px solid #333a48;background:#1a1d24;color:#cfd3dc;border-radius:999px;padding:8px 14px;font-weight:700;font-size:.86rem;white-space:nowrap}
 .menu button[aria-pressed="true"]{background:#fff;color:var(--head);border-color:#fff}
 .mb{display:inline-block;min-width:18px;padding:0 5px;border-radius:99px;background:var(--red);color:#fff;font-size:.7rem;line-height:18px;text-align:center}
@@ -325,7 +331,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     </div>
   </header>
 
-  <nav class="menu gut" aria-label="Menu"><div class="wrap mscroll" role="tablist">
+  <nav class="menu gut" aria-label="Menu"><div class="wrap mwrap" id="mwrap"><button type="button" class="mseta esq" aria-label="Ver menus anteriores">‹</button><button type="button" class="mseta dir" aria-label="Ver mais menus">›</button><div class="mscroll" id="mscroll" role="tablist">
     <button type="button" data-tab="painel" aria-pressed="true">Painel</button>
     <button type="button" data-tab="alertas" aria-pressed="false">Alertas <span class="mb" id="mb-al"></span></button>
     <button type="button" data-tab="agenda" aria-pressed="false">Agenda de pagamentos</button>
@@ -344,7 +350,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <button type="button" data-tab="premios" aria-pressed="false">Prêmios para funcionários</button>
     <button type="button" data-tab="falta" aria-pressed="false">Falta informação</button>
     <button type="button" data-tab="novidades" aria-pressed="false">Novidades <span class="mb" id="mb-nv"></span></button>
-  </div></nav>
+  </div></div></nav>
   <main class="gut"><div class="wrap">
    <div id="v-agenda" hidden>
     <div class="card agtop" id="agtop"></div>
@@ -999,5 +1005,13 @@ $('lockForm').addEventListener('submit',async ev=>{
   catch(e){SENHA='';$('pwErr').textContent=String(e.message||'').includes('senha')?'Senha errada. Tente de novo.':'Não consegui conectar. Verifique a internet.';}
 });
 try{const p=sessionStorage.getItem('rh_pw');if(p)entrar(p).catch(()=>{});}catch(e){}
+</script>
+<script>
+(function(){var w=document.getElementById('mwrap'),m=document.getElementById('mscroll');if(!w||!m)return;
+function up(){var x=m.scrollLeft,max=m.scrollWidth-m.clientWidth;w.classList.toggle('tem-esq',x>4);w.classList.toggle('tem-dir',x<max-4);}
+m.addEventListener('scroll',up,{passive:true});window.addEventListener('resize',up);
+w.querySelector('.mseta.dir').onclick=function(){m.scrollBy({left:m.clientWidth*.7,behavior:'smooth'});};
+w.querySelector('.mseta.esq').onclick=function(){m.scrollBy({left:-m.clientWidth*.7,behavior:'smooth'});};
+up();setTimeout(up,300);})();
 </script>
 </body></html>
