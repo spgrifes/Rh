@@ -180,7 +180,7 @@ section.arquivo .ico { filter: saturate(.4); }
 .fl { font: 900 1rem/1 var(--display); font-stretch: 85%; letter-spacing: -0.04em; color: #fff; }
 .seal .fl { font-size: 1.9rem; }
 .brand i { background: linear-gradient(145deg, #e0243f, #8f0b20); box-shadow: 0 4px 12px -4px rgba(200,16,46,.7); }
-/* Fundo da tela de senha: Painel da visualização — uma mansão por dia (fotos Unsplash, uso livre) */
+/* Fundo da tela de senha: Painel da visualização — uma imagem por dia (fotos Unsplash, uso livre) */
 #lock { background: #0f0d0d center / cover no-repeat; color: #f4f0ef; }
 @media (max-width: 760px) { #lock { place-items: end center; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); } }
 .visao { position: absolute; z-index: 1; top: calc(env(safe-area-inset-top, 0px) + 22px); left: 50%; transform: translateX(-50%); width: min(92vw, 40rem); text-align: center; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.55); pointer-events: none; }
@@ -409,32 +409,32 @@ function url(id) { return id.charAt(0) === '#' || id.indexOf('http') === 0 ? id 
 function link(x) { var u = url(x[1]); var mesma = u.indexOf('https://spgrifes.github.io/') === 0; return '<a href="' + u + '"' + (mesma ? '' : ' target="_blank" rel="noopener"') + '>' + svg(x[2]) + '<span>' + x[0] + '</span></a>'; }
 function store(get, val) { try { if (get) return localStorage.getItem('cc-ok'); if (val === null) localStorage.removeItem('cc-ok'); else localStorage.setItem('cc-ok', val); } catch (e) { return null; } }
 
-/* ---------- Painel da visualização: uma mansão e uma frase por dia na tela de senha ---------- */
+/* ---------- Painel da visualização: uma imagem e uma frase por dia na tela de senha (fotos Unsplash, uso livre) ---------- */
 (function () {
-  var fotos = [
-    ['1613490493576-7fde63acd811', '50% 60%'],
-    ['1580587771525-78b9dba3b914', '50% 55%'],
-    ['1613977257363-707ba9348227', '50% 60%'],
-    ['1600585154340-be6161a56a0c', '45% 55%'],
-    ['1600596542815-ffad4c1539a9', '60% 55%']
-  ];
-  var frases = [
-    'Essa casa é minha. Cada venda de hoje me leva até ela.',
-    'Eu me vejo acordando aqui. O trabalho de hoje paga essa vista.',
-    'Minha família vai ter esse lugar. Hoje eu construo mais um tijolo.',
-    'A SP Grifes vai me dar essa casa. Foco no que vende hoje.',
-    'Eu já sei onde vou morar. Agora é só executar todo dia.',
-    'Cada cliente bem atendido é um passo até essa porta.',
-    'Deus abençoa quem trabalha. Essa casa vem.'
+  var itens = [
+    ['1613490493576-7fde63acd811', '50% 60%', 'Essa casa é minha. Cada venda de hoje me leva até ela.'],
+    ['1514282401047-d79a71a590e8', '50% 50%', 'Maldivas me esperam. Eu trabalho hoje para viajar sem olhar o preço.'],
+    ['1503376780353-7e6692767b70', '50% 60%', 'Meu próximo carro já tem nome. Foco no que vende hoje.'],
+    ['1517336714731-489689fd1ca8', '40% 50%', 'O melhor equipamento na minha mão. A melhor tecnologia trabalhando por mim.'],
+    ['1544367567-0f2fcb009e0b', '50% 60%', 'Corpo forte, mente em paz. Eu cuido de mim todo dia.'],
+    ['1580587771525-78b9dba3b914', '50% 55%', 'Eu me vejo acordando aqui. O trabalho de hoje paga essa vista.'],
+    ['1499856871958-5b9627545d1a', '50% 50%', 'Paris, Londres, Dubai. O mundo é o meu destino.'],
+    ['1560958089-b8a1929cea89', '50% 60%', 'Carro moderno, tecnologia de ponta. Isso é a minha realidade chegando.'],
+    ['1593642632559-0c6d3fc62b89', '50% 50%', 'Escritório dos sonhos, trabalho com liberdade.'],
+    ['1613977257363-707ba9348227', '50% 60%', 'Minha família vai ter esse lugar. Hoje eu construo mais um tijolo.'],
+    ['1537996194471-e657df975ab4', '50% 50%', 'Viajar com calma, viver com qualidade. Eu mereço e vou conquistar.'],
+    ['1544636331-e26879cd4d9b', '50% 55%', 'Quem executa todo dia chega lá. Eu executo.'],
+    ['1600585154340-be6161a56a0c', '45% 55%', 'Eu já sei onde vou morar. Agora é só executar todo dia.'],
+    ['1507525428034-b723cf961d3e', '50% 50%', 'Qualidade de vida é o meu objetivo. A SP Grifes é o caminho.'],
+    ['1600596542815-ffad4c1539a9', '60% 55%', 'Deus abençoa quem trabalha. Essa casa vem.']
   ];
   var d = new Date(), dia = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
-  var f = fotos[dia % fotos.length], lk = document.getElementById('lock');
+  var it = itens[dia % itens.length], lk = document.getElementById('lock');
   var w = window.innerWidth <= 760 ? 1600 : 2600;
-  lk.style.backgroundImage = "url('https://images.unsplash.com/photo-" + f[0] + "?fm=jpg&q=80&w=" + w + "&auto=format&fit=crop')";
-  lk.style.backgroundPosition = f[1];
-  document.getElementById('visao-frase').textContent = frases[dia % frases.length];
+  lk.style.backgroundImage = "url('https://images.unsplash.com/photo-" + it[0] + "?fm=jpg&q=80&w=" + w + "&auto=format&fit=crop')";
+  lk.style.backgroundPosition = it[1];
+  document.getElementById('visao-frase').textContent = it[2];
 })();
-
 /* ---------- Senha ---------- */
 function norm(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 function hash(s) {
