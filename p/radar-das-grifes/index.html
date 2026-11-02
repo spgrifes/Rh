@@ -81,7 +81,8 @@ select.sem { font:600 .9rem var(--body); color:var(--fg); background:var(--tile)
 .info { padding:14px 16px 4px; }
 .colecao { font:900 1.15rem/1.1 var(--display); font-stretch:108%; margin:0; }
 .peca { margin:4px 0 0; font-weight:600; }
-.preco { margin:4px 0 0; font-weight:700; color:var(--gold); font-size:.92rem; }
+.preco { margin:4px 0 0; font-weight:800; color:var(--gold); font-size:1.15rem; }
+.preco-orig { margin:2px 0 0; color:var(--muted); font-size:.78rem; }
 .desc { margin:6px 0 0; color:var(--muted); font-size:.92rem; }
 .cores { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
 .cores span { font-size:.78rem; border:1px solid var(--line); border-radius:999px; padding:3px 9px; color:var(--muted); }
@@ -194,7 +195,7 @@ function passaVoto(i) {
   return true;
 }
 function desenha() {
-  var daSemana = D.itens.filter(function (i) { return fvoto === 'todas-semanas' || i.semana === semana; });
+  var daSemana = D.itens.filter(function (i) { return i.imagem && (fvoto === 'todas-semanas' || i.semana === semana); });
   // filtros
   var fg = document.getElementById('fGrupo');
   fg.innerHTML = ['Todos'].concat(GRUPOS).map(function (g) {
@@ -247,7 +248,8 @@ function card(i) {
       (vs.length ? '<span class="voto-selo">' + vs.map(function (v) { return '<span>' + v + '</span>'; }).join('') + '</span>' : '') + '</a>' +
     '<div class="info"><p class="colecao">' + esc(i.colecao || i.marca) + '</p>' +
       (i.peca ? '<p class="peca">' + esc(i.peca) + '</p>' : '') +
-      (i.preco || i.loja ? '<p class="preco">' + esc([i.preco, i.loja].filter(Boolean).join(' · ')) + '</p>' : '') +
+      (i.preco_brl != null ? '<p class="preco">' + reais(i.preco_brl) + '</p>' : '') +
+      (i.preco || i.loja ? '<p class="preco-orig">' + esc([i.preco_brl != null && i.preco && !/^R\$/.test(i.preco) ? 'original ' + i.preco : (i.preco_brl == null ? i.preco : ''), i.loja].filter(Boolean).join(' · ')) + '</p>' : '') +
       (i.descricao ? '<p class="desc">' + esc(i.descricao) + '</p>' : '') +
       (i.cores && i.cores.length ? '<div class="cores">' + i.cores.map(function (c) { return '<span>' + esc(c) + '</span>'; }).join('') + '</div>' : '') +
       (i.link ? '<a class="ver" href="' + esc(i.link) + '" target="_blank" rel="noopener">Ver na loja →</a>' : '') +
@@ -262,7 +264,8 @@ function card(i) {
       '<button class="mic" aria-label="Falar comentário" onclick="falar(' + i.id + ',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>' +
     '</div></article>';
 }
-function semFoto(img) { var s = img.parentNode.querySelector('.sem'); if (s) s.hidden = false; img.remove(); }
+function semFoto(img) { var c = img.closest('.card'); if (c) c.remove(); }
+function reais(v) { return 'R$ ' + Math.round(v).toLocaleString('pt-BR'); }
 function acha(id) { return D.itens.filter(function (x) { return x.id === id; })[0]; }
 function grava(i) {
   return rpc('radar_votar', { senha: SENHA, item: i.id, p_gostei: i.gostei, p_venderia: i.venderia, p_nota: i.nota || '' })
