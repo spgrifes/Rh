@@ -208,6 +208,22 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 .menu{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--head);border-bottom:1px solid #262a33;padding-block:10px}
 .mscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mscroll::-webkit-scrollbar{display:none}
+.empbtn{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:14px 16px;border:1px solid var(--line);cursor:pointer;font:inherit;color:inherit;background:var(--card,#fff)}
+.empbtn .who{flex:1;min-width:0}.empbtn .seta{font-size:1.6rem;color:var(--soft);margin-left:4px}
+.fpg{margin-top:14px;display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}.fpg>*{min-width:0}.ct-l>div:first-child{min-width:0;overflow-wrap:anywhere}.fcorpo .f{min-width:0}
+.fvolta{justify-self:start;border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 18px;font:700 .95rem inherit;cursor:pointer;color:var(--ink)}
+.fcab{display:flex;gap:12px;align-items:center;padding:16px}.fcab .who{flex:1;min-width:0}
+.fcorpo .dos{padding:6px 16px 18px}
+.blk.conta{background:#f0f7ff;border:1px solid #cfe2ff;border-radius:14px;padding:6px 14px 14px}.blk.conta h3{color:#1d4ed8}
+.ct-sub{font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--soft);margin:12px 0 4px}
+.ct-l{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed #cfe2ff}
+.ct-d{font-size:.85rem;color:var(--soft);margin-top:2px}.ct-v{font-weight:800;white-space:nowrap;text-align:right}.ct-ok{font-size:.75rem;color:var(--green);font-weight:700}
+.neg{color:#c0262d}
+.ct-tot{margin-top:12px;background:#fff;border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+.ct-r{display:flex;justify-content:space-between;gap:10px}.ct-r.big{font-size:1.15rem;border-top:1px solid var(--line);padding-top:8px}.ct-r.big2{font-size:1.25rem;color:#1d4ed8}
+.blk.obs h3{color:#0e7490}.obsf{display:grid;gap:8px;margin-bottom:8px}
+.obsf textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:1rem}
+.obsarq{border:2px dashed var(--line);border-radius:10px;padding:12px;text-align:center;font-weight:700;cursor:pointer}
 #saudacao{padding-top:14px}
 .sauda{position:relative;overflow:hidden;border-radius:18px;padding:18px 18px 22px;display:flex;align-items:center;gap:14px;color:#0f2a3d;
  background:linear-gradient(135deg,#e0f2fe 0%,#bae6fd 45%,#a5f3fc 100%);box-shadow:0 6px 20px rgba(14,116,144,.15);animation:saudaIn .5s ease}
@@ -221,10 +237,11 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 @keyframes saudaIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .alres{margin-top:10px}.alres>summary{cursor:pointer;font-weight:700;padding:10px 4px;opacity:.9}.alres .al{opacity:.85}
 .mwrap{position:relative}
-.mseta{display:none;position:absolute;top:0;bottom:0;width:44px;border:0;padding:0;z-index:2;color:#fff;font-size:1.4rem;font-weight:800;cursor:pointer}
-.mseta.dir{right:0;background:linear-gradient(90deg,rgba(17,18,22,0),var(--head) 55%);text-align:right;padding-right:6px}
-.mseta.esq{left:0;background:linear-gradient(270deg,rgba(17,18,22,0),var(--head) 55%);text-align:left;padding-left:6px}
+.menu .mseta{display:none;position:absolute;top:0;bottom:0;width:26px;border:0;border-radius:0;padding:0;z-index:2;color:#fff;font-size:1.4rem;font-weight:800;cursor:pointer}
+.menu .mseta.dir{right:0;background:linear-gradient(90deg,rgba(17,18,22,0),var(--head) 60%);text-align:right;padding-right:2px}
+.menu .mseta.esq{left:0;background:linear-gradient(270deg,rgba(17,18,22,0),var(--head) 60%);text-align:left;padding-left:2px}
 .mwrap.tem-dir .mseta.dir,.mwrap.tem-esq .mseta.esq{display:block}
+.mscroll{scroll-padding-inline:30px}
 @media (min-width:760px){.mscroll{flex-wrap:wrap;overflow:visible}.mseta{display:none!important}}
 .menu button{flex:none;border:1px solid #333a48;background:#1a1d24;color:#cfd3dc;border-radius:999px;padding:8px 14px;font-weight:700;font-size:.86rem;white-space:nowrap}
 .menu button[aria-pressed="true"]{background:#fff;color:var(--head);border-color:#fff}
@@ -394,6 +411,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
       <div class="nrow2"><button type="button" class="btn mic" id="nmic">Falar</button><button type="button" class="btn" id="nsend" style="background:var(--ink)">Enviar novidade</button><span class="sy2" id="nst"></span></div>
       <div id="nlist"></div>
     </div>
+    <div id="fpg" class="fpg" hidden></div>
     <div class="alerts" id="alerts" data-sec="painel alertas" style="margin-top:14px"></div>
 
     <section data-sec="painel">
@@ -476,6 +494,58 @@ function campos(e){
   add('saude','at','Atestado',e.atest||'Nenhum atestado no mês');
   return L;
 }
+function fichaTags(e){const al=alertasDe(e).length;return [al?`<span class="tag t-red">${al} alerta${al>1?'s':''}</span>`:'',
+  e.reg===true?'<span class="tag t-green">Registrado</span>':e.reg===false?'<span class="tag t-amber">Sem registro</span>':'<span class="tag t-blue">Registro?</span>',
+  e.atest?'<span class="tag t-violet">Atestado</span>':'',valesPend(e)?`<span class="tag t-amber">Vales ${F(valesPend(e))}</span>`:''].join(' ');}
+function fichaTopo(e){const falta=campos(e).filter(c=>c.v==null).length;
+  return `<div class="av" style="background:${SETOR_COR[e.setor]||'#475569'}">${esc(e.nome[0])}</div>
+   <div class="who"><div class="nm">${esc(e.nome)} ${fichaTags(e)}</div><div class="rl">${esc(e.setor)}${e.funcao&&e.funcao!==e.setor?' · '+esc(e.funcao):e.funcao?'':' · função a confirmar'}${falta?` · <span style="color:var(--amber)">${falta} a completar</span>`:''}</div></div>`;}
+/* ===== Conta do mês: tudo que entra e sai para o funcionário no mês ===== */
+function mesDesconto(r){if(r.d.mesdesc)return r.d.mesdesc;const d=new Date(r.ce);let a=d.getFullYear(),m=d.getMonth()+1;if(d.getDate()>20){m++;if(m>12){m=1;a++;}}return a+'-'+String(m).padStart(2,'0');}
+function valesNoMes(e,ym){const L=[];valesDe(e).filter(r=>r.d.st!=='Descontado').forEach(r=>{
+  if(r.d.parcelas&&r.d.parcelas.length)r.d.parcelas.forEach((p,i)=>{if(p.mes===ym)L.push({r,valor:valNum(p.valor),parc:r.d.parcelas.length>1?(i+1)+'ª de '+r.d.parcelas.length:''});});
+  else if(mesDesconto(r)===ym)L.push({r,valor:valNum(r.d.valor),parc:''});});return L;}
+function contaMes(e){const ym=mesYM(); let itens=[];
+  try{gerarAgenda().filter(d=>d.data.slice(0,7)===ym).forEach(d=>d.itens.filter(i=>i.quem===e.nome).forEach(i=>itens.push({data:d.dia,tit:d.titulo,desc:i.motivo,valor:i.valor,obs:i.obs,pago:PAGO.includes((REV[i.id]||{}).s),forma:FORMA[(REV[i.id]||{}).s]||''})));}catch(err){}
+  const vs=valesNoMes(e,ym);
+  const ent=itens.reduce((t,i)=>t+(i.valor||0),0), sai=vs.reduce((t,v)=>t+v.valor,0), pago=itens.filter(i=>i.pago).reduce((t,i)=>t+(i.valor||0),0);
+  return {itens,vs,ent,sai,total:Math.round((ent-sai)*100)/100,pago,falta:Math.round((ent-sai-pago)*100)/100,semValor:itens.filter(i=>i.valor==null).length};}
+function contaHTML(e){const c=contaMes(e), nm=(MESES.find(m=>m.id===MESATUAL)||{}).nome||'';
+  if(!c.itens.length&&!c.vs.length)return `<div class="blk conta"><h3>Conta do mês · ${esc(nm)}</h3><div class="vf2" style="padding:6px 0">Ainda não há pagamentos na agenda deste mês para ${esc(e.nome)}.</div></div>`;
+  return `<div class="blk conta"><h3>Conta do mês · ${esc(nm)}</h3>
+   <div class="ct-sub">Entradas (o que ela recebe)</div>
+   ${c.itens.map(i=>`<div class="ct-l"><div><b>${esc(i.data)} · ${esc(i.tit)}</b><div class="ct-d">${esc(i.desc)}${i.obs?' · <i>'+esc(i.obs)+'</i>':''}</div></div><div class="ct-v num">${i.valor==null?'<span style="color:var(--amber)">falta valor</span>':F(i.valor)}${i.pago?`<div class="ct-ok">✓ pago${i.forma&&i.forma!=='Pago'?' · '+esc(i.forma):''}</div>`:''}</div></div>`).join('')||'<div class="ct-d">Nada a receber neste mês.</div>'}
+   <div class="ct-sub">Saídas (vales e compras a descontar)</div>
+   ${c.vs.map(v=>`<div class="ct-l"><div><b>${esc(v.r.d.tipo||'Vale')}${v.parc?' · parcela '+v.parc:''}</b><div class="ct-d">${esc(v.r.d.motivo||'')} · lançado em ${new Date(v.r.ce).toLocaleDateString('pt-BR')}</div></div><div class="ct-v num neg">− ${F(v.valor)}</div></div>`).join('')||'<div class="ct-d">Nenhum vale para descontar neste mês.</div>'}
+   <div class="ct-tot"><div class="ct-r"><span>Entradas</span><b class="num">${F(c.ent)}</b></div><div class="ct-r"><span>Saídas (vales)</span><b class="num neg">− ${F(c.sai)}</b></div>
+     <div class="ct-r big"><span>Total a pagar no mês</span><b class="num">${F(c.total)}</b></div>
+     <div class="ct-r"><span>Já pago</span><b class="num" style="color:var(--green)">${F(c.pago)}</b></div>
+     <div class="ct-r big2"><span>Falta pagar</span><b class="num">${F(c.falta)}</b></div>
+     ${c.semValor?`<div class="ct-d" style="color:var(--amber)">${c.semValor} pagamento(s) sem valor: o total vai mudar quando forem informados.</div>`:''}
+     <div class="ct-d">Os vales são abatidos no primeiro pagamento do mês. Para marcar como pago, use a Agenda de pagamentos.</div></div></div>`;}
+/* ===== Observações e anexos da ficha (por mês) ===== */
+const obsDe=e=>REGS.filter(r=>r.tipo==='obs'&&r.func===e.id&&r.d.mes===mesYM());
+function obsHTML(e){const L=obsDe(e);
+  return `<div class="blk obs"><h3>Observações e anexos do mês</h3>
+   <div class="frm obsf"><textarea id="obstx" rows="3" placeholder="Escreva ou dite uma observação (ex.: chegou atrasada dia 12, atestado de 2 dias...)"></textarea>
+   <label class="obsarq"><input type="file" id="obsarq" accept="image/*,application/pdf" multiple hidden><span id="obsarqt">+ Anexar foto ou PDF (atestado, recibo, documento)</span></label>
+   <div class="acts"><button type="button" class="btn" id="obssave" data-f="${e.id}">Salvar na ficha</button><span class="sy2" id="obsst"></span></div></div>
+   ${L.map(r=>`<div class="vf"><div class="vf1">${esc(r.d.texto||'(só anexo)')}</div><div class="vf3">${new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})} · ${esc(r.cp||'')}${(r.d.arqs||[]).map(a=>` · <button type="button" class="vfb" data-ver="${esc(a.path)}">ver ${a.pdf?'PDF':'foto'}</button>`).join('')} · <button type="button" class="vfb" data-obsdel="${r.id}" style="color:#c0262d">excluir</button></div></div>`).join('')}</div>`;}
+let fichaId=null;
+function renderFicha(){const pg=$('fpg'); const e=fichaId&&D.EQUIPE.find(x=>x.id===fichaId);
+  if(!e){pg.hidden=true;fichaId=null;return false;}
+  const cs=campos(e), g=(grp,tit,cls)=>`<div class="blk ${cls}"><h3>${tit}</h3>${cs.filter(c=>c.grp===grp).map(fieldHTML).join('')}</div>`;
+  const tx=$('obstx')?$('obstx').value:'';
+  pg.innerHTML=`<button type="button" class="fvolta" id="fvolta">‹ Voltar para todos</button>
+   <div class="card fcab">${fichaTopo(e)}<div class="money"><div class="a num">${e.sal?F(e.sal):'—'}</div><div class="b">salário</div></div></div>
+   <div class="card fcorpo"><div class="dos">${alertasDe(e).map(a=>`<div class="al alto" style="color:#fff;border-radius:12px"><div class="t"><div class="q">Alerta</div><div class="x">${esc(a.texto)}</div></div></div>`).join('')}
+    ${g('dados','Dados','dados')}${g('din','Dinheiro do mês','money3')}${valesFicha(e)}${g('saude','Saúde','saude')}${contaHTML(e)}${obsHTML(e)}</div></div>
+   <button type="button" class="fvolta" data-volta="1">‹ Voltar para todos</button>`;
+  if(tx)$('obstx').value=tx;
+  pg.hidden=false;document.querySelectorAll('[data-sec]').forEach(el=>el.hidden=true);return true;}
+function abrirFicha(id){fichaId=id;try{history.pushState({f:id},'','#f='+id);}catch(x){}render();window.scrollTo(0,0);}
+function fecharFicha(){if(location.hash.startsWith('#f=')){history.back();return;}fichaId=null;render();}
+window.addEventListener('popstate',()=>{const m=location.hash.match(/^#f=(.+)/);fichaId=m?decodeURIComponent(m[1]):null;if(D)render();});
 function alertasDe(e){return (D.ALERTAS||[]).filter(a=>a.quem===e.nome && (REV['alerta_'+a.id]||{}).s!=='ok');}
 
 function render(){
@@ -526,20 +596,12 @@ function render(){
     if(filtro==='reg')return e.reg===true; if(filtro==='nreg')return e.reg!==true;
     if(filtro==='Vendas'||filtro==='Site')return e.setor===filtro; return true;});
   $('cnt').textContent=lista.length;
-  $('list').innerHTML=lista.map(e=>{
-    const cs=campos(e), falta=cs.filter(c=>c.v==null).length, al=alertasDe(e).length;
-    const tags=[al?`<span class="tag t-red">${al} alerta${al>1?'s':''}</span>`:'',
-      e.reg===true?'<span class="tag t-green">Registrado</span>':e.reg===false?'<span class="tag t-amber">Sem registro</span>':'<span class="tag t-blue">Registro?</span>',
-      e.atest?'<span class="tag t-violet">Atestado</span>':'',valesPend(e)?`<span class="tag t-amber">Vales ${F(valesPend(e))}</span>`:''].join(' ');
-    const g=(grp,tit,cls)=>`<div class="blk ${cls}"><h3>${tit}</h3>${cs.filter(c=>c.grp===grp).map(fieldHTML).join('')}</div>`;
-    return `<details class="card emp" data-e="${e.id}" ${open.has(e.id)?'open':''}>
-      <summary><div class="av" style="background:${SETOR_COR[e.setor]||'#475569'}">${esc(e.nome[0])}</div>
-        <div class="who"><div class="nm">${esc(e.nome)} ${tags}</div><div class="rl">${esc(e.setor)}${e.funcao&&e.funcao!==e.setor?' · '+esc(e.funcao):e.funcao?'':' · função a confirmar'}${falta?` · <span style="color:var(--amber)">${falta} a completar</span>`:''}</div></div>
-        <div class="money"><div class="a num">${e.sal?F(e.sal):'—'}</div><div class="b">salário</div></div></summary>
-      <div class="dos">${alertasDe(e).map(a=>`<div class="al alto" style="color:#fff;border-radius:12px"><div class="t"><div class="q">Alerta</div><div class="x">${esc(a.texto)}</div></div></div>`).join('')}
-        ${g('dados','Dados','dados')}${g('din','Dinheiro do mês','money3')}${valesFicha(e)}${g('saude','Saúde','saude')}</div></details>`;
+  $('list').innerHTML=lista.map(e=>{const ct=contaMes(e);
+    return `<button type="button" class="card emp empbtn" data-abre="${e.id}">${fichaTopo(e)}
+      <div class="money"><div class="a num">${ct.itens.length?F(ct.total):(e.sal?F(e.sal):'—')}</div><div class="b">${ct.itens.length?'a receber no mês':'salário'}</div></div><span class="seta" aria-hidden="true">›</span></button>`;
   }).join('')||'<div class="card" style="padding:16px">Ninguém neste filtro.</div>';
   // folha
+  if(renderFicha())return;
   $('totals').innerHTML=(D.TOTAIS||[]).map(([k,v],i)=>`<tr class="${/Total/.test(k)?'tot':''}"><td>${esc(k)}</td><td class="v num">${F(v)}</td></tr>`).join('');
   $('qs').innerHTML=(D.PERGUNTAS||[]).map(q=>`<div class="li"><span class="dot"></span><span>${esc(q)}</span></div>`).join('');
   $('out').innerHTML=(D.SAIRAM||[]).map(([n,t])=>`<div class="li"><b>${esc(n)}</b><span style="color:var(--soft)">${esc(t)}</span></div>`).join('');
@@ -570,13 +632,16 @@ const MES=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DE
 const num=t=>{const m=String(t||'').match(/R\$\s*([\d\.]+,\d{2})/);return m?Number(m[1].replace(/\./g,'').replace(',','.')):null};
 const slug=t=>String(t).normalize('NFD').replace(/[^\w]/g,'').toLowerCase();
 function descNa(e,dia){const m=String(e.desc||'').match(/−\s*R\$\s*([\d\.]+,\d{2}).*?(\d{2}\/\d{2})/);return m&&m[2]===dia?Number(m[1].replace(/\./g,'').replace(',','.')):0;}
+const FERIADOS=['2026-11-02','2026-11-15','2026-11-20','2026-12-25','2027-01-01','2027-02-15','2027-02-16','2027-04-02','2027-04-21','2027-05-01'];
+function diasTrab(dataPg,segSex){const d0=new Date(dataPg+'T12:00:00');const a=d0.getMonth()===11?d0.getFullYear()+1:d0.getFullYear(),m=(d0.getMonth()+1)%12;let n=0;
+  for(let d=new Date(a,m,1,12);d.getMonth()===m;d.setDate(d.getDate()+1)){const w=d.getDay(),iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(w===0||(segSex&&w===6)||FERIADOS.includes(iso))continue;n++;}return n;}
 function gerarAgenda(){
   const A=D.AGENDA; if(!A)return [];
   const eq=AGEQ, adih=A.adih||{}, xd=A.extraDesc||{};
   return A.dias.map(dd=>{
     const dia=dd.data.slice(8,10)+'/'+dd.data.slice(5,7); let itens=[], titulo=dd.titulo;
     if(dd.tipo==='conducao'){titulo='Condução do mês';
-      eq.forEach(e=>{const v=num(e.vt); itens.push({quem:e.nome,motivo:`Condução de ${dd.semana} (${dd.dias} dias${v?' × '+F(v):''})`,valor:v?Math.round(v*dd.dias*100)/100:null,obs:v?'':'Falta o valor do vale-transporte'});});}
+      eq.forEach(e=>{const v=num(e.vt), ss=/segunda a sexta/i.test(e.hor||''), n=ss?diasTrab(dd.data,true):dd.dias; itens.push({quem:e.nome,motivo:`Condução de ${dd.semana} (${n} dias${ss?' de segunda a sexta':''}${v?' × '+F(v):''})`,valor:v?Math.round(v*n*100)/100:null,obs:v?'':'Falta o valor do vale-transporte'});});}
     if(dd.tipo==='salario'){titulo='Saldo do salário';
       eq.forEach(e=>{const ad=adih[e.id]||e.adi||0, ds=descNa(e,'05/11'), x=xd[e.id];
         if(e.id==='taine'||e.id==='vitoria')return;
@@ -637,7 +702,7 @@ function renderAgenda(){
     </details>`}).join('');
 }
 let ultPasta='salario';
-function trocarAba(t){if(t==='pagamentos')t=ultPasta;if(TIPOS[t]&&TIPOS[t].grupo==='pagamentos')ultPasta=t;aba=t;
+function trocarAba(t){if(fichaId){fichaId=null;try{if(location.hash.startsWith('#f='))history.replaceState(null,'',location.pathname);}catch(x){}}if(t==='pagamentos')t=ultPasta;if(TIPOS[t]&&TIPOS[t].grupo==='pagamentos')ultPasta=t;aba=t;
   document.querySelectorAll('.menu [data-tab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===t||(b.dataset.grupo||'').split(' ').includes(t)));
   const isReg=!!TIPOS[t];
   $('v-agenda').hidden=t!=='agenda';$('v-reg').hidden=!isReg;$('v-premios').hidden=t!=='premios';$('v-painel').hidden=t==='agenda'||isReg||t==='premios';if(t==='premios')carregaPremios();
@@ -812,6 +877,12 @@ function renderReg(t){
       <div class="bt">${(r.d.arqs||[]).map((a,i)=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}${r.d.arqs.length>1?' '+(i+1):''}</button>`).join('')}<button type="button" data-redit="${r.id}">Editar</button><button type="button" class="del" data-rdel="${r.id}">Excluir</button></div>
       <div class="by">${esc(r.cp||'')} · ${new Date(r.ce).toLocaleDateString('pt-BR')}${r.ap&&r.ae!==r.ce?` · editado por ${esc(r.ap)}`:''}</div></div>`}).join('')||'<div class="rg"><div class="t2">Nenhum registro ainda. Toque em "+ Novo registro".</div></div>'}</div>`;
 }
+async function salvarObs(fid){const tx=$('obstx').value.trim(), fi=$('obsarq');
+  if(!tx&&!fi.files.length){$('obsst').textContent='Escreva algo ou anexe um arquivo.';return;}
+  $('obssave').disabled=true;$('obsst').textContent='Salvando...';
+  try{const d={mes:mesYM(),texto:tx};if(fi.files.length){$('obsst').textContent='Enviando arquivo...';d.arqs=await subirArquivos([...fi.files],'obs-'+fid);}
+    await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:null,p_tipo:'obs',p_func:fid,p_dados:d});$('obstx').value='';await carregar();render();toast('Salvo na ficha');}
+  catch(x){$('obssave').disabled=false;$('obsst').textContent='Não salvou. Verifique a internet.';}}
 async function subirArquivos(files,pasta){
   const out=[];
   for(const f of files){
@@ -875,6 +946,10 @@ document.addEventListener('click',ev=>{
   const rd=t.closest('[data-rdel]'); if(rd){if(rd.dataset.c!=='1'){rd.dataset.c='1';rd.textContent='Toque de novo para excluir';return;}
     rpc('rh_reg_excluir',{p_senha:SENHA,p_id:rd.dataset.rdel}).then(async()=>{await carregar();render();toast('Registro excluído');});return;}
   const vr=t.closest('[data-ver]'); if(vr){verArq(vr.dataset.ver);return;}
+  const ab=t.closest('[data-abre]'); if(ab){abrirFicha(ab.dataset.abre);return;}
+  if(t.closest('#fvolta')||t.closest('[data-volta]')){fecharFicha();return;}
+  if(t.closest('#obssave')){salvarObs(t.closest('#obssave').dataset.f);return;}
+  const od=t.closest('[data-obsdel]'); if(od){if(!confirm('Excluir esta observação?'))return;rpc('rh_reg_excluir',{p_senha:SENHA,p_id:od.dataset.obsdel}).then(async()=>{await carregar();render();toast('Excluída');}).catch(()=>toast('Não consegui excluir'));return;}
   if(t.closest('#addf')){formFunc();return;}
   if(t.closest('#nf_x')){$('formf').innerHTML='';return;}
   if(t.closest('#nf_ok')){salvarFunc();return;}
@@ -1054,6 +1129,7 @@ document.addEventListener('click',async ev=>{
 });
 document.addEventListener('input',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pv!=null){cxParc[+t.dataset.pv].valor=t.value;resumoParc();}else if(t.id==='cxval')resumoParc();});
 document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pm!=null){cxParc[+t.dataset.pm].mes=t.value;resumoParc();}});
+document.addEventListener('change',ev=>{if(ev.target.id==='obsarq'){const n=ev.target.files.length;$('obsarqt').textContent=n?n+' arquivo(s) pronto(s) ✓':'+ Anexar foto ou PDF (atestado, recibo, documento)';}});
 document.addEventListener('change',ev=>{if(ev.target.id==='cxfoto'){const n=ev.target.files.length;$('cxfotot').textContent=n?'Foto pronta ✓ (toque para trocar)':'Tirar foto do papel assinado';$('cxfotol').classList.toggle('ok',!!n);}});
 
 async function entrar(p){
