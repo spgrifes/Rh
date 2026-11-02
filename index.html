@@ -208,6 +208,21 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 .menu{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--head);border-bottom:1px solid #262a33;padding-block:10px}
 .mscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mscroll::-webkit-scrollbar{display:none}
+.agcal{padding:14px}.calh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;text-align:center}
+.calt{font:800 1.3rem/1.1 "Barlow Condensed",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.02em}
+.calb{border:1px solid var(--line);background:#fff;border-radius:999px;width:42px;height:42px;font-size:1.4rem;font-weight:800;cursor:pointer;color:var(--ink)}.calb:disabled{opacity:.3}
+.calg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cw{font-size:.72rem;font-weight:800;text-align:center;color:var(--soft);padding:2px 0}
+.cd{min-height:86px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:4px;display:flex;flex-direction:column;gap:2px;text-align:left;font:inherit;color:inherit;overflow:hidden;cursor:default}
+.cd.vz{border:0;background:transparent}.cd.fds{background:#f6f7f9}.cd.tem{cursor:pointer;border-color:#c7d2fe}.cd.hoje{outline:2px solid var(--blue);outline-offset:-1px}
+.cd.pg{background:#ecfdf3;border-color:#a7f3d0}
+.cn{font-size:.78rem;font-weight:800}.cn i{font-style:normal;font-weight:600;font-size:.6rem;color:#c0262d}
+.ce{font-size:.62rem;line-height:1.15;font-weight:700;color:#fff;background:var(--c);border-radius:4px;padding:2px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct{margin-top:auto;font-size:.7rem;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calleg{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:.78rem;font-weight:700;color:var(--soft)}.calleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.cdots{display:none;gap:3px;flex-wrap:wrap}.cdots i{width:8px;height:8px;border-radius:50%;display:block}.ct .sm{display:none}
+@media (max-width:759px){.cd{min-height:64px}.cd .ce{display:none}.cdots{display:flex}.ct .lg{display:none}.ct{white-space:normal;overflow:visible;line-height:1.05}.ct .sm{display:inline;font-size:.66rem}.cn i{display:block}}
+@media (min-width:760px){.cd{min-height:110px;padding:6px}.ce{font-size:.72rem}.ct{font-size:.82rem}}
 .avl{display:grid;gap:12px;margin-top:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .avc{padding:14px 16px}.avc.vazio{opacity:.7}.avt{font-weight:800;margin-bottom:8px}
 .avwin{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#fff7d6,#ffe9a8);border-radius:12px;padding:10px 12px;margin-bottom:8px}
@@ -405,6 +420,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
   </div></div></nav>
   <main class="gut"><div class="wrap">
    <div id="v-agenda" hidden>
+    <div class="card agcal" id="agcal"></div>
     <div class="card agtop" id="agtop"></div>
     <section><h2>Regras da agenda</h2><div class="card list" id="agregras"></div></section>
     <section><h2>Dia a dia <span class="count" id="agcnt"></span></h2><div class="chips" id="agchips"></div><div class="grid" id="aglist"></div></section>
@@ -724,7 +740,10 @@ function gerarAgenda(){
   const ativo=(e,data)=>!DESL[e.id]||data<=DESL[e.id].d.ultimo;
   const extras=Object.values(DESL).map(r=>{const e=AGEQ.find(x=>x.id===r.func)||(D.EQUIPE_ALL||[]).find(x=>x.id===r.func);if(!e)return null;const a=acerto(e,r);
     return {data:prazoAcerto(r.d.ultimo),tipo:'acerto',titulo:'Acerto final',nota:'Prazo da lei: até 10 dias depois do último dia. Valor estimado: o contador confirma (registrados).',itens:[{quem:e.nome,motivo:`Acerto final · ${r.d.motivo} · último dia ${dBR(r.d.ultimo)}`,valor:a.tot,obs:a.falta?'Falta informação para fechar a conta':''}]};}).filter(Boolean);
-  return A.dias.concat(extras).sort((a,b)=>a.data<b.data?-1:a.data>b.data?1:0).map(dd=>{
+  const esc2=[];A.dias.filter(x=>x.escalonada).forEach(x=>{const vs=eq.filter(e=>e.comval>0&&ativo(e,x.mesref+'-01')).sort((a,b)=>b.comval-a.comval);
+    vs.forEach((e,k)=>{const dia=String(k+1).padStart(2,'0');esc2.push({data:x.mesref+'-'+dia,tipo:'comissao',titulo:`Comissão · ${k+1}º lugar`,nota:x.nota,
+      itens:[{quem:e.nome,motivo:`Comissão de outubro: ${k+1}º lugar em vendas${e.combase?' (vendeu '+F(e.combase)+')':''}`,valor:e.comval,obs:e.reg?'Registrada: incluir no holerite.':''}]});});});
+  return A.dias.filter(x=>!x.escalonada).concat(esc2).concat(extras).sort((a,b)=>a.data<b.data?-1:a.data>b.data?1:0).map(dd=>{
     const eqD=eq.filter(e=>ativo(e,dd.data));
     const dia=dd.data.slice(8,10)+'/'+dd.data.slice(5,7); let itens=[], titulo=dd.titulo;
     if(dd.tipo==='conducao'){titulo='Condução do mês';
@@ -737,7 +756,7 @@ function gerarAgenda(){
         let v=e.sal?e.sal-ad-ds-(x?x[0]:0):null;
         const partes=[e.sal?'salário '+F(e.sal):null, ad?'− adiantamento '+F(ad):null, ds?'− desconto '+F(ds):null, x?'− '+x[1]:null].filter(Boolean).join(' ');
         itens.push({quem:e.nome,motivo:'Saldo do salário de outubro'+(partes?' ('+partes+')':''),valor:v,obs:!e.sal?'Falta o salário cheio'+(e.salnota&&/500/.test(e.salnota)?' (tem + R$ 500,00 fixo)':''):e.reg?'Registrada: o valor final é o do holerite do contador (desconta INSS).':(!e.adi?'Confirmar se recebeu adiantamento em outubro.':'')});});}
-    if(dd.tipo==='comissao'){titulo='Comissões';
+    if(dd.tipo==='comissao'&&!dd.itens){titulo='Comissões';
       eqD.filter(e=>e.comval).sort((a,b)=>b.comval-a.comval).forEach(e=>itens.push({quem:e.nome,motivo:`Comissão de outubro (${e.comref||''})`,valor:e.comval,obs:e.reg?'Registrada: incluir no holerite.':''}));}
     if(dd.tipo==='adiantamento'){titulo='Adiantamento + impostos';
       eqD.filter(e=>e.adi||adih[e.id]).forEach(e=>{const base=adih[e.id]||e.adi, ds=descNa(e,'20/11');
@@ -755,8 +774,29 @@ function gerarAgenda(){
     return {...dd,dia,titulo,itens,total};
   });
 }
+let calYM=null;
+const TCOR={salario:'#2563eb',comissao:'#12895a',adiantamento:'#d97706',conducao:'#475569',fixo:'#7c3aed',decimo:'#be185d',acerto:'#c0262d'};
+const curto=v=>v>=1000?(Math.round(v/100)/10).toLocaleString('pt-BR')+' mil':Math.round(v).toLocaleString('pt-BR');
+function renderCal(G){const hj=new Date(),hoje=hj.getFullYear()+'-'+String(hj.getMonth()+1).padStart(2,'0')+'-'+String(hj.getDate()).padStart(2,'0');
+  const meses=[...new Set(G.map(d=>d.data.slice(0,7)))].sort(); if(!calYM)calYM=meses.includes(hoje.slice(0,7))?hoje.slice(0,7):meses[0];
+  const [a,m]=calYM.split('-').map(Number), pri=new Date(a,m-1,1).getDay(), nd=new Date(a,m,0).getDate();
+  const porDia={};G.filter(d=>d.data.slice(0,7)===calYM).forEach(d=>{(porDia[d.data]=porDia[d.data]||[]).push(d);});
+  const totM=Object.values(porDia).flat().reduce((t,d)=>t+d.total,0);
+  let cel='';for(let i=0;i<pri;i++)cel+='<div class="cd vz"></div>';
+  for(let dd=1;dd<=nd;dd++){const iso=calYM+'-'+String(dd).padStart(2,'0'), L=porDia[iso]||[], tot=L.reduce((t,d)=>t+d.total,0),
+     tudoPago=L.length&&L.every(d=>d.itens.every(i=>PAGO.includes((REV[i.id]||{}).s))), fer=FERIADOS.includes(iso), dom=new Date(a,m-1,dd).getDay()===0;
+    cel+=`<button type="button" class="cd ${L.length?'tem':''} ${iso===hoje?'hoje':''} ${dom||fer?'fds':''} ${tudoPago?'pg':''}" ${L.length?`data-cald="${iso}"`:''}>
+      <span class="cn">${dd}${fer?' <i>feriado</i>':''}</span>
+      ${L.map(d=>`<span class="ce" style="--c:${TCOR[d.tipo]||'#475569'}">${esc(d.titulo.replace('Condução · ','Condução ').replace('Comissão · ','Comissão '))}</span>`).join('')}
+      ${L.length?`<span class="cdots">${L.map(d=>`<i style="background:${TCOR[d.tipo]||'#475569'}"></i>`).join('')}</span><span class="ct num"><b class="lg">${tudoPago?'✓ ':''}${F(tot)}</b><b class="sm">${tudoPago?'✓':''}${curto(tot)}</b></span>`:''}</button>`;}
+  const i=meses.indexOf(calYM);
+  $('agcal').innerHTML=`<div class="calh"><button type="button" class="calb" data-calm="-1" ${i<=0?'disabled':''}>‹</button>
+    <div><div class="calt">${MESN[m-1]} ${a}</div><div class="ct-d">Total do mês: <b>${F(totM)}</b> · toque num dia para ver quem recebe</div></div>
+    <button type="button" class="calb" data-calm="1" ${i>=meses.length-1?'disabled':''}>›</button></div>
+   <div class="calg">${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(x=>`<div class="cw">${x}</div>`).join('')}${cel}</div>
+   <div class="calleg">${[['salario','Salário'],['comissao','Comissão'],['adiantamento','Adiantamento'],['conducao','Condução'],['decimo','13º'],['fixo','Outros'],['acerto','Acerto']].map(([k,l])=>`<span><i style="background:${TCOR[k]}"></i>${l}</span>`).join('')}</div>`;}
 function renderAgenda(){
-  const G=gerarAgenda(); if(!G.length){$('agtop').innerHTML='<div>Agenda ainda não montada.</div>';return;}
+  const G=gerarAgenda(); try{renderCal(G);}catch(x){console.log(x)} if(!G.length){$('agtop').innerHTML='<div>Agenda ainda não montada.</div>';return;}
   const hoje=new Date(); hoje.setHours(0,0,0,0);
   const tot=G.reduce((s,d)=>s+d.total,0), pago=G.reduce((s,d)=>s+d.itens.filter(i=>PAGO.includes((REV[i.id]||{}).s)).reduce((a,i)=>a+(i.valor||0),0),0);
   const maior=G.reduce((a,b)=>b.total>a.total?b:a), falt=G.reduce((s,d)=>s+d.itens.filter(i=>i.valor==null).length,0);
@@ -1083,6 +1123,8 @@ document.addEventListener('click',ev=>{
   const ae=ev.target.closest('[data-aled]'); if(ae){editAl=editAl===ae.dataset.aled?null:ae.dataset.aled;render();const i=$('n_alerta_'+editAl);if(i)i.focus();return;}
   const ao=ev.target.closest('[data-alok]'); if(ao){const id='alerta_'+ao.dataset.alok;clearTimeout(tm[id]);salvar(id);editAl=null;render();toast('Comentário salvo');return;}
   const f=ev.target.closest('[data-f]'); if(f){filtro=f.dataset.f;render();return;}
+  const cm=ev.target.closest('[data-calm]'); if(cm){const G=gerarAgenda(),ms=[...new Set(G.map(d=>d.data.slice(0,7)))].sort();const k=ms.indexOf(calYM)+Number(cm.dataset.calm);if(ms[k]){calYM=ms[k];renderCal(G);}return;}
+  const cdd=ev.target.closest('[data-cald]'); if(cdd){agf='todos';renderAgenda();const ds=[...document.querySelectorAll('details.day')].filter(x=>x.dataset.d.startsWith(cdd.dataset.cald));ds.forEach(x=>x.open=true);if(ds[0])ds[0].scrollIntoView({behavior:'smooth',block:'start'});return;}
   const fe=ev.target.closest('[data-fe]'); if(fe){ev.preventDefault();editando=editando===fe.dataset.fe?null:fe.dataset.fe;render();const i=$('fe_'+editando);if(i)i.focus({preventScroll:true});return;}
   const fs=ev.target.closest('[data-fsave]'); if(fs){salvarCampo(fs.dataset.fsave);return;}
   if(ev.target.closest('[data-fcancel]')){editando=null;render();return;}
