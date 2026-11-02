@@ -208,6 +208,8 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 .menu{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--head);border-bottom:1px solid #262a33;padding-block:10px}
 .mscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mscroll::-webkit-scrollbar{display:none}
+.f .ed.add{border-color:#f59e0b;color:#b45309;background:#fff8eb}
+.fein{width:100%;box-sizing:border-box;font:inherit;font-size:1rem;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
 .dsl-ban{background:#fde2e2;color:#9b1c1c;border:1px solid #f8b4b4;border-radius:12px;padding:12px 14px;font-weight:700}
 .dslbtn{width:100%;border:1px solid #f1a5a5;background:#fff;color:#c0262d;border-radius:12px;padding:13px;font:700 .95rem inherit;cursor:pointer}
 .blk.dsl{background:#fff5f5;border:1px solid #f8b4b4;border-radius:14px;padding:6px 14px 14px;display:grid;gap:8px}.blk.dsl h3{color:#c0262d}
@@ -480,16 +482,34 @@ const PAGO=['ok','pix','dinheiro','cartao','transf'], FORMA={ok:'Pago',pix:'Pix'
 let QUEM='', MESATUAL=null, MESES=[], REGS=[], LOG=[], AGEQ=[], regTipo=null, regEdit=null, regFunc='todos';
 let DESL={}; let D=null, REV={}, SENHA='', filtro='todos', editando=null, editAl=null, aba='painel', agf='todos', agEd=null;
 
+function rawCampo(e,k){const m={nome:e.completo,funcao:e.funcao,ent:e.ent,hor:e.hor,sal:e.salnota||(e.sal?F(e.sal):''),adi:e.adi?F(e.adi):'',pago:e.pago,com:e.com,vt:e.vt,desc:e.desc,at:e.atest};
+  if(k==='reg')return e.reg===true?'sim':e.reg===false?'nao':''; if(/^x\d+$/.test(k))return (e.extra||[])[+k.slice(1)]||''; return m[k]||'';}
+const FUTURO=['nome','funcao','reg','ent','hor','sal','vt'];
+function dadosCampo(e,k,v){v=v.trim();
+  if(k==='nome')return {completo:v||null}; if(k==='reg')return {reg:v==='sim'?true:v==='nao'?false:null};
+  if(k==='sal'){const n=valNum(v.replace(/R\$\s*/,''));return /^[R$\s\d.,]+$/.test(v)&&n>0?{sal:n,salnota:null}:{salnota:v||null};}
+  if(k==='adi'){const n=valNum(v.replace(/R\$\s*/,''));return {adi:n>0?n:null};}
+  if(k==='at')return {atest:v||null};
+  if(/^x\d+$/.test(k)){const x=[...(e.extra||[])];if(v)x[+k.slice(1)]=v;else x.splice(+k.slice(1),1);return {extra:x};}
+  const o={};o[k]=v||null;return o;}
+async function salvarCampo(id){const c=D.EQUIPE_ALL.flatMap(e=>campos(e)).find(x=>x.id===id); if(!c)return;
+  const e=D.EQUIPE_ALL.find(x=>x.id===c.fid), inp=$('fe_'+id), st=$('fest_'+id);
+  const d=dadosCampo(e,c.key,inp.value);
+  st.textContent='Salvando...';
+  try{await rpc('rh_func_campo',{p_senha:SENHA,p_mes:MESATUAL,p_func:c.fid,p_dados:d,p_futuro:FUTURO.includes(c.key)});
+    if(REV[id]&&REV[id].n&&REV[id].s!=='aplicado'){REV[id].s='aplicado';salvar(id);}
+    editando=null;await carregar();render();toast('Salvo na ficha');}
+  catch(x){st.textContent='Não salvou. Verifique a internet.';}}
 function campos(e){
   const L=[];
-  const add=(grp,k,lab,v,extra)=>L.push({grp,id:e.id+'_'+k,k:lab,v:v==null||v===''?null:v,extra});
+  const add=(grp,k,lab,v,extra)=>L.push({grp,id:e.id+'_'+k,key:k,fid:e.id,k:lab,v:v==null||v===''?null:v,raw:rawCampo(e,k),extra});
   add('dados','nome','Nome completo',e.completo);
   add('dados','funcao','Função',e.funcao);
   add('dados','reg','Registro em carteira',e.reg===true?'Registrado':e.reg===false?'Sem registro':null);
   add('dados','ent','Data de entrada',e.ent);
   add('dados','hor','Horário',e.hor);
   add('din','sal','Salário cheio',e.salnota||(e.sal?F(e.sal):null));
-  add('din','adi','Adiantamento / vale (20/10)',e.adi?F(e.adi):null);
+  add('din','adi','Adiantamento / vale do dia 20',e.adi?F(e.adi):null);
   add('din','pago','Pagamentos feitos',e.pago);
   (e.extra||[]).forEach((x,i)=>add('din','x'+i,'Outro pagamento',x));
   add('din','com','Comissão',e.com||(e.setor==='Vendas'?'1% sobre as vendas dela':'Não recebe comissão'));
@@ -622,9 +642,10 @@ function render(){
   // folha
   if(renderFicha())return;
   $('totals').innerHTML=(D.TOTAIS||[]).map(([k,v],i)=>`<tr class="${/Total/.test(k)?'tot':''}"><td>${esc(k)}</td><td class="v num">${F(v)}</td></tr>`).join('');
-  $('qs').innerHTML=(D.PERGUNTAS||[]).map(q=>`<div class="li"><span class="dot"></span><span>${esc(q)}</span></div>`).join('');
+  const autoQ=D.EQUIPE.map(e=>{const f=campos(e).filter(c=>c.v==null&&!['adi','pago'].includes(c.key)).map(c=>c.k.toLowerCase());return f.length?`${e.nome}: ${f.join(', ')}`:null;}).filter(Boolean);
+  $('qs').innerHTML=[...(D.PERGUNTAS||[]),...autoQ].map(q=>`<div class="li"><span class="dot"></span><span>${esc(q)}</span></div>`).join('')||'<div class="li"><span>Nada pendente. Todas as fichas estão completas.</span></div>';
   const dsM=Object.values(DESL).filter(r=>r.d.ultimo.slice(0,7)===mesYM()||r.d.ultimo<mesYM()+'-01').map(r=>{const e=(D.EQUIPE_ALL||[]).find(x=>x.id===r.func)||AGEQ.find(x=>x.id===r.func);return e?`<div class="li"><b><button type="button" class="vfb" data-abre="${e.id}">${esc(e.nome)}</button></b><span style="color:var(--soft)">${esc(r.d.motivo)} · último dia ${dBR(r.d.ultimo)} · acerto até ${dBR(prazoAcerto(r.d.ultimo))}</span></div>`:'';}).join('');
-  $('out').innerHTML=dsM+(D.SAIRAM||[]).map(([n,t])=>`<div class="li"><b>${esc(n)}</b><span style="color:var(--soft)">${esc(t)}</span></div>`).join('');
+  $('out').innerHTML=(dsM+(D.SAIRAM||[]).map(([n,t])=>`<div class="li"><b>${esc(n)}</b><span style="color:var(--soft)">${esc(t)}</span></div>`).join(''))||`<div class="li"><span style="color:var(--soft)">Ninguém saiu em ${esc(((MESES.find(m=>m.id===MESATUAL)||{}).nome||'').toLowerCase())}.</span></div>`;
 }
 
 const valesDe=e=>REGS.filter(r=>r.tipo==='vale'&&r.func===e.id);
@@ -635,16 +656,16 @@ function valesFicha(e){const vs=valesDe(e);
     <div class="vf3">${new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})} · lançado por ${esc(r.cp||'')}${(r.d.arqs||[]).map(a=>` · <button type="button" class="vfb" data-ver="${esc(a.path)}">ver foto</button>`).join('')}</div></div>`).join('');
   return `<div class="blk money3"><h3>Vales e compras${vs.length?` · falta descontar ${F(valesPend(e))}`:''}</h3>${it||'<div class="vf2" style="padding:6px 0">Nenhum vale lançado.</div>'}</div>`;}
 function fieldHTML(c){
-  const r=REV[c.id]||{}, s=r.s||'';
-  const lab={ok:'Certo',bad:'Errado',miss:'Falta'}[s]||'Conferir';
+  const r=REV[c.id]||{}, temNota=r.n&&r.s!=='aplicado';
   const val=c.v==null?'Falta informação':esc(c.v);
-  const nota=r.n?`<small>Correção: ${esc(r.n)}</small>`:'';
-  const ed=editando===c.id?`<div class="edit">
-      <div class="st">${['ok','bad','miss'].map(x=>`<button type="button" class="${x}" data-s="${x}" data-id="${c.id}" aria-pressed="${s===x}">${{ok:'Certo',bad:'Errado',miss:'Falta'}[x]}</button>`).join('')}</div>
-      <input id="n_${c.id}" data-id="${c.id}" class="nt" placeholder="Escreva a informação certa (pode ditar pelo microfone)" value="${esc(r.n||'')}">
-      <div class="hint">Salva sozinho. Fábio e Taine veem a mesma coisa.</div></div>`:'';
-  return `<div class="f ${s?'s-'+s:''}"><div class="k">${esc(c.k)}</div><div class="v ${c.v==null?'miss':''}">${val}${nota}</div>
-    <button type="button" class="ed" data-ed="${c.id}">${lab}</button>${ed}</div>`;
+  const nota=temNota?`<small>Anotação: ${esc(r.n)}</small>`:'';
+  const lab=c.raw?'Editar':'Adicionar';
+  const ed=editando===c.id?`<div class="edit frm">${c.key==='reg'?`<select id="fe_${c.id}" class="fein"><option value="">Não sei</option><option value="sim" ${c.raw==='sim'?'selected':''}>Registrado</option><option value="nao" ${c.raw==='nao'?'selected':''}>Sem registro</option></select>`
+      :`<input id="fe_${c.id}" class="fein" value="${esc(c.raw||(temNota?r.n:''))}" placeholder="Escreva ou dite a informação">`}
+      <div class="acts" style="margin-top:8px"><button type="button" class="btn" data-fsave="${c.id}">Salvar</button><button type="button" class="btn sec2" data-fcancel="1">Cancelar</button><span class="sy2" id="fest_${c.id}"></span></div>
+      <div class="hint">${FUTURO.includes(c.key)?'Vale para este mês e os próximos.':'Vale só para este mês.'}</div></div>`:'';
+  return `<div class="f"><div class="k">${esc(c.k)}</div><div class="v ${c.v==null?'miss':''}">${val}${nota}</div>
+    <button type="button" class="ed ${c.raw?'':'add'}" data-fe="${c.id}">${lab}</button>${ed}</div>`;
 }
 
 
@@ -672,6 +693,7 @@ function acerto(e,r){const u=r.d.ultimo, sal=e.sal||0, mot=r.d.motivo, jc=/com j
   const tot=Math.round(L.reduce((t,i)=>t+(i.v||0),0)*100)/100;
   return {L,tot,falta:L.some(i=>i.v==null)};}
 const FERIADOS=['2026-11-02','2026-11-15','2026-11-20','2026-12-25','2027-01-01','2027-02-15','2027-02-16','2027-04-02','2027-04-21','2027-05-01'];
+function diasTrabMes(ym,segSex){const [a,m]=ym.split('-').map(Number);let n=0;for(let d=new Date(a,m-1,1,12);d.getMonth()===m-1;d.setDate(d.getDate()+1)){const w=d.getDay(),iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(w===0||(segSex&&w===6)||FERIADOS.includes(iso))continue;n++;}return n;}
 function diasTrab(dataPg,segSex){const d0=new Date(dataPg+'T12:00:00');const a=d0.getMonth()===11?d0.getFullYear()+1:d0.getFullYear(),m=(d0.getMonth()+1)%12;let n=0;
   for(let d=new Date(a,m,1,12);d.getMonth()===m;d.setDate(d.getDate()+1)){const w=d.getDay(),iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(w===0||(segSex&&w===6)||FERIADOS.includes(iso))continue;n++;}return n;}
 function gerarAgenda(){
@@ -684,7 +706,9 @@ function gerarAgenda(){
     const eqD=eq.filter(e=>ativo(e,dd.data));
     const dia=dd.data.slice(8,10)+'/'+dd.data.slice(5,7); let itens=[], titulo=dd.titulo;
     if(dd.tipo==='conducao'){titulo='Condução do mês';
-      eqD.forEach(e=>{const v=num(e.vt), ss=/segunda a sexta/i.test(e.hor||''), n=ss?diasTrab(dd.data,true):dd.dias; itens.push({quem:e.nome,motivo:`Condução de ${dd.semana} (${n} dias${ss?' de segunda a sexta':''}${v?' × '+F(v):''})`,valor:v?Math.round(v*n*100)/100:null,obs:v?'':'Falta o valor do vale-transporte'});});}
+      if(dd.metade)titulo='Condução · '+(dd.semana||'');
+      eqD.forEach(e=>{const v=num(e.vt), ss=/segunda a sexta/i.test(e.hor||''), n=dd.mesref?diasTrabMes(dd.mesref,ss):(ss?diasTrab(dd.data,true):dd.dias), f=dd.metade?2:1;
+        itens.push({quem:e.nome,motivo:`Condução de ${dd.semana}: ${n} dias${ss?' de segunda a sexta':''} no mês${v?' × '+F(v):''}${f===2?' ÷ 2 (metade)':''}`,valor:v?Math.round(v*n/f*100)/100:null,obs:v?'':'Falta o valor do vale-transporte'});});}
     if(dd.tipo==='salario'){titulo='Saldo do salário';
       eqD.forEach(e=>{const ad=adih[e.id]||e.adi||0, ds=descNa(e,'05/11'), x=xd[e.id];
         if(e.id==='taine'||e.id==='vitoria')return;
@@ -1037,6 +1061,9 @@ document.addEventListener('click',ev=>{
   const ae=ev.target.closest('[data-aled]'); if(ae){editAl=editAl===ae.dataset.aled?null:ae.dataset.aled;render();const i=$('n_alerta_'+editAl);if(i)i.focus();return;}
   const ao=ev.target.closest('[data-alok]'); if(ao){const id='alerta_'+ao.dataset.alok;clearTimeout(tm[id]);salvar(id);editAl=null;render();toast('Comentário salvo');return;}
   const f=ev.target.closest('[data-f]'); if(f){filtro=f.dataset.f;render();return;}
+  const fe=ev.target.closest('[data-fe]'); if(fe){ev.preventDefault();editando=editando===fe.dataset.fe?null:fe.dataset.fe;render();const i=$('fe_'+editando);if(i)i.focus({preventScroll:true});return;}
+  const fs=ev.target.closest('[data-fsave]'); if(fs){salvarCampo(fs.dataset.fsave);return;}
+  if(ev.target.closest('[data-fcancel]')){editando=null;render();return;}
   const ed=ev.target.closest('[data-ed]'); if(ed){ev.preventDefault();editando=editando===ed.dataset.ed?null:ed.dataset.ed;render();const i=$('n_'+editando);if(i)i.focus({preventScroll:true});return;}
   const sb=ev.target.closest('.st button');
   if(sb){const id=sb.dataset.id;REV[id]=REV[id]||{};REV[id].s=REV[id].s===sb.dataset.s?'':sb.dataset.s;salvar(id);render();}
