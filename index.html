@@ -208,6 +208,12 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 .menu{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--head);border-bottom:1px solid #262a33;padding-block:10px}
 .mscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mscroll::-webkit-scrollbar{display:none}
+.avl{display:grid;gap:12px;margin-top:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.avc{padding:14px 16px}.avc.vazio{opacity:.7}.avt{font-weight:800;margin-bottom:8px}
+.avwin{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#fff7d6,#ffe9a8);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.avtro{font-size:2rem}.avnm{font-weight:800;font-size:1.25rem}
+.avl1{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line)}.avp{width:32px;text-align:center;font-weight:800}.avn{flex:1}
+.avc.avmes{background:#f0f7ff;border-color:#cfe2ff}
 .f .ed.add{border-color:#f59e0b;color:#b45309;background:#fff8eb}
 .fein{width:100%;box-sizing:border-box;font:inherit;font-size:1rem;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
 .dsl-ban{background:#fde2e2;color:#9b1c1c;border:1px solid #f8b4b4;border-radius:12px;padding:12px 14px;font-weight:700}
@@ -381,6 +387,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <button type="button" data-tab="agenda" aria-pressed="false">Agenda de pagamentos</button>
     <button type="button" data-tab="equipe" aria-pressed="false">Equipe</button>
     <button type="button" data-tab="comissoes" aria-pressed="false">Comissões</button>
+    <button type="button" data-tab="avaliacoes" aria-pressed="false">Avaliações do Google</button>
     <button type="button" data-tab="pagamentos" data-grupo="salario bonus comissaopg vt adiant vales descmerc" aria-pressed="false">Pagamentos</button>
     <button type="button" id="abrevale" aria-pressed="false" style="border-color:#2563eb;color:#fff;background:#2563eb">+ Lançar vale</button>
     <button type="button" data-tab="box" aria-pressed="false">Box da feira</button>
@@ -418,6 +425,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
       <div id="nlist"></div>
     </div>
     <div id="fpg" class="fpg" hidden></div>
+    <section data-sec="avaliacoes" hidden><div class="card" style="padding:16px 18px"><h2 style="margin:0">Avaliações do Google</h2><p class="sub" style="margin:6px 0 0">Ranking semanal das vendedoras: conta só as avaliações 5 estrelas do Google que citam o nome delas. Semana de segunda a sábado.</p></div><div id="avl" class="avl"></div></section>
     <div class="alerts" id="alerts" data-sec="painel alertas" style="margin-top:14px"></div>
 
     <section data-sec="painel">
@@ -518,6 +526,19 @@ function campos(e){
   add('saude','at','Atestado',e.atest||'Nenhum atestado no mês');
   return L;
 }
+function semanasDoMes(ym){const [a,m]=ym.split('-').map(Number),L=[];for(let d=new Date(a,m-1,1,12);d.getMonth()===m-1;d.setDate(d.getDate()+1)){if(d.getDay()===1){const f=new Date(d);f.setDate(f.getDate()+5);L.push({de:d.toISOString().slice(0,10),ate:f.toISOString().slice(0,10)});}}return L;}
+function renderAval(){const ym=mesYM(), A=D.AVALIACOES||[], W=semanasDoMes(ym), nm=((MESES.find(x=>x.id===MESATUAL)||{}).nome||'').toLowerCase();
+  const hj=new Date(),hoje=hj.getFullYear()+'-'+String(hj.getMonth()+1).padStart(2,'0')+'-'+String(hj.getDate()).padStart(2,'0'), MED=['🥇','🥈','🥉'];
+  const cards=W.map((w,i)=>{const r=A.find(x=>x.semana===i+1)||A.find(x=>x.de===w.de);
+    const tit=`${i+1}ª semana · ${dBR(w.de).slice(0,5)} a ${dBR(w.ate).slice(0,5)}`;
+    if(!r)return `<div class="card avc vazio"><div class="avt">${tit}</div><div class="ct-d">${w.de>hoje?'Ainda vai acontecer.':w.ate>=hoje?'Semana em andamento: o ranking sai no fim da semana.':'Sem ranking nesta semana.'}</div></div>`;
+    const R=[...r.ranking].sort((a,b)=>b.qtd-a.qtd);let pos=0,ant=null;R.forEach((x,k)=>{if(x.qtd!==ant){pos=k+1;ant=x.qtd;}x.pos=pos;});
+    return `<div class="card avc"><div class="avt">${tit}</div>
+      <div class="avwin"><div class="avtro">🏆</div><div><div class="ct-d">Vencedora</div><div class="avnm">${esc(R[0].nome)}</div><div class="ct-d">${R[0].qtd} avaliações citando o nome dela</div></div></div>
+      ${R.map(x=>`<div class="avl1"><span class="avp">${x.pos<=3?MED[x.pos-1]:x.pos+'º'}</span><span class="avn">${esc(x.nome)}</span><b class="num">${x.qtd}</b></div>`).join('')}
+      <div class="ct-d" style="margin-top:8px">${r.total} avaliações 5 estrelas na semana${r.fechado?' · fechado em '+esc(r.fechado):''}</div></div>`;}).join('');
+  const tot={};A.forEach(r=>r.ranking.forEach(x=>{tot[x.nome]=(tot[x.nome]||0)+x.qtd;}));const T=Object.entries(tot).sort((a,b)=>b[1]-a[1]);
+  $('avl').innerHTML=cards+(T.length?`<div class="card avc avmes"><div class="avt">Total de ${esc(nm)}</div>${(()=>{let pos=0,ant=null;return T.map(([n,q],k)=>{if(q!==ant){pos=k+1;ant=q;}return [n,q,pos];});})().map(([n,q,ps])=>`<div class="avl1"><span class="avp">${ps<=3?MED[ps-1]:ps+'º'}</span><span class="avn">${esc(n)}</span><b class="num">${q}</b></div>`).join('')}<div class="ct-d" style="margin-top:8px">Soma das semanas fechadas do mês.</div></div>`:'');}
 function fichaTags(e){const al=alertasDe(e).length;return [DESL[e.id]?`<span class="tag t-red">Desligado ${dBR(DESL[e.id].d.ultimo).slice(0,5)}</span>`:'',al?`<span class="tag t-red">${al} alerta${al>1?'s':''}</span>`:'',
   e.reg===true?'<span class="tag t-green">Registrado</span>':e.reg===false?'<span class="tag t-amber">Sem registro</span>':'<span class="tag t-blue">Registro?</span>',
   e.atest?'<span class="tag t-violet">Atestado</span>':'',valesPend(e)?`<span class="tag t-amber">Vales ${F(valesPend(e))}</span>`:''].join(' ');}
@@ -591,6 +612,7 @@ function render(){
   try{$('mb-al').textContent=(D.ALERTAS||[]).filter(a=>(REV['alerta_'+a.id]||{}).s!=='ok').length||'';$('mb-nv').textContent=Object.entries(REV).filter(([k,v])=>k.startsWith('novidade_')&&v.s==='nova').length||'';}catch(e){}
   renderNews();
   if(aba==='agenda'){renderAgenda();}
+  if(aba==='avaliacoes'){try{renderAval();}catch(x){}}
   if(TIPOS[aba]){renderReg(aba);}
   document.querySelectorAll('[data-sec]').forEach(el=>el.hidden=!el.dataset.sec.split(' ').includes(aba));
   $('messel').innerHTML=MESES.map(m=>`<option value="${m.id}" ${m.id===MESATUAL?'selected':''}>${esc(m.nome)}</option>`).join('');$('quem').textContent=QUEM;
