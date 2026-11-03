@@ -414,7 +414,7 @@ function listaFaltaPago(its,agrupar=true){
 function item(r){
   if(editing&&editing.kind==='conta'&&editing.id===r.id)return `<div class="it">${editorHtml('conta',r)}</div>`;
   const d=parse(r.venc),[cls,txt]=estado(r),paid=r.status==='paga';
-  const day=d?`${String(d.getDate()).padStart(2,'0')}<em>${ym(d)===mes?wd[d.getDay()]:d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')}</em>`:'—<em>s/ data</em>';
+  const day=d?`${String(d.getDate()).padStart(2,'0')}<em>${d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')}</em>`:'—<em>s/ data</em>';
   const obs=r.obs&&!/^conta fixa\.?$/i.test(r.obs.trim())?`<div class="ob" data-ob>${esc(r.obs)}</div>`:'';
   const ic=isIcloud(r);
   return `<div class="it ${paid?'paid':''}" id="c-${esc(r.id)}"><div class="day">${day}</div>
