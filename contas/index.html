@@ -644,11 +644,11 @@ const DB={
   collection(t){return{add:d=>salvar(t,'c-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),d,false)}}
 };
 function pedirSenha(){SENHA='';db=null;try{localStorage.removeItem('cp_senha')}catch(_){}document.getElementById('app').hidden=true;document.getElementById('lock').hidden=false;const err=document.getElementById('pwErr');if(err)err.textContent='Digite a senha de novo para salvar.';const pw=document.getElementById('pw');if(pw){pw.value='';pw.focus()}}
-async function entrar(p){SENHA=p;await carregar();db=DB;ls.set('cp_senha',p);document.getElementById('lock').hidden=true;document.getElementById('app').hidden=false}
+async function entrar(p){const antiga=SENHA;SENHA=p;try{await carregar()}catch(x){SENHA=antiga;throw x}db=DB;ls.set('cp_senha',p);document.getElementById('lock').hidden=true;document.getElementById('app').hidden=false}
 document.getElementById('lockform').addEventListener('submit',async e=>{
   e.preventDefault();const err=document.getElementById('pwErr');err.textContent='Entrando…';
   try{await entrar(document.getElementById('pw').value.trim());err.textContent=''}
-  catch(x){SENHA='';err.textContent=String(x.message||'').includes('senha')?'Senha errada. Tente de novo.':'Sem internet. Tente de novo.'}
+  catch(x){err.textContent=String(x.message||'').includes('senha')?'Senha errada. Tente de novo.':'Sem internet. Tente de novo.'}
 });
 (async()=>{const s=ls.get('cp_senha',null);if(s){try{await entrar(s)}catch(e){try{localStorage.removeItem('cp_senha')}catch(_){}}}})();
 setInterval(()=>{if(SENHA&&!document.hidden&&!editing)carregar().catch(()=>{})},60000);
