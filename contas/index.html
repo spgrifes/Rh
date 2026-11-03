@@ -630,7 +630,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false)});
 const SB='https://hkhbyeygzfdhwxsdgaxl.supabase.co/rest/v1/rpc/';
 const KEY='sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1';
 let SENHA='';
-async function rpc(fn,body){const r=await fetch(SB+fn,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());const t=await r.text();return t?JSON.parse(t):null}
+async function rpc(fn,body){const r=await fetch(SB+fn,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok){const m=await r.text();if(m.includes('senha_invalida')&&fn!=='cp_get'||(m.includes('senha_invalida')&&db)){pedirSenha()}throw new Error(m)}const t=await r.text();return t?JSON.parse(t):null}
 const hora=()=>new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 async function carregar(){
   const d=await rpc('cp_get',{p_senha:SENHA});
@@ -643,6 +643,7 @@ const DB={
   doc(p){const[t,id]=p.split('/');return{update:d=>salvar(t,id,d,true),set:d=>salvar(t,id,d,false),delete:()=>rpc('cp_apagar',{p_senha:SENHA,p_tabela:t,p_id:id}).then(carregar)}},
   collection(t){return{add:d=>salvar(t,'c-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),d,false)}}
 };
+function pedirSenha(){SENHA='';db=null;try{localStorage.removeItem('cp_senha')}catch(_){}document.getElementById('app').hidden=true;document.getElementById('lock').hidden=false;const err=document.getElementById('pwErr');if(err)err.textContent='Digite a senha de novo para salvar.';const pw=document.getElementById('pw');if(pw){pw.value='';pw.focus()}}
 async function entrar(p){SENHA=p;await carregar();db=DB;ls.set('cp_senha',p);document.getElementById('lock').hidden=true;document.getElementById('app').hidden=false}
 document.getElementById('lockform').addEventListener('submit',async e=>{
   e.preventDefault();const err=document.getElementById('pwErr');err.textContent='Entrando…';
