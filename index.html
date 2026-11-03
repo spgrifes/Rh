@@ -743,7 +743,7 @@ function gerarAgenda(){
   const extras=Object.values(DESL).map(r=>{const e=AGEQ.find(x=>x.id===r.func)||(D.EQUIPE_ALL||[]).find(x=>x.id===r.func);if(!e)return null;const a=acerto(e,r);
     return {data:prazoAcerto(r.d.ultimo),tipo:'acerto',titulo:'Acerto final',nota:'Prazo da lei: até 10 dias depois do último dia. Valor estimado: o contador confirma (registrados).',itens:[{quem:e.nome,motivo:`Acerto final · ${r.d.motivo} · último dia ${dBR(r.d.ultimo)}`,valor:a.tot,obs:a.falta?'Falta informação para fechar a conta':''}]};}).filter(Boolean);
   const esc2=[];A.dias.filter(x=>x.escalonada).forEach(x=>{const vs=eq.filter(e=>e.comval>0&&ativo(e,x.mesref+'-01')).sort((a,b)=>b.comval-a.comval);
-    vs.forEach((e,k)=>{const dia=String(k+1).padStart(2,'0');esc2.push({data:x.mesref+'-'+dia,tipo:'comissao',titulo:`Comissão · ${k+1}º lugar`,nota:x.nota,
+    vs.forEach((e,k)=>{const dia=String(Math.min((x.inicio||1)+k,x.ate||31)).padStart(2,'0');esc2.push({data:x.mesref+'-'+dia,tipo:'comissao',titulo:`Comissão · ${k+1}º lugar`,nota:x.nota,
       itens:[{quem:e.nome,motivo:`Comissão de outubro: ${k+1}º lugar em vendas${e.combase?' (vendeu '+F(e.combase)+')':''}`,valor:e.comval,obs:e.reg?'Registrada: incluir no holerite.':''}]});});});
   return A.dias.filter(x=>!x.escalonada).concat(esc2).concat(extras).sort((a,b)=>a.data<b.data?-1:a.data>b.data?1:0).map(dd=>{
     const eqD=eq.filter(e=>ativo(e,dd.data));
