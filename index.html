@@ -506,7 +506,7 @@ const SETOR_COR={Vendas:'#12895a',Caixa:'#2563eb',Site:'#7048e8',Loja:'#d97706',
 
 const PAGO=['ok','pix','dinheiro','cartao','transf'], FORMA={ok:'Pago',pix:'Pix',dinheiro:'Dinheiro',cartao:'Cartão',transf:'Transferência'}; let pgEsc=null;
 let QUEM='', MESATUAL=null, MESES=[], REGS=[], LOG=[], AGEQ=[], regTipo=null, regEdit=null, regFunc='todos';
-let DESL={}; let D=null, REV={}, SENHA='', filtro='todos', editando=null, editAl=null, aba='painel', agf='todos', agEd=null;
+let DESL={}; let D=null, REV={}, SENHA='', filtro='todos', editando=null, editAl=null, aba='painel', agf='todos', agEd=null, agVal=null;
 
 function rawCampo(e,k){const m={nome:e.completo,funcao:e.funcao,ent:e.ent,hor:e.hor,sal:e.salnota||(e.sal?F(e.sal):''),adi:e.adi?F(e.adi):'',pago:e.pago,com:e.com,vt:e.vt,desc:e.desc,at:e.atest};
   if(k==='reg')return e.reg===true?'sim':e.reg===false?'nao':''; if(/^x\d+$/.test(k))return (e.extra||[])[+k.slice(1)]||''; return m[k]||'';}
@@ -771,7 +771,7 @@ function gerarAgenda(){
         const v=Math.round(e.sal*meses/12/2*100)/100;
         itens.push({quem:e.nome,motivo:`13º salário, ${dd.parcela}ª parcela (metade de ${F(e.sal*meses/12)})`,valor:v,obs:[nota,e.reg?'Registrada: valor final pelo contador.':''].filter(Boolean).join(' · ')});});}
     itens=itens.concat(dd.itens||[]);
-    itens.forEach(i=>i.id='pg_'+dd.data+'_'+dd.tipo+'_'+slug(i.quem));
+    itens.forEach(i=>{i.id='pg_'+dd.data+'_'+dd.tipo+'_'+slug(i.quem);const o=REV['v_'+i.id];if(o&&String(o.n||'').trim()){i.valOrig=i.valor;i.valor=valNum(o.n);}});
     const total=itens.reduce((s,i)=>s+(i.valor||0),0);
     return {...dd,dia,titulo,itens,total};
   });
@@ -825,9 +825,10 @@ function renderAgenda(){
       ${d.nota?`<div class="dnote">${esc(d.nota)}</div>`:''}
       ${d.itens.map(i=>{const r=REV[i.id]||{}, pg=PAGO.includes(r.s);
         return `<div class="pi ${pg?'paid':''}"><div class="q">${esc(i.quem)}</div><div class="val num ${i.valor==null?'miss':''}">${i.valor==null?'a definir':F(i.valor)}</div>
-        <div class="m">${esc(i.motivo)}</div>${i.obs?`<div class="o">${esc(i.obs)}</div>`:''}${r.n?`<div class="o blue">Anotação: ${esc(r.n)}</div>`:''}
+        <div class="m">${esc(i.motivo)}</div>${i.valOrig!==undefined?`<div class="o blue">Valor corrigido à mão (a conta dava ${i.valOrig==null?'a definir':F(i.valOrig)})</div>`:''}${i.obs?`<div class="o">${esc(i.obs)}</div>`:''}${r.n?`<div class="o blue">Anotação: ${esc(r.n)}</div>`:''}
         ${pg?`<div class="pd">Pago · ${FORMA[r.s]||'Pago'}${r.a?' · '+new Date(r.a).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}</div>`:''}
-        <div class="act"><button type="button" class="pg" data-pg="${i.id}">${pg?'Pago ✓':'Pago'}</button><button type="button" data-pged="${i.id}">${r.n?'Editar nota':'Anotar'}</button></div>
+        <div class="act"><button type="button" class="pg" data-pg="${i.id}">${pg?'Pago ✓':'Pago'}</button><button type="button" data-pgval="${i.id}">Editar valor</button><button type="button" data-pged="${i.id}">${r.n?'Editar nota':'Anotar'}</button></div>
+        ${agVal===i.id?`<div class="edit"><b style="font-size:.85rem">Valor certo (R$)</b><input class="vt-in" id="v_${i.id}" data-id="${i.id}" inputmode="decimal" placeholder="Ex.: 120,00" value="${esc((REV['v_'+i.id]||{}).n||'')}"><div class="act"><button type="button" class="pg" data-vsave="${i.id}">Salvar valor</button><button type="button" data-vclear="${i.id}">Voltar ao valor da conta</button></div></div>`:''}
         ${pgEsc===i.id?`<div class="formas"><b>Como foi pago?</b>${['pix','dinheiro','cartao','transf'].map(f=>`<button type="button" data-forma="${f}" data-id="${i.id}">${FORMA[f]}</button>`).join('')}<button type="button" class="cx" data-forma="" data-id="${i.id}">Cancelar</button></div>`:''}
         ${agEd===i.id?`<div class="edit"><input class="nt" id="n_${i.id}" data-id="${i.id}" placeholder="Ex.: valor certo é outro, pagou em dinheiro... (pode ditar)" value="${esc(r.n||'')}"><div class="hint">Salva sozinho.</div></div>`:''}</div>`}).join('')}
     </details>`}).join('');
@@ -1121,6 +1122,10 @@ document.addEventListener('click',ev=>{
   const fm=ev.target.closest('[data-forma]'); if(fm){ev.preventDefault();const id=fm.dataset.id,f=fm.dataset.forma;pgEsc=null;
     if(f){REV[id]=REV[id]||{};REV[id].s=f;REV[id].a=new Date().toISOString();salvar(id);toast('Baixa feita: pago em '+FORMA[f]);}
     renderAgenda();return;}
+  const pv=ev.target.closest('[data-pgval]'); if(pv){ev.preventDefault();agVal=agVal===pv.dataset.pgval?null:pv.dataset.pgval;agEd=null;renderAgenda();const i=$('v_'+agVal);if(i)i.focus({preventScroll:true});return;}
+  const vs=ev.target.closest('[data-vsave]'); if(vs){ev.preventDefault();const id=vs.dataset.vsave,inp=$('v_'+id),t=(inp?inp.value:'').trim().replace(/R\$\s*/i,'');if(t&&!valNum(t)&&!/^0+([.,]0+)?$/.test(t)){toast('Digite só o número. Ex.: 120,00');return;}
+    const k='v_'+id;REV[k]=REV[k]||{};REV[k].n=t;REV[k].s=t?'valor':'';salvar(k);agVal=null;renderAgenda();toast(t?'Valor corrigido para '+F(valNum(t)):'Voltou ao valor da conta');return;}
+  const vc=ev.target.closest('[data-vclear]'); if(vc){ev.preventDefault();const k='v_'+vc.dataset.vclear;REV[k]={s:'',n:''};salvar(k);agVal=null;renderAgenda();toast('Voltou ao valor da conta');return;}
   const pe=ev.target.closest('[data-pged]'); if(pe){ev.preventDefault();agEd=agEd===pe.dataset.pged?null:pe.dataset.pged;renderAgenda();const i=$('n_'+agEd);if(i)i.focus({preventScroll:true});return;}
   const ae=ev.target.closest('[data-aled]'); if(ae){editAl=editAl===ae.dataset.aled?null:ae.dataset.aled;render();const i=$('n_alerta_'+editAl);if(i)i.focus();return;}
   const ao=ev.target.closest('[data-alok]'); if(ao){const id='alerta_'+ao.dataset.alok;clearTimeout(tm[id]);salvar(id);editAl=null;render();toast('Comentário salvo');return;}
@@ -1134,6 +1139,7 @@ document.addEventListener('click',ev=>{
   const sb=ev.target.closest('.st button');
   if(sb){const id=sb.dataset.id;REV[id]=REV[id]||{};REV[id].s=REV[id].s===sb.dataset.s?'':sb.dataset.s;salvar(id);render();}
 });
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.classList&&ev.target.classList.contains('vt-in')){ev.preventDefault();const b=document.querySelector('[data-vsave="'+ev.target.dataset.id+'"]');if(b)b.click();}});
 document.addEventListener('input',ev=>{
   if(!ev.target.classList.contains('nt'))return;
   const id=ev.target.dataset.id;REV[id]=REV[id]||{};REV[id].n=ev.target.value;
@@ -1291,7 +1297,7 @@ async function entrar(p){
   if(CX){$('lock').hidden=true;$('cx').hidden=false;renderCaixa();return;}
   $('lock').hidden=true;$('app').hidden=false;render();sync('Atualizado · '+hora());
   saudar();
-  setInterval(async()=>{if(CX&&CX.admin)return;if(document.activeElement&&(document.activeElement.classList.contains('nt')||document.activeElement.closest('.frm')))return;if(regEdit||$('formf').innerHTML)return;try{await carregar();render();sync('Atualizado · '+hora());}catch(e){}},30000);
+  setInterval(async()=>{if(CX&&CX.admin)return;if(document.activeElement&&(document.activeElement.classList.contains('nt')||document.activeElement.classList.contains('vt-in')||document.activeElement.closest('.frm')))return;if(regEdit||$('formf').innerHTML)return;try{await carregar();render();sync('Atualizado · '+hora());}catch(e){}},30000);
 }
 $('lockForm').addEventListener('submit',async ev=>{
   ev.preventDefault();const p=$('pw').value.trim();$('pwErr').textContent='Verificando...';
