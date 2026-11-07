@@ -340,7 +340,10 @@ var I = {
   mic: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/>',
   globo: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
   caixareg: '<path d="M4 10h16v10H4zM6 10V5h8v5M8 14h2M12 14h2M16 14h0M8 17h8"/>',
-  seta: '<path d="M6 9l6 6 6-6"/>'
+  seta: '<path d="M6 9l6 6 6-6"/>',
+  alvo: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  martelo: '<path d="M14 4l6 6-3 3-6-6zM11 7l-8 8 3 3 8-8M4 21h9"/>',
+  regras: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11M9 8h6"/>'
 };
 var AREAS = [
   { id: 'secretaria', c: '#e0243f', t: 'Secretária', apps: [
@@ -348,6 +351,11 @@ var AREAS = [
     ['Anotações', '#anotacoes', 'nota'],
     ['Relatórios', '#relatorios', 'relatorio'],
     ['Combinados', '#combinados', 'check']
+  ]},
+  { id: 'lideranca', c: '#111827', t: 'Liderança', apps: [
+    ['Foco da Semana', '#foco', 'alvo'],
+    ['Painel da Reunião', '#reuniao', 'martelo'],
+    ['Livro de Regras', '#regras', 'regras']
   ]},
   { id: 'sistemas', c: '#2f6fde', t: 'Sistemas da loja', apps: [
     ['SIDOS 360', 'https://sidos360.com.br/spg', 'caixareg'],
@@ -525,6 +533,8 @@ var SB = 'https://hkhbyeygzfdhwxsdgaxl.supabase.co/rest/v1/rpc/', SBK = 'sb_publ
 var SITE = 'https://spgrifes.github.io/Rh/central/';
 var CC = null, secAba = 'agenda', notaAssunto = 'Loja', agDia = 'hoje';
 var ASSUNTOS = ['Loja', 'Estudos', 'Reunião', 'Ideias', 'Dinheiro', 'Vida'];
+var AREAS_REGRA = ['Atendimento', 'Caixa', 'Loja', 'Vendas', 'Horários', 'Equipe', 'Geral'], regraArea = 'Atendimento';
+var TITULOS = { agenda: 'Agenda', anotacoes: 'Anotações', relatorios: 'Relatórios', foco: 'Foco da Semana', reuniao: 'Painel da Reunião', regras: 'Livro de Regras' };
 function pw() { try { return localStorage.getItem('cc-pw') || ''; } catch (e) { return ''; } }
 function rpc(fn, body) {
   return fetch(SB + fn, { method: 'POST', headers: { apikey: SBK, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
@@ -659,18 +669,72 @@ function telaRelatorios() {
     return '<div class="nt"><div class="cab"><b>' + esc(r.area) + '</b><span>' + dt + '</span></div><p><strong>' + esc(r.titulo) + '</strong>\n' + esc(r.texto) + '</p></div>';
   }).join('');
 }
+function dataCurta(iso) { var p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+function telaFoco() {
+  var seg = CC.semana, metas = (CC.metas || []);
+  var desta = metas.filter(function (m) { return m.semana === seg; });
+  var html = '<p class="dvazio" style="margin:0 0 10px">Semana de ' + dataCurta(seg) + '. Fale de 3 a 5 metas. Toque na porcentagem para marcar o andamento.</p>';
+  html += blocoNovo('Fale uma meta da semana. Ex.: fechar 30 vendas no atacado', '');
+  var media = desta.length ? Math.round(desta.reduce(function (s, m) { return s + m.progresso; }, 0) / desta.length) : 0;
+  html += '<div class="grupo"><h3>Esta semana · ' + desta.length + (desta.length === 1 ? ' meta' : ' metas') + (desta.length ? ' · ' + media + '% no geral' : '') + '</h3>';
+  html += desta.length ? desta.map(function (m) {
+    return '<div class="nt"><div class="cab"><b>' + m.progresso + '%</b><span></span><button type="button" class="lixo" data-delmeta="' + m.id + '">Apagar</button></div><p>' + esc(m.texto) + '</p>' +
+      '<div style="height:6px;border-radius:9px;background:rgba(127,127,127,.2);margin:8px 0"><div style="height:6px;border-radius:9px;background:#1f8a55;width:' + m.progresso + '%"></div></div>' +
+      '<div class="linha">' + [0, 25, 50, 75, 100].map(function (v) { return '<button type="button" class="pill" data-prog="' + v + '" data-meta="' + m.id + '" aria-pressed="' + (m.progresso === v) + '">' + v + '%</button>'; }).join('') + '</div></div>';
+  }).join('') : '<p class="dvazio">Nenhuma meta ainda. Na segunda, fale as metas da semana aqui.</p>';
+  html += '</div>';
+  var antes = metas.filter(function (m) { return m.semana !== seg; });
+  if (antes.length) {
+    var porSem = {}; antes.forEach(function (m) { (porSem[m.semana] = porSem[m.semana] || []).push(m); });
+    Object.keys(porSem).sort().reverse().forEach(function (w) {
+      html += '<div class="grupo"><h3>Semana de ' + dataCurta(w) + '</h3>' + porSem[w].map(function (m) { return '<div class="comp' + (m.progresso === 100 ? ' feito' : '') + '"><div class="tx"><span>' + esc(m.texto) + '</span><small>' + m.progresso + '%</small></div></div>'; }).join('') + '</div>';
+    });
+  }
+  return html;
+}
+function telaReuniao() {
+  var p = CC.pauta || [], abertos = p.filter(function (x) { return !x.decidido; }), feitos = p.filter(function (x) { return x.decidido; });
+  var seg = CC.semana, desta = (CC.metas || []).filter(function (m) { return m.semana === seg; });
+  var media = desta.length ? Math.round(desta.reduce(function (s, m) { return s + m.progresso; }, 0) / desta.length) + '%' : '—';
+  var sem7 = feitos.filter(function (x) { return Date.now() - new Date(x.decidido_em) < 7 * 864e5; }).length;
+  var html = '<div class="grupo"><h3>Números da semana</h3><div class="linha" style="gap:8px;flex-wrap:wrap">' +
+    [['Metas da semana', desta.length], ['Andamento das metas', media], ['Tópicos abertos', abertos.length], ['Decididos em 7 dias', sem7]].map(function (k) {
+      return '<div style="flex:1 1 40%;border:1px solid rgba(127,127,127,.25);border-radius:12px;padding:10px"><div style="font-size:1.4rem;font-weight:800">' + k[1] + '</div><small>' + k[0] + '</small></div>';
+    }).join('') + '</div></div>';
+  html += blocoNovo('Fale um tópico para a reunião…', '');
+  html += '<div class="grupo"><h3>Pauta · para decidir</h3>' + (abertos.length ? abertos.map(function (x, i) {
+    return '<div class="nt"><div class="cab"><b>' + (i + 1) + '</b><span>' + new Date(x.criado).toLocaleDateString('pt-BR') + '</span><button type="button" class="lixo" data-delpauta="' + x.id + '">Apagar</button></div><p>' + esc(x.texto) + '</p>' +
+      '<textarea data-dectxt="' + x.id + '" placeholder="O que ficou decidido?" style="width:100%;min-height:54px;margin-top:6px"></textarea><div class="linha"><button type="button" class="btsalva" data-decidir="' + x.id + '">Decidido</button></div></div>';
+  }).join('') : '<p class="dvazio">Nenhum tópico aberto.</p>') + '</div>';
+  if (feitos.length) html += '<div class="grupo"><h3>Já decidido</h3>' + feitos.map(function (x) {
+    return '<div class="nt"><div class="cab"><b>Decidido</b><span>' + new Date(x.decidido_em).toLocaleDateString('pt-BR') + '</span><button type="button" class="lixo" data-reabrir="' + x.id + '">Reabrir</button></div><p><strong>' + esc(x.texto) + '</strong>\n' + esc(x.decidido) + '</p></div>';
+  }).join('') + '</div>';
+  return html;
+}
+function telaRegras() {
+  var extra = '<div class="linha">' + AREAS_REGRA.map(function (a) { return '<button type="button" class="pill" data-rarea="' + a + '" aria-pressed="' + (a === regraArea) + '">' + a + '</button>'; }).join('') + '</div>';
+  var html = '<p class="dvazio" style="margin:0 0 10px">Cada correção sua vira regra escrita e datada.</p>' + blocoNovo('Fale a regra. Ex.: desconto acima de 10% só com autorização do Fábio', extra);
+  var porArea = {}; (CC.regras || []).forEach(function (r) { (porArea[r.area] = porArea[r.area] || []).push(r); });
+  Object.keys(porArea).sort().forEach(function (a) {
+    html += '<div class="grupo"><h3>' + esc(a) + ' · ' + porArea[a].length + '</h3>' + porArea[a].map(function (r) {
+      return '<div class="nt"><div class="cab"><b>' + new Date(r.criado).toLocaleDateString('pt-BR') + '</b><span></span><button type="button" class="lixo" data-delregra="' + r.id + '">Apagar</button></div><p>' + esc(r.texto) + '</p></div>';
+    }).join('') + '</div>';
+  });
+  if (!(CC.regras || []).length) html += '<p class="dvazio">Nenhuma regra ainda.</p>';
+  return html;
+}
 function desenhaSec() {
   var corpo = document.getElementById('sec-corpo');
-  document.getElementById('sec-t').textContent = { agenda: 'Agenda', anotacoes: 'Anotações', relatorios: 'Relatórios' }[secAba];
+  document.getElementById('sec-t').textContent = TITULOS[secAba];
   if (!CC) { corpo.innerHTML = '<p class="dvazio">Carregando…</p>'; return; }
-  corpo.innerHTML = secAba === 'agenda' ? telaAgenda() : secAba === 'anotacoes' ? telaNotas() : telaRelatorios();
+  corpo.innerHTML = secAba === 'agenda' ? telaAgenda() : secAba === 'anotacoes' ? telaNotas() : secAba === 'foco' ? telaFoco() : secAba === 'reuniao' ? telaReuniao() : secAba === 'regras' ? telaRegras() : telaRelatorios();
 }
 function abreSec(aba) {
   secAba = aba; document.getElementById('sec').hidden = false; document.getElementById('sec-fundo').hidden = false;
   desenhaSec();
   carregaCC().then(desenhaSec).catch(function (e) {
     var corpo = document.getElementById('sec-corpo');
-    if (!pw()) corpo.innerHTML = '<p class="dvazio">Toque em Bloquear e entre de novo com a senha para usar a ' + (aba === 'agenda' ? 'Agenda' : aba === 'anotacoes' ? 'área de Anotações' : 'área de Relatórios') + '.</p>';
+    if (!pw()) corpo.innerHTML = '<p class="dvazio">Toque em Bloquear e entre de novo com a senha para usar a ' + TITULOS[aba] + '.</p>';
     else corpo.innerHTML = '<p class="dvazio">Aqui dentro do Claude a Central não consegue salvar. Abra pelo endereço da Central: <a class="onde" href="' + SITE + '" target="_blank" rel="noopener">' + SITE.replace('https://', '') + '</a></p>';
   });
 }
@@ -679,7 +743,7 @@ document.getElementById('sec-x').addEventListener('click', fechaSec);
 document.getElementById('sec-fundo').addEventListener('click', fechaSec);
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fechaSec(); });
 document.addEventListener('click', function (e) {
-  var a = e.target.closest('a[href="#agenda"], a[href="#anotacoes"], a[href="#relatorios"]');
+  var a = e.target.closest('a[href="#agenda"], a[href="#anotacoes"], a[href="#relatorios"], a[href="#foco"], a[href="#reuniao"], a[href="#regras"]');
   if (a) { e.preventDefault(); if (window.gaveta) gaveta(false); abreSec(a.getAttribute('href').slice(1)); }
 });
 document.getElementById('sec-corpo').addEventListener('click', function (e) {
@@ -687,6 +751,21 @@ document.getElementById('sec-corpo').addEventListener('click', function (e) {
   var mic = t.closest('#sec-mic'); if (mic) { ligaMic(mic, document.getElementById('sec-txt')); return; }
   var dia = t.closest('[data-dia]'); if (dia) { agDia = dia.dataset.dia; document.getElementById('ag-data').value = agDia === 'hoje' ? hojeISO() : hojeISO(1); document.querySelectorAll('[data-dia]').forEach(function (b) { b.setAttribute('aria-pressed', b === dia); }); return; }
   var ass = t.closest('[data-ass]'); if (ass) { notaAssunto = ass.dataset.ass; document.querySelectorAll('[data-ass]').forEach(function (b) { b.setAttribute('aria-pressed', b === ass); }); return; }
+  var ra = t.closest('[data-rarea]'); if (ra) { regraArea = ra.dataset.rarea; document.querySelectorAll('[data-rarea]').forEach(function (b) { b.setAttribute('aria-pressed', b === ra); }); return; }
+  var pg = t.closest('[data-prog]'); if (pg) { rpc('cc_salvar', { p_senha: pw(), p_tipo: 'meta_progresso', p_dados: { id: pg.dataset.meta, progresso: +pg.dataset.prog } }).then(carregaCC).then(desenhaSec); return; }
+  var dc = t.closest('[data-decidir]'); if (dc) {
+    var dt = document.querySelector('[data-dectxt="' + dc.dataset.decidir + '"]'), v = dt ? dt.value.trim() : '';
+    if (!v) { if (dt) { dt.focus(); dt.placeholder = 'Escreva o que ficou decidido antes de tocar em Decidido'; } return; }
+    dc.textContent = 'Salvando…'; rpc('cc_salvar', { p_senha: pw(), p_tipo: 'decidir', p_dados: { id: dc.dataset.decidir, decidido: v } }).then(carregaCC).then(desenhaSec); return;
+  }
+  var rb = t.closest('[data-reabrir]'); if (rb) { rpc('cc_salvar', { p_senha: pw(), p_tipo: 'decidir', p_dados: { id: rb.dataset.reabrir, decidido: '' } }).then(carregaCC).then(desenhaSec); return; }
+  var dx = t.closest('[data-delmeta], [data-delpauta], [data-delregra]');
+  if (dx) {
+    if (dx.dataset.ok !== '1') { dx.dataset.ok = '1'; dx.textContent = 'Toque de novo'; return; }
+    var tp = dx.dataset.delmeta ? 'apagar_meta' : dx.dataset.delpauta ? 'apagar_pauta' : 'apagar_regra';
+    rpc('cc_salvar', { p_senha: pw(), p_tipo: tp, p_dados: { id: dx.dataset.delmeta || dx.dataset.delpauta || dx.dataset.delregra } }).then(carregaCC).then(desenhaSec);
+    return;
+  }
   var del = t.closest('[data-del], [data-delnota]');
   if (del) {
     if (del.dataset.ok !== '1') { del.dataset.ok = '1'; del.textContent = 'Toque de novo'; return; }
@@ -697,9 +776,9 @@ document.getElementById('sec-corpo').addEventListener('click', function (e) {
     var txt = document.getElementById('sec-txt').value.trim();
     if (!txt) { msg.textContent = 'Fale ou escreva primeiro.'; return; }
     if (rec) { try { rec.stop(); } catch (x) {} }
-    var tipo = secAba === 'agenda' ? 'compromisso' : 'nota';
+    var tipo = { agenda: 'compromisso', anotacoes: 'nota', foco: 'meta', reuniao: 'pauta', regras: 'regra' }[secAba] || 'nota';
     if (tipo === 'compromisso') aplicaEntendido();
-    var dados = tipo === 'compromisso' ? { quando: document.getElementById('ag-data').value || hojeISO(), hora: document.getElementById('ag-hora').value, texto: txt } : { assunto: notaAssunto, texto: txt };
+    var dados = tipo === 'compromisso' ? { quando: document.getElementById('ag-data').value || hojeISO(), hora: document.getElementById('ag-hora').value, texto: txt } : tipo === 'nota' ? { assunto: notaAssunto, texto: txt } : tipo === 'regra' ? { area: regraArea, texto: txt } : { texto: txt };
     msg.textContent = 'Salvando…';
     rpc('cc_salvar', { p_senha: pw(), p_tipo: tipo, p_dados: dados }).then(carregaCC).then(function () { desenhaSec(); var m = document.getElementById('sec-msg'); if (m) m.textContent = 'Salvo.'; })
       .catch(function () { msg.textContent = 'Não salvou. Confira a internet e tente de novo.'; });
