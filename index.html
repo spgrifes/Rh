@@ -361,7 +361,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
 .prc p{margin:0;font-size:.9rem;line-height:1.4}
 .prc a{margin-top:auto;align-self:flex-start;background:#141212;color:#fff;text-decoration:none;border-radius:999px;padding:8px 14px;font-weight:700;font-size:.85rem}
 @media (prefers-color-scheme:dark){.prc{background:#1b1818;border-color:#2c2727}.prc .mt{color:#a39b99}.prc a{background:#f3efee;color:#141212}}
-</style>
+.ttgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));margin-top:12px}.ttc{padding:14px}.tth{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:16px}.tth i{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}.tth .tag{margin-left:auto}.ttcols{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ttcols span{display:block;font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.04em}.ttcols b{font-size:19px}.tttot{margin-top:12px;padding-top:12px;border-top:1px solid rgba(0,0,0,.08)}.tttot b{font-size:22px}.ttbar{height:6px;border-radius:6px;background:rgba(0,0,0,.07);margin:12px 0 8px;overflow:hidden}.ttbar i{display:block;height:100%;background:var(--c)}.tts{font-size:13px;opacity:.85}.ttv{border:0;background:none;color:var(--blue);font:inherit;text-decoration:underline;padding:0;cursor:pointer}</style>
 </head><body>
 
 <section class="lock gut" id="lock">
@@ -402,6 +402,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <button type="button" data-tab="painel" aria-pressed="true">Painel</button>
     <button type="button" data-tab="alertas" aria-pressed="false">Alertas <span class="mb" id="mb-al"></span></button>
     <button type="button" data-tab="agenda" aria-pressed="false">Agenda de pagamentos</button>
+    <button type="button" data-tab="totais" aria-pressed="false">Totais</button>
     <button type="button" data-tab="equipe" aria-pressed="false">Equipe</button>
     <button type="button" data-tab="comissoes" aria-pressed="false">Comissões</button>
     <button type="button" data-tab="avaliacoes" aria-pressed="false">Avaliações do Google</button>
@@ -427,6 +428,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <section><h2>Regras da agenda</h2><div class="card list" id="agregras"></div></section>
     <section><h2>Dia a dia <span class="count" id="agcnt"></span></h2><div class="chips" id="agchips"></div><div class="grid" id="aglist"></div></section>
    </div>
+   <div id="v-totais" hidden><div class="card agcal" id="tthead"></div><div class="ttgrid" id="ttlist"></div></div>
    <div id="v-reg" hidden></div>
    <div id="v-premios" hidden>
     <section><h2>Prêmios para funcionários <span class="count" id="prcnt"></span></h2>
@@ -797,6 +799,32 @@ function renderCal(G){const hj=new Date(),hoje=hj.getFullYear()+'-'+String(hj.ge
     <button type="button" class="calb" data-calm="1" ${i>=meses.length-1?'disabled':''}>›</button></div>
    <div class="calg">${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(x=>`<div class="cw">${x}</div>`).join('')}${cel}</div>
    <div class="calleg">${[['salario','Salário'],['comissao','Comissão'],['adiantamento','Adiantamento'],['conducao','Condução'],['decimo','13º'],['fixo','Outros'],['acerto','Acerto']].map(([k,l])=>`<span><i style="background:${TCOR[k]}"></i>${l}</span>`).join('')}</div>`;}
+
+let ttYM=null;
+const TTNOME={salario:'Salário',comissao:'Comissão',bonus:'Bônus',adiantamento:'Adiantamento',conducao:'Vale-transporte (condução)',decimo:'13º salário',fixo:'Outros pagamentos',acerto:'Acerto de desligamento'};
+const TTORD=['salario','comissao','bonus','adiantamento','conducao','decimo','fixo','acerto'];
+function renderTotais(){
+  const G=gerarAgenda();
+  const hj=new Date(), ymHoje=hj.getFullYear()+'-'+String(hj.getMonth()+1).padStart(2,'0');
+  const bon=REGS.filter(r=>r.tipo==='bonus'&&!r.del).map(r=>({ym:(r.d.data||r.d.ref||'').slice(0,7),valor:valNum(r.d.valor),pago:/pago/i.test(r.d.st||'')&&!/a pagar/i.test(r.d.st||'')}));
+  const meses=[...new Set(G.map(d=>d.data.slice(0,7)).concat(bon.map(b=>b.ym)).filter(Boolean))].sort();
+  if(!meses.length){$('tthead').innerHTML='<div>Ainda não tem pagamentos na agenda.</div>';$('ttlist').innerHTML='';return;}
+  if(!ttYM||!meses.includes(ttYM))ttYM=meses.includes(ymHoje)?ymHoje:meses[0];
+  const T={};TTORD.forEach(k=>T[k]={pago:0,falta:0,n:0,np:0,def:0});
+  G.filter(d=>d.data.slice(0,7)===ttYM).forEach(d=>{const k=T[d.tipo]?d.tipo:'fixo';d.itens.forEach(i=>{const pg=PAGO.includes((REV[i.id]||{}).s);T[k].n++;if(i.valor==null){T[k].def++;return;}if(pg){T[k].pago+=i.valor;T[k].np++;}else T[k].falta+=i.valor;});});
+  bon.filter(b=>b.ym===ttYM).forEach(b=>{T.bonus.n++;if(b.pago){T.bonus.pago+=b.valor;T.bonus.np++;}else T.bonus.falta+=b.valor;});
+  const tp=TTORD.reduce((s,k)=>s+T[k].pago,0), tf=TTORD.reduce((s,k)=>s+T[k].falta,0);
+  const [a,m]=ttYM.split('-').map(Number), i=meses.indexOf(ttYM);
+  $('tthead').innerHTML=`<div class="calh"><button type="button" class="calb" ${i<=0?'disabled':`data-ttm="${meses[i-1]}"`}>‹</button>
+    <div><div class="calt">Totais · ${MESN[m-1]} ${a}</div><div class="ct-d">O que já foi pago e o que falta pagar no mês</div></div>
+    <button type="button" class="calb" ${i>=meses.length-1?'disabled':`data-ttm="${meses[i+1]}"`}>›</button></div>
+    <div class="ttcols tttot"><div><span>Pago</span><b class="num" style="color:var(--green)">${F(tp)}</b></div><div><span>Falta pagar</span><b class="num" style="color:var(--red)">${F(tf)}</b></div></div>`;
+  $('ttlist').innerHTML=TTORD.filter(k=>T[k].n||k==='salario'||k==='comissao'||k==='bonus'||k==='conducao').map(k=>{const t=T[k],tot=t.pago+t.falta,pct=tot?Math.round(t.pago/tot*100):0,cor=TCOR[k]||'#7c3aed';
+    return `<div class="card ttc" style="--c:${cor}"><div class="tth"><i></i><b>${TTNOME[k]}</b>${tot&&!t.falta?'<span class="tag t-green">Tudo pago</span>':''}</div>
+      <div class="ttcols"><div><span>Pago</span><b class="num" style="color:var(--green)">${F(t.pago)}</b></div><div><span>Falta pagar</span><b class="num" style="color:${t.falta?'var(--red)':'var(--muted,#64748b)'}">${F(t.falta)}</b></div></div>
+      <div class="ttbar"><i style="width:${pct}%"></i></div>
+      <div class="tts">${t.n?`${t.np} de ${t.n} pagos`:'Nada lançado neste mês'}${t.def?` · <span style="color:var(--amber)">${t.def} com valor a definir</span>`:''}${k!=='bonus'&&t.n?` · <button type="button" class="ttv" data-ttver="${k}">Ver na agenda</button>`:''}</div></div>`;}).join('');
+}
 function renderAgenda(){
   const G=gerarAgenda(); try{renderCal(G);}catch(x){console.log(x)} if(!G.length){$('agtop').innerHTML='<div>Agenda ainda não montada.</div>';return;}
   const hoje=new Date(); hoje.setHours(0,0,0,0);
@@ -832,12 +860,13 @@ function renderAgenda(){
         ${pgEsc===i.id?`<div class="formas"><b>Como foi pago?</b>${['pix','dinheiro','cartao','transf'].map(f=>`<button type="button" data-forma="${f}" data-id="${i.id}">${FORMA[f]}</button>`).join('')}<button type="button" class="cx" data-forma="" data-id="${i.id}">Cancelar</button></div>`:''}
         ${agEd===i.id?`<div class="edit"><input class="nt" id="n_${i.id}" data-id="${i.id}" placeholder="Ex.: valor certo é outro, pagou em dinheiro... (pode ditar)" value="${esc(r.n||'')}"><div class="hint">Salva sozinho.</div></div>`:''}</div>`}).join('')}
     </details>`}).join('');
+  if(aba==='totais')try{renderTotais();}catch(x){}
 }
 let ultPasta='salario';
 function trocarAba(t){if(fichaId){fichaId=null;try{if(location.hash.startsWith('#f='))history.replaceState(null,'',location.pathname);}catch(x){}}if(t==='pagamentos')t=ultPasta;if(TIPOS[t]&&TIPOS[t].grupo==='pagamentos')ultPasta=t;aba=t;
   document.querySelectorAll('.menu [data-tab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===t||(b.dataset.grupo||'').split(' ').includes(t)));
   const isReg=!!TIPOS[t];
-  $('v-agenda').hidden=t!=='agenda';$('v-reg').hidden=!isReg;$('v-premios').hidden=t!=='premios';$('v-painel').hidden=t==='agenda'||isReg||t==='premios';if(t==='premios')carregaPremios();
+  $('v-agenda').hidden=t!=='agenda';$('v-totais').hidden=t!=='totais';$('v-reg').hidden=!isReg;$('v-premios').hidden=t!=='premios';$('v-painel').hidden=t==='agenda'||t==='totais'||isReg||t==='premios';if(t==='totais')try{renderTotais();}catch(x){console.log(x)}if(t==='premios')carregaPremios();
   if(t==='falta')filtro='falta'; else if(filtro==='falta')filtro='todos';
   $('eqtit').firstChild.textContent=t==='falta'?'Quem tem informação faltando ':'Equipe ';
   regEdit=null;render();const b=document.querySelector('.menu [data-tab="'+t+'"],.menu [data-grupo~="'+t+'"]');if(b)b.scrollIntoView({inline:'center',block:'nearest'});window.scrollTo(0,0);}
@@ -1115,6 +1144,8 @@ document.addEventListener('click',ev=>{
   const al=ev.target.closest('[data-al]');
   if(al){const id='alerta_'+al.dataset.al;REV[id]=REV[id]||{};REV[id].s=REV[id].s==='ok'?'':'ok';salvar(id);render();toast(REV[id].s?'Alerta marcado como resolvido':'Alerta reaberto');return;}
   const tb=ev.target.closest('[data-tab]'); if(tb){trocarAba(tb.dataset.tab);return;}
+  const ttm=ev.target.closest('[data-ttm]'); if(ttm){ttYM=ttm.dataset.ttm;renderTotais();return;}
+  const ttv=ev.target.closest('[data-ttver]'); if(ttv){agf=ttv.dataset.ttver;trocarAba('agenda');return;}
   const ag=ev.target.closest('[data-agf]'); if(ag){agf=ag.dataset.agf;renderAgenda();return;}
   const pg=ev.target.closest('[data-pg]'); if(pg){ev.preventDefault();const id=pg.dataset.pg;REV[id]=REV[id]||{};
     if(PAGO.includes(REV[id].s)){REV[id].s='';salvar(id);pgEsc=null;renderAgenda();toast('Pagamento desfeito');return;}
