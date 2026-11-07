@@ -1,66 +1,101 @@
 <!doctype html>
-<html lang="pt-BR"><head>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2032%2032%22%3E%3Crect%20width=%2232%22%20height=%2232%22%20rx=%227%22%20fill=%22%23141212%22/%3E%3Cpath%20fill=%22none%22%20stroke=%22%23fff%22%20stroke-width=%222.2%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%20d=%22M5%2013l2-7h18l2%207%22/%3E%3Cpath%20fill=%22none%22%20stroke=%22%23fff%22%20stroke-width=%222.2%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%20d=%22M5%2013c0%202%201.5%203.5%203.5%203.5S12%2015%2012%2013c0%202%201.5%203.5%204%203.5s4-1.5%204-3.5c0%202%201.5%203.5%203.5%203.5S27%2015%2027%2013%22/%3E%3Cpath%20fill=%22none%22%20stroke=%22%23fff%22%20stroke-width=%222.2%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%20d=%22M7%2016v11h18V16M13%2027v-7h6v7%22/%3E%3C/svg%3E"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Club do Lojista</title>
-<meta name="description" content="Material pronto, sem marca, toda semana, para você vender mais na sua loja.">
+<meta name="description" content="Convite VIP: material pronto, aulas, ideias e fornecedores de confiança para lojistas. Tudo grátis.">
+<link rel="icon" href="img/eva-acenando-2.webp">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-:root { --bg:#ffffff; --tile:#f6f3f2; --fg:#141212; --muted:#6f6765; --line:#ece7e5; --accent:#c8102e; --ok:#1f8a55;
+:root { --bg:#ffffff; --tile:#f6f3f2; --fg:#141212; --muted:#6f6765; --line:#ece7e5; --accent:#c8102e; --ok:#1f8a55; --gold:#b8892b;
   --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Figtree","Helvetica Neue",Arial,sans-serif; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f0d0d; --tile:#1c1919; --fg:#f4f0ef; --muted:#a39b99; --line:#2c2727; --accent:#ff4d63; --ok:#3ccf86; } }
-:root[data-theme="dark"] { --bg:#0f0d0d; --tile:#1c1919; --fg:#f4f0ef; --muted:#a39b99; --line:#2c2727; --accent:#ff4d63; --ok:#3ccf86; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f0d0d; --tile:#1c1919; --fg:#f4f0ef; --muted:#a39b99; --line:#2c2727; --accent:#ff4d63; --ok:#3ccf86; --gold:#e0b45a; } }
+:root[data-theme="dark"] { --bg:#0f0d0d; --tile:#1c1919; --fg:#f4f0ef; --muted:#a39b99; --line:#2c2727; --accent:#ff4d63; --ok:#3ccf86; --gold:#e0b45a; }
 * { box-sizing:border-box; } html,body { margin:0; }
-body { background:var(--bg); color:var(--fg); font:16px/1.45 var(--body); }
+body { background:var(--bg); color:var(--fg); font:16px/1.5 var(--body); }
 [hidden] { display:none !important; }
-button { font:inherit; cursor:pointer; }
-.wrap { max-width:720px; margin:0 auto; padding:0 16px 64px; }
-.top { padding:18px 0 4px; font:800 .8rem/1 var(--display); letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
-h1 { margin:14px 0 10px; font:900 clamp(2.1rem,8vw,3.2rem)/.95 var(--display); font-stretch:115%; letter-spacing:-.025em; }
-h1 span { color:var(--accent); }
+button { font:inherit; color:inherit; cursor:pointer; }
+a { color:inherit; }
+.wrap { max-width:760px; margin:0 auto; padding:0 16px 72px; }
+.top { padding:18px 0 4px; font:800 .78rem/1 var(--display); letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+h1 { margin:10px 0 10px; font:900 clamp(2.1rem,8vw,3.2rem)/.95 var(--display); font-stretch:115%; letter-spacing:-.025em; }
+h1 span, .ola span { color:var(--accent); }
+h2 { font:900 1.3rem/1.15 var(--display); margin:0 0 8px; }
 .lead { margin:0 0 18px; color:var(--muted); font-size:1.05rem; }
-.pts { display:grid; gap:10px; margin:0 0 22px; padding:0; list-style:none; }
+.hero { display:flex; gap:12px; align-items:center; }
+.hero img { width:112px; height:112px; flex:none; object-fit:contain; }
+.hero .txt { flex:1; min-width:0; }
+.vip { display:inline-block; background:var(--fg); color:var(--bg); font:800 .72rem/1 var(--display); letter-spacing:.1em; text-transform:uppercase; padding:7px 10px; border-radius:999px; }
+.pts { display:grid; gap:8px; margin:0 0 20px; padding:0; list-style:none; }
 .pts li { background:var(--tile); border-radius:14px; padding:12px 14px; font-weight:600; }
 .pts li b { color:var(--accent); }
 form { display:grid; gap:12px; background:var(--tile); border-radius:20px; padding:18px; }
-form h2 { margin:0 0 2px; font:900 1.3rem/1.1 var(--display); }
 label { display:grid; gap:6px; font-weight:600; font-size:.92rem; }
 input, select { font:500 1rem var(--body); color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 14px; outline:none; width:100%; }
 input:focus, select:focus { border-color:var(--fg); }
 .duo { display:grid; gap:12px; grid-template-columns:1fr 90px; }
-.btn { border:0; background:var(--fg); color:var(--bg); border-radius:14px; padding:15px 18px; font-weight:800; font-size:1.05rem; }
-.btn.alt { background:var(--ok); color:#fff; text-decoration:none; display:block; text-align:center; }
+.btn { border:0; background:var(--fg); color:var(--bg); border-radius:14px; padding:15px 18px; font-weight:800; font-size:1.05rem; text-align:center; text-decoration:none; display:block; }
+.btn.ok { background:var(--ok); color:#fff; }
 .err { color:var(--accent); font-weight:600; min-height:1.3em; margin:0; }
 .priv { margin:0; color:var(--muted); font-size:.82rem; }
-.ola { margin:18px 0 6px; font:900 1.6rem/1.05 var(--display); }
-.sem-t { margin:26px 0 10px; font:800 .8rem/1 var(--display); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.ola { margin:0 0 4px; font:900 1.6rem/1.05 var(--display); }
+.box { background:var(--tile); border-radius:18px; padding:16px; margin:14px 0; }
+.box p { margin:0 0 10px; }
+.box p:last-child { margin-bottom:0; }
+.tabs { position:sticky; top:0; z-index:5; background:var(--bg); display:flex; gap:8px; overflow-x:auto; padding:12px 0 10px; margin-top:6px; border-bottom:1px solid var(--line); scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.chip { flex:none; border:1px solid var(--line); background:var(--bg); border-radius:999px; padding:9px 14px; font-weight:700; font-size:.9rem; }
+.chip[aria-pressed="true"] { background:var(--fg); color:var(--bg); border-color:var(--fg); }
+.sub { display:flex; gap:8px; overflow-x:auto; padding:12px 0 4px; scrollbar-width:none; }
+.sec-t { margin:24px 0 10px; font:800 .78rem/1 var(--display); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
 .card { border:1px solid var(--line); border-radius:18px; padding:16px; margin-bottom:12px; }
-.tag { display:inline-block; font:800 .7rem/1 var(--display); letter-spacing:.08em; text-transform:uppercase; padding:6px 9px; border-radius:999px; background:var(--tile); color:var(--muted); }
-.card h3 { margin:10px 0 6px; font:800 1.1rem/1.2 var(--display); }
+.tag { display:inline-block; font:800 .68rem/1 var(--display); letter-spacing:.08em; text-transform:uppercase; padding:6px 9px; border-radius:999px; background:var(--tile); color:var(--muted); }
+.card h3 { margin:10px 0 6px; font:800 1.1rem/1.25 var(--display); }
 .card p { margin:0; white-space:pre-line; }
-.card img { width:100%; border-radius:12px; margin-top:10px; display:block; }
 .acoes { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
-.acoes button, .acoes a { border:1px solid var(--line); background:var(--bg); color:var(--fg); border-radius:12px; padding:10px 14px; font-weight:700; font-size:.9rem; text-decoration:none; }
-.aviso { background:var(--tile); border-radius:16px; padding:16px; margin:10px 0 16px; }
-.aviso b { display:block; font:800 1.05rem/1.2 var(--display); margin-bottom:6px; }
-.aviso p { margin:0 0 12px; }
-.sair { background:none; border:0; color:var(--muted); text-decoration:underline; padding:0; margin-top:20px; font-size:.85rem; }
-.toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:10px 16px; border-radius:999px; font-weight:600; font-size:.9rem; opacity:0; transition:opacity .2s; pointer-events:none; }
+.acoes button, .acoes a { border:1px solid var(--line); background:var(--bg); border-radius:12px; padding:10px 14px; font-weight:700; font-size:.9rem; text-decoration:none; }
+.acoes a.wa { background:var(--ok); color:#fff; border-color:var(--ok); }
+details.aula { border:1px solid var(--line); border-radius:18px; margin-bottom:10px; overflow:hidden; }
+details.aula summary { list-style:none; cursor:pointer; padding:14px 16px; display:flex; gap:12px; align-items:center; }
+details.aula summary::-webkit-details-marker { display:none; }
+.num { flex:none; width:34px; height:34px; border-radius:50%; background:var(--tile); display:grid; place-items:center; font:900 .95rem var(--display); }
+.feito .num { background:var(--ok); color:#fff; }
+.aula .t { font:800 1.02rem/1.25 var(--display); }
+.aula .r { color:var(--muted); font-size:.88rem; }
+.aula .corpo { padding:0 16px 16px; white-space:pre-line; }
+.grid { display:grid; gap:10px; grid-template-columns:repeat(2,1fr); }
+@media (min-width:640px) { .grid { grid-template-columns:repeat(3,1fr); } }
+.peca { border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--bg); }
+.peca img { width:100%; aspect-ratio:4/5; object-fit:cover; display:block; background:var(--tile); }
+.peca div { padding:10px; }
+.peca b { display:block; font:800 .9rem/1.2 var(--display); }
+.peca span { display:block; color:var(--muted); font-size:.8rem; line-height:1.3; margin-top:3px; }
+.ideia { display:flex; flex-direction:column; justify-content:space-between; min-height:110px; border-radius:16px; padding:14px; background:var(--tile); text-decoration:none; }
+.ideia b { font:800 1rem/1.2 var(--display); }
+.ideia span { color:var(--muted); font-size:.82rem; }
+.lock { text-align:center; padding:22px 16px; border:1px dashed var(--line); border-radius:18px; color:var(--muted); }
+.sair { background:none; border:0; color:var(--muted); text-decoration:underline; padding:0; margin-top:28px; font-size:.85rem; }
+.toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:10px 16px; border-radius:999px; font-weight:600; font-size:.9rem; opacity:0; transition:opacity .2s; pointer-events:none; z-index:30; }
 .toast.on { opacity:1; }
+.q { margin:12px 0 6px; font-weight:700; }
+.opts { display:flex; flex-wrap:wrap; gap:8px; }
 </style></head><body>
 <main class="wrap">
-  <div class="top">SP Grifes · para lojistas</div>
-  <h1>Club do <span>Lojista</span></h1>
-  <p class="lead">Toda semana, material pronto para você usar na sua loja e vender mais. Sem marca nenhuma: você coloca o nome e o @ da sua loja.</p>
+  <div class="top">SP Grifes · Club do Lojista</div>
 
   <section id="cad">
+    <div class="hero">
+      <img src="img/eva-acenando-2.webp" alt="">
+      <div class="txt"><span class="vip">Convite VIP</span><h1>Club do <span>Lojista</span></h1></div>
+    </div>
+    <p class="lead">Você foi convidado para um clube feito para quem tem loja e quer vender mais. Tudo aqui é seu, e é tudo grátis.</p>
     <ul class="pts">
-      <li><b>Legendas prontas</b> para copiar e postar no seu Instagram</li>
-      <li><b>Ideias de venda</b> de quem vive o Brás todo dia</li>
-      <li><b>Mensagens prontas</b> para mandar à sua lista de clientes</li>
-      <li><b>Aviso de mercadoria</b> nova no atacado, antes de todo mundo</li>
+      <li><b>Aulas curtas</b> para quem está começando e para quem já está na estrada</li>
+      <li><b>Material pronto toda semana:</b> legendas, ideias e mensagens, sem marca nenhuma</li>
+      <li><b>Radar das Grifes:</b> o que as grandes marcas lançaram na semana</li>
+      <li><b>Fornecedores de confiança</b> indicados por quem vive o Brás</li>
+      <li><b>Aviso de mercadoria nova</b> no atacado, antes de todo mundo</li>
     </ul>
     <form id="f" onsubmit="cadastrar(event)">
-      <h2>Entre no Club, é grátis</h2>
+      <h2>Entre no Club</h2>
       <label>Seu nome <input name="nome" required autocomplete="name"></label>
       <label>WhatsApp com DDD <input name="whatsapp" required inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000"></label>
       <label>Nome da sua loja <input name="loja" required></label>
@@ -79,24 +114,29 @@ input:focus, select:focus { border-color:var(--fg); }
           <option value="">Escolha</option>
           <option value="sim">Sim, já compro</option><option value="quero comprar">Ainda não, mas quero</option><option value="nao">Só quero o material</option>
         </select></label>
-      <label>O que mais vende na sua loja? <input name="interesse" placeholder="Ex.: polo, camiseta, bermuda, perfume"></label>
+      <label>O que mais vende na sua loja? <input name="interesse" placeholder="Ex.: polo, camiseta, bermuda, relógio"></label>
       <p class="err" id="err"></p>
-      <button class="btn" id="bt">Entrar no Club</button>
+      <button class="btn" id="bt">Aceitar o convite</button>
       <p class="priv">Seu contato fica só com a SP Grifes, para avisar de material novo e mercadoria no atacado. Nunca passamos para ninguém.</p>
     </form>
   </section>
 
-  <section id="kit" hidden>
-    <p class="ola" id="ola"></p>
-    <div class="aviso" id="aviso" hidden></div>
-    <a class="btn alt" id="grupo" href="#" target="_blank" rel="noopener" hidden>Entrar no grupo do Club no WhatsApp</a>
-    <div id="lista"></div>
+  <section id="area" hidden>
+    <div class="hero">
+      <img id="evaImg" src="img/eva-acenando-2.webp" alt="">
+      <div class="txt"><p class="ola" id="ola"></p><div class="lead" id="sub" style="margin:0"></div></div>
+    </div>
+    <div class="box" id="aviso" hidden></div>
+    <div class="box" id="perguntas" hidden></div>
+    <nav class="tabs" id="tabs" hidden></nav>
+    <div id="conteudo"></div>
     <button class="sair" onclick="sair()">Não é você? Trocar de cadastro</button>
   </section>
 </main>
 <div class="toast" id="toast"></div>
 <script>
 var SB = 'https://hkhbyeygzfdhwxsdgaxl.supabase.co', KEY = 'sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1';
+var EQUIPE = '5511999301300';
 function rpc(fn, body) {
   return fetch(SB + '/rest/v1/rpc/' + fn, { method:'POST', headers:{ apikey:KEY, Authorization:'Bearer ' + KEY, 'Content-Type':'application/json' }, body:JSON.stringify(body) })
     .then(function (r) { return r.text().then(function (t) { if (!r.ok) throw new Error(t); return t ? JSON.parse(t) : null; }); });
@@ -104,64 +144,179 @@ function rpc(fn, body) {
 function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
 function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.classList.add('on'); setTimeout(function () { e.classList.remove('on'); }, 1800); }
+function $(id) { return document.getElementById(id); }
+
+var WA = null, D = null, ABA = 'inicio', TRILHA = null, TEMA = 'Todos';
 var TIPOS = { ideia:'Ideia de venda', legenda:'Legenda pronta', arte:'Arte sem marca' };
-var ITENS = [];
+
+/* troca [@SUALOJA], [SUA CIDADE] pelos dados do lojista */
+function pers(t) {
+  if (!D) return t; var ig = D.instagram ? ('@' + String(D.instagram).replace(/^@/, '')) : (D.loja || '[@SUALOJA]');
+  return String(t || '').replace(/\[@SUALOJA\]/g, ig).replace(/\[SUA CIDADE\]/g, D.cidade || '[SUA CIDADE]');
+}
 
 function cadastrar(ev) {
   ev.preventDefault();
-  var f = ev.target, err = document.getElementById('err'), bt = document.getElementById('bt');
-  err.textContent = ''; bt.disabled = true; bt.textContent = 'Enviando...';
+  var f = ev.target, bt = $('bt'); $('err').textContent = ''; bt.disabled = true; bt.textContent = 'Entrando...';
   rpc('kit_cadastro', { p_nome:f.nome.value, p_whatsapp:f.whatsapp.value, p_cidade:f.cidade.value, p_uf:f.uf.value, p_loja:f.loja.value,
     p_instagram:f.instagram.value, p_tipo:f.tipo.value, p_atacado:f.atacado.value, p_interesse:f.interesse.value })
-  .then(function (r) { ls('kit_wa', r.whatsapp); abrir(r.whatsapp); })
-  .catch(function (x) {
-    var m = String(x.message || '');
-    err.textContent = m.indexOf('whatsapp') >= 0 ? 'Confira o WhatsApp com DDD.' : m.indexOf('nome') >= 0 ? 'Escreva o seu nome.' : 'Não deu para enviar. Tente de novo.';
-  })
-  .then(function () { bt.disabled = false; bt.textContent = 'Entrar no Club'; });
+  .then(function (r) { ls('kit_wa', r.whatsapp); return abrir(r.whatsapp); })
+  .catch(function (x) { var m = String(x.message || '');
+    $('err').textContent = m.indexOf('whatsapp') >= 0 ? 'Confira o WhatsApp com DDD.' : m.indexOf('nome') >= 0 ? 'Escreva o seu nome.' : 'Não deu para enviar. Tente de novo.'; })
+  .then(function () { bt.disabled = false; bt.textContent = 'Aceitar o convite'; });
 }
 
 function abrir(wa) {
-  return rpc('kit_listar', { p_whatsapp:wa }).then(function (d) {
-    document.getElementById('cad').hidden = true; document.getElementById('kit').hidden = false;
-    document.getElementById('ola').textContent = 'Olá, ' + String(d.nome || '').split(' ')[0] + '! Bem-vindo ao Club.';
-    var g = document.getElementById('grupo'); if (d.grupo) { g.href = d.grupo; g.hidden = false; }
-    aviso(d.status, d.nome);
-    ITENS = d.itens || []; desenhar();
+  WA = wa;
+  return rpc('club_area', { p_whatsapp:wa }).then(function (d) {
+    D = d;
+    $('cad').hidden = true; $('area').hidden = false;
+    var nome = String(d.nome || '').split(' ')[0];
+    if (d.status === 'negado' || d.status === 'bloqueado') { negado(nome); return; }
+    $('ola').innerHTML = 'Olá, ' + esc(nome) + '! <span>Bem-vindo ao Club.</span>';
+    $('sub').textContent = 'Tudo aqui é seu, de graça. Material novo toda segunda.';
+    var a = $('aviso');
+    if (d.status !== 'aprovado') { a.innerHTML = '<p><b>Seu perfil está em análise.</b> As aulas, as ideias e o material de texto já estão liberados. O Radar completo, os fornecedores e o grupo do Club abrem assim que a análise terminar, normalmente em até 1 dia.</p>'; a.hidden = false; }
+    else a.hidden = true;
+    TRILHA = d.nivel || 'iniciante';
+    if (!d.nivel) perguntas(); else $('perguntas').hidden = true;
+    $('tabs').hidden = false; tabs(); mostrar();
   });
 }
 
-function aviso(st, nome) {
-  var a = document.getElementById('aviso'), h = '';
-  var zap = 'https://wa.me/5511999301300?text=' + encodeURIComponent('Olá! Sou ' + (nome || '') + ', lojista, e quero reivindicar meu cadastro no Club do Lojista.');
-  if (st === 'negado' || st === 'bloqueado') {
-    h = '<b>Seu perfil ainda não foi aprovado</b><p>Nosso sistema não conseguiu confirmar que você é lojista. Precisamos de mais provas, como o Instagram da loja, fotos da loja ou uma nota de compra no atacado.</p><p>Fazemos isso para proteger o nosso material contra pessoas que aplicam golpes na internet. Se você é lojista, fale com a nossa equipe e ela libera o seu acesso.</p><a class="btn alt" href="' + zap + '" target="_blank" rel="noopener">Falar com a equipe no WhatsApp</a>';
-    document.getElementById('ola').textContent = 'Olá, ' + String(nome || '').split(' ')[0] + '.';
-  } else if (st !== 'aprovado') {
-    h = '<b>Seu perfil está em análise</b><p>Enquanto isso, os textos e as ideias já estão liberados. As fotos e o grupo do Club são liberados assim que a análise terminar, normalmente em até 1 dia.</p>';
-  }
-  a.innerHTML = h; a.hidden = !h;
+function negado(nome) {
+  $('evaImg').src = 'img/eva-tristinha-2.webp';
+  $('ola').textContent = 'Olá, ' + nome + '.';
+  $('sub').textContent = '';
+  var zap = 'https://wa.me/' + EQUIPE + '?text=' + encodeURIComponent('Olá! Sou ' + nome + ', lojista, e quero liberar meu acesso ao Club do Lojista.');
+  $('aviso').innerHTML = '<h2>Seu perfil ainda não foi aprovado</h2><p>Nosso sistema não conseguiu confirmar que você é lojista. Precisamos de mais provas, como o Instagram da loja, fotos da loja ou uma nota de compra no atacado.</p><p>Fazemos isso para proteger o nosso material contra pessoas que aplicam golpes na internet. Se você é lojista, fale com a nossa equipe e ela libera o seu acesso.</p><a class="btn ok" href="' + zap + '" target="_blank" rel="noopener">Falar com a equipe no WhatsApp</a>';
+  $('aviso').hidden = false; $('perguntas').hidden = true; $('tabs').hidden = true; $('conteudo').innerHTML = '';
 }
-function semanaTxt(s) { var p = String(s).split('-'); return 'Semana de ' + p[2] + '/' + p[1]; }
-function desenhar() {
-  var h = '', ult = '';
-  if (!ITENS.length && document.getElementById('aviso').hidden) h = '<p class="lead">O material desta semana chega na segunda-feira.</p>';
-  ITENS.forEach(function (it, i) {
-    if (it.semana !== ult) { ult = it.semana; h += '<div class="sem-t">' + semanaTxt(it.semana) + '</div>'; }
-    h += '<div class="card"><span class="tag">' + esc(TIPOS[it.tipo] || it.tipo) + '</span><h3>' + esc(it.titulo) + '</h3>' +
-      (it.texto ? '<p>' + esc(it.texto) + '</p>' : '') + (it.imagem ? '<img src="' + esc(it.imagem) + '" alt="' + esc(it.titulo) + '" loading="lazy">' : '') +
-      '<div class="acoes">' + (it.texto ? '<button onclick="copiar(' + i + ')">Copiar texto</button>' : '') +
-      (it.imagem ? '<a href="' + esc(it.imagem) + '" download target="_blank" rel="noopener">Baixar arte</a>' : '') + '</div></div>';
+
+/* 3 perguntas rápidas */
+var RESP = {};
+var PERG = [
+  ['tempo', 'Há quanto tempo você vende?', ['Ainda não comecei','Menos de 1 ano','De 1 a 3 anos','Mais de 3 anos']],
+  ['tipo', 'Sua loja é…', ['Loja física','Loja online','Loja física e online','Revendedor autônomo']],
+  ['dif', 'Qual a sua maior dificuldade hoje?', ['Vender mais','Postar e aparecer','Precificar','Atrair clientes novos','Achar bons fornecedores']]
+];
+function perguntas() {
+  var h = '<h2>3 perguntas rápidas</h2><p>Assim o Club separa o material certo para você.</p>';
+  PERG.forEach(function (p) {
+    h += '<div class="q">' + p[1] + '</div><div class="opts">' + p[2].map(function (o) {
+      return '<button class="chip" aria-pressed="' + (RESP[p[0]] === o) + '" onclick="resp(\'' + p[0] + '\',this)">' + esc(o) + '</button>'; }).join('') + '</div>';
   });
-  document.getElementById('lista').innerHTML = h;
+  h += '<button class="btn" style="margin-top:16px;width:100%" onclick="salvarPerfil()">Pronto</button>';
+  $('perguntas').innerHTML = h; $('perguntas').hidden = false;
+}
+function resp(k, b) { RESP[k] = b.textContent; perguntas(); }
+function salvarPerfil() {
+  if (!RESP.tempo || !RESP.dif) { toast('Responda as perguntas, é rapidinho'); return; }
+  rpc('club_perfil', { p_whatsapp:WA, p_tempo:RESP.tempo, p_tipo:RESP.tipo || '', p_dificuldade:RESP.dif }).then(function (r) {
+    D.nivel = r.nivel; TRILHA = r.nivel; $('perguntas').hidden = true; $('evaImg').src = 'img/eva-comemorando-2.webp';
+    toast('Tudo certo! Separei o seu material'); ABA = 'trilha'; tabs(); mostrar();
+  });
+}
+
+var ABAS = [['inicio','Início'],['trilha','Aulas'],['biblioteca','Material'],['radar','Radar das Grifes'],['ideias','Ideias para sua Loja'],['fornecedores','Fornecedores']];
+function tabs() { $('tabs').innerHTML = ABAS.map(function (a) { return '<button class="chip" aria-pressed="' + (ABA === a[0]) + '" onclick="ir(\'' + a[0] + '\')">' + a[1] + '</button>'; }).join(''); }
+function ir(a) { ABA = a; tabs(); mostrar(); window.scrollTo({ top: $('tabs').offsetTop - 4, behavior:'smooth' }); }
+
+function mostrar() { $('conteudo').innerHTML = ({ inicio:vInicio, trilha:vTrilha, biblioteca:vBiblio, radar:vRadar, ideias:vIdeias, fornecedores:vForn })[ABA](); }
+
+function cardMat(it, i) {
+  return '<div class="card"><span class="tag">' + esc(TIPOS[it.tipo] || it.tipo) + '</span><h3>' + esc(it.titulo) + '</h3>' +
+    (it.texto ? '<p>' + esc(pers(it.texto)) + '</p>' : '') + (it.imagem ? '<img src="' + esc(it.imagem) + '" alt="" loading="lazy" style="width:100%;border-radius:12px;margin-top:10px">' : '') +
+    '<div class="acoes">' + (it.texto ? '<button onclick="copiar(' + i + ')">Copiar texto</button>' : '') + (it.imagem ? '<a href="' + esc(it.imagem) + '" download target="_blank" rel="noopener">Baixar arte</a>' : '') + '</div></div>';
+}
+
+function vInicio() {
+  var h = '';
+  if (D.grupo) h += '<a class="btn ok" href="' + esc(D.grupo) + '" target="_blank" rel="noopener" style="margin-top:14px">Entrar no grupo do Club no WhatsApp</a>';
+  var m = D.material || [], ult = m.length ? m[0].semana : null;
+  h += '<div class="sec-t">Material novo desta semana</div>';
+  var novos = m.map(function (it, i) { return [it, i]; }).filter(function (x) { return x[0].semana === ult; }).slice(0, 4);
+  h += novos.length ? novos.map(function (x) { return cardMat(x[0], x[1]); }).join('') : '<p class="lead">O material novo chega toda segunda-feira.</p>';
+  if (novos.length) h += '<button class="chip" onclick="ir(\'biblioteca\')">Ver todo o material</button>';
+  var aulas = (D.aulas || []).filter(function (a) { return a.trilha === TRILHA; });
+  if (aulas.length) h += '<div class="sec-t">Continue suas aulas</div>' + aulaHtml(aulas.filter(function (a) { return !lida(a.id); })[0] || aulas[0], 0);
+  return h;
+}
+
+function lida(id) { return ls('aula_' + id) === '1'; }
+function aulaHtml(a, n) {
+  return '<details class="aula' + (lida(a.id) ? ' feito' : '') + '" ontoggle="if(this.open)marcar(\'' + a.id + '\',this)"><summary><span class="num">' + (lida(a.id) ? '✓' : (n || '•')) + '</span><span><span class="t">' + esc(a.titulo) + '</span><br><span class="r">' + esc(a.resumo || '') + '</span></span></summary><div class="corpo">' + esc(pers(a.texto)) + '</div></details>';
+}
+function marcar(id, el) { ls('aula_' + id, '1'); el.classList.add('feito'); el.querySelector('.num').textContent = '✓'; }
+function vTrilha() {
+  var h = '<div class="sub"><button class="chip" aria-pressed="' + (TRILHA === 'iniciante') + '" onclick="TRILHA=\'iniciante\';mostrar()">Começando agora</button><button class="chip" aria-pressed="' + (TRILHA === 'avancado') + '" onclick="TRILHA=\'avancado\';mostrar()">Já na estrada</button></div>';
+  h += '<p class="lead" style="margin-top:10px">' + (TRILHA === 'iniciante' ? 'O básico bem feito, para começar sem quebrar.' : 'Para quem já vende e quer crescer.') + ' Aulas curtas, para aplicar no mesmo dia.</p>';
+  var aulas = (D.aulas || []).filter(function (a) { return a.trilha === TRILHA; });
+  return h + aulas.map(function (a, i) { return aulaHtml(a, i + 1); }).join('');
+}
+
+function vBiblio() {
+  var m = D.material || [], temas = ['Todos'];
+  m.forEach(function (it) { if (temas.indexOf(it.tema) < 0) temas.push(it.tema); });
+  var h = '<div class="sub">' + temas.map(function (t) { return '<button class="chip" aria-pressed="' + (TEMA === t) + '" onclick="TEMA=\'' + esc(t).replace(/'/g, '') + '\';mostrar()">' + esc(t) + '</button>'; }).join('') + '</div>';
+  h += '<p class="lead" style="margin-top:10px">Tudo fica guardado aqui. O texto já sai com o nome da sua loja e a sua cidade.</p>';
+  var ult = '';
+  m.forEach(function (it, i) {
+    if (TEMA !== 'Todos' && it.tema !== TEMA) return;
+    if (it.semana !== ult) { ult = it.semana; var p = String(it.semana).split('-'); h += '<div class="sec-t">Semana de ' + p[2] + '/' + p[1] + '</div>'; }
+    h += cardMat(it, i);
+  });
+  return h;
 }
 function copiar(i) {
-  var t = ITENS[i].texto;
+  var t = pers(D.material[i].texto);
   (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { toast('Texto copiado'); })
     .catch(function () { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); toast('Texto copiado'); } catch (e) {} a.remove(); });
 }
-function sair() { ls('kit_wa', null); document.getElementById('kit').hidden = true; document.getElementById('cad').hidden = false; }
 
-(function () { var w = ls('kit_wa'); if (w) abrir(w).catch(function () { ls('kit_wa', null); }); })();
+function vRadar() {
+  var r = D.radar;
+  if (!r || !r.itens || !r.itens.length) return '<p class="lead" style="margin-top:14px">O Radar da semana chega na segunda-feira.</p>';
+  var p = String(r.semana).split('-');
+  var h = '<p class="lead" style="margin-top:14px">O que as grandes grifes colocaram à venda na semana de ' + p[2] + '/' + p[1] + '. Use para saber o que o seu cliente vai pedir.</p>';
+  if (r.tendencias && r.tendencias.length) h += '<div class="box"><b>O que está se repetindo</b><ul style="margin:8px 0 0;padding-left:18px">' + r.tendencias.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
+  h += '<div class="grid">' + r.itens.map(function (i) {
+    return '<div class="peca"><img src="' + esc(i.imagem) + '" alt="' + esc(i.peca) + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"><div><b>' + esc(i.marca) + '</b><span>' + esc(i.peca) + (i.colecao ? ' · ' + esc(i.colecao) : '') + '</span>' + (i.preco ? '<span>' + esc(i.preco) + '</span>' : '') + '</div></div>';
+  }).join('') + '</div>';
+  if (D.status !== 'aprovado') h += '<div class="lock" style="margin-top:12px">Esta é uma prévia. O Radar completo abre quando o seu perfil for aprovado.</div>';
+  return h;
+}
+
+var IDEIAS = [['Vitrine','vitrine loja masculina'],['Arara e exposição','arara de roupas loja masculina'],['Provador','provador loja de roupa pequena'],['Fachada','fachada loja de roupas masculina'],
+  ['Iluminação','iluminação loja de roupas'],['Balcão do caixa','balcão caixa loja de roupas'],['Embalagem','embalagem personalizada loja de roupas'],['Loja pequena','decoração loja de roupas pequena'],
+  ['Looks masculinos','look masculino casual'],['Estoque organizado','organização estoque loja de roupas'],['Fotos de produto','foto de roupa para instagram'],['Stories da loja','ideias stories loja de roupa']];
+function vIdeias() {
+  return '<p class="lead" style="margin-top:14px">Toque num tema e veja centenas de ideias de lojas do mundo inteiro. Salve as que gostar e adapte para o seu espaço.</p><div class="grid">' +
+    IDEIAS.map(function (t) { return '<a class="ideia" href="https://br.pinterest.com/search/pins/?q=' + encodeURIComponent(t[1]) + '" target="_blank" rel="noopener"><b>' + t[0] + '</b><span>Ver ideias →</span></a>'; }).join('') +
+    '</div><p class="priv" style="margin-top:14px">Dica: na aula "Onde achar ideias para a sua loja" tem o passo a passo para salvar tudo em pastas.</p>';
+}
+
+function vForn() {
+  var f = D.fornecedores;
+  if (D.status !== 'aprovado') return '<div class="lock" style="margin-top:14px">Os fornecedores de confiança abrem quando o seu perfil for aprovado. Assim protegemos os parceiros contra golpistas.</div>';
+  if (!f || !f.length) return '<div class="lock" style="margin-top:14px">Estamos reunindo fornecedores de confiança de relógios, óculos, bonés, perfumes, embalagens e mais. Eles aparecem aqui em breve.</div>';
+  var h = '<p class="lead" style="margin-top:14px">Fornecedores indicados pela SP Grifes, de produtos que a gente não vende. Ao chamar, diga que veio pelo Club: a mensagem já vai pronta.</p>', cat = '';
+  f.forEach(function (x) {
+    if (x.categoria !== cat) { cat = x.categoria; h += '<div class="sec-t">' + esc(cat) + '</div>'; }
+    var msg = 'Olá! Vim pela indicação da SP Grifes, do Club do Lojista. Meu nome é ' + String(D.nome || '').split(' ')[0] + (D.loja ? ', da loja ' + D.loja : '') + (D.cidade ? ', de ' + D.cidade : '') + '. Quero conhecer seus produtos.';
+    h += '<div class="card"><span class="tag">Indicado pela SP Grifes</span><h3>' + esc(x.nome) + '</h3>' + (x.oque ? '<p>' + esc(x.oque) + '</p>' : '') +
+      '<p style="color:var(--muted);font-size:.9rem;margin-top:8px">' + [x.pedido_min ? 'Pedido mínimo: ' + x.pedido_min : '', x.envia ? 'Envio: ' + x.envia : '', x.pagamento ? 'Pagamento: ' + x.pagamento : ''].filter(Boolean).map(esc).join(' · ') + '</p>' +
+      '<div class="acoes"><a class="wa" href="https://wa.me/' + esc(x.whatsapp) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener" onclick="rpc(\'club_clique\',{p_whatsapp:WA,p_fornecedor:' + x.id + '}).catch(function(){})">Chamar no WhatsApp</a>' +
+      (x.instagram ? '<a href="https://instagram.com/' + esc(String(x.instagram).replace('@', '')) + '" target="_blank" rel="noopener">Instagram</a>' : '') + '</div></div>';
+  });
+  return h;
+}
+
+function sair() { ls('kit_wa', null); WA = null; D = null; $('area').hidden = true; $('cad').hidden = false; }
+
+(function () {
+  var q = new URLSearchParams(location.search).get('w'); if (q) { ls('kit_wa', q); history.replaceState(null, '', location.pathname); }
+  var w = q || ls('kit_wa'); if (w) abrir(w).catch(function () { ls('kit_wa', null); $('cad').hidden = false; $('area').hidden = true; });
+})();
 </script>
 </body></html>

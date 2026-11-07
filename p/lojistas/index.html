@@ -90,6 +90,13 @@ label { display:grid; gap:4px; font-weight:600; font-size:.88rem; }
   </div>
 
   <div class="box">
+    <h2>Fornecedores de confiança</h2>
+    <p>Aparecem no Club só para lojista aprovado, com o botão do WhatsApp já dizendo "vim pela indicação da SP Grifes". O número ao lado mostra quantas vezes chamaram cada um.</p>
+    <div id="forn"></div>
+    <button class="b" onclick="novoF()" style="margin-top:8px">+ Fornecedor</button>
+  </div>
+
+  <div class="box">
     <h2>Pauta da semana do grupo</h2>
     <p>Chega toda segunda: ideias para o consumidor e para o lojista.</p>
     <div id="pautas"></div>
@@ -110,18 +117,30 @@ label { display:grid; gap:4px; font-weight:600; font-size:.88rem; }
   <label>Observação <div class="row"><textarea name="obs" id="obs" rows="2" placeholder="Ex.: compra grade de polo todo mês"></textarea><button type="button" class="mic" onclick="falar('obs', this)" aria-label="Falar">🎤</button></div></label>
   <div class="row"><button type="button" class="b l" onclick="dlg.close()">Cancelar</button><button class="b">Salvar</button></div>
 </form></dialog>
+<dialog id="dlgF"><form method="dialog" onsubmit="salvarF(event)">
+  <h2 style="margin:0;font:900 1.2rem var(--display)">Fornecedor</h2>
+  <label>Categoria <input name="categoria" required list="cats" placeholder="Ex.: Relógios"></label>
+  <datalist id="cats"><option>Relógios</option><option>Óculos</option><option>Bonés</option><option>Perfumes</option><option>Calçados</option><option>Cuecas e meias</option><option>Bolsas e mochilas</option><option>Embalagens e sacolas</option><option>Etiquetas e tags</option><option>Cabides e araras</option><option>Fotógrafo</option><option>Gráfica</option></datalist>
+  <label>Nome <input name="nome" required></label>
+  <label>O que vende <div class="row"><textarea name="oque" id="fOque" rows="2"></textarea><button type="button" class="mic" onclick="falar('fOque', this)" aria-label="Falar">🎤</button></div></label>
+  <div class="row"><label>Pedido mínimo <input name="pedido_min"></label><label>Envio <input name="envia" placeholder="Todo o Brasil"></label></div>
+  <label>Pagamento <input name="pagamento" placeholder="Pix, cartão…"></label>
+  <div class="row"><label>WhatsApp <input name="whatsapp" required inputmode="tel"></label><label>Instagram <input name="instagram"></label></div>
+  <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="ativo" style="width:auto" checked> Aparece no Club</label>
+  <div class="row"><button type="button" class="b l" onclick="dlgF.close()">Cancelar</button><button class="b">Salvar</button></div>
+</form></dialog>
 <div class="toast" id="toast"></div>
 
 <script>
 var SB = 'https://hkhbyeygzfdhwxsdgaxl.supabase.co', KEY = 'sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1';
-var SENHA = '', L = [], P = [], F = 'todos', EDIT = null, dlg = document.getElementById('dlg');
+var FO = [], EDF = null, dlgF = null, SENHA = '', L = [], P = [], F = 'todos', EDIT = null, dlg = document.getElementById('dlg');
 function rpc(fn, body) { return fetch(SB + '/rest/v1/rpc/' + fn, { method:'POST', headers:{ apikey:KEY, Authorization:'Bearer ' + KEY, 'Content-Type':'application/json' }, body:JSON.stringify(body) })
   .then(function (r) { return r.text().then(function (t) { if (!r.ok) throw new Error(t); return t ? JSON.parse(t) : null; }); }); }
 function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
 function toast(t) { var e = document.getElementById('toast'); e.textContent = t; e.classList.add('on'); setTimeout(function () { e.classList.remove('on'); }, 1800); }
 
-function carregar() { return rpc('lojistas_listar', { senha:SENHA }).then(function (d) { L = d.lojistas || []; P = d.pautas || []; document.getElementById('link').value = d.grupo || ''; desenhar(); }); }
+function carregar() { return rpc('lojistas_listar', { senha:SENHA }).then(function (d) { L = d.lojistas || []; P = d.pautas || []; FO = d.fornecedores || []; document.getElementById('link').value = d.grupo || ''; desenhar(); desenharF(); }); }
 function entrar(ev) { ev.preventDefault(); SENHA = document.getElementById('senha').value;
   carregar().then(function () { ls('lj_senha', SENHA); document.getElementById('lock').hidden = true; document.getElementById('app').hidden = false; })
   .catch(function (x) { document.getElementById('err').textContent = String(x.message).indexOf('senha') >= 0 ? 'Senha errada.' : 'Sem internet. Tente de novo.'; }); }
@@ -143,7 +162,7 @@ function desenhar() {
     var st = '<span class="tag st-' + esc(l.status) + '">' + (STN[l.status] || 'Em análise') + (l.nota != null ? ' · nota ' + l.nota : '') + '</span>';
     return '<div class="lj"><div class="n">' + esc(l.nome) + (l.loja ? ' · ' + esc(l.loja) : '') + '</div>' +
       '<div class="m">' + st + at + esc([l.cidade, l.uf].filter(Boolean).join('/')) + (l.tipo ? ' · ' + esc(l.tipo) : '') + ig + '</div>' +
-      (l.interesse ? '<div class="m">Vende mais: ' + esc(l.interesse) + '</div>' : '') + (l.obs ? '<div class="m">Obs.: ' + esc(l.obs) + '</div>' : '') + (l.motivo ? '<div class="m">Análise: ' + esc(l.motivo) + '</div>' : '') +
+      (l.interesse ? '<div class="m">Vende mais: ' + esc(l.interesse) + '</div>' : '') + (l.nivel ? '<div class="m">Nível: ' + (l.nivel === 'iniciante' ? 'Começando agora' : 'Já na estrada') + (l.tempo_vende ? ' (' + esc(l.tempo_vende) + ')' : '') + (l.dificuldade ? ' · Dificuldade: ' + esc(l.dificuldade) : '') + '</div>' : '') + (l.obs ? '<div class="m">Obs.: ' + esc(l.obs) + '</div>' : '') + (l.motivo ? '<div class="m">Análise: ' + esc(l.motivo) + '</div>' : '') +
       '<div class="m">' + (l.origem === 'manual' ? 'Cadastrado pela equipe' : 'Veio pelo Club') + ' em ' + new Date(l.criado).toLocaleDateString('pt-BR') + (l.acessos ? ' · abriu o Club ' + l.acessos + 'x' : '') + '</div>' +
       '<div class="row"><a class="wa" href="#" onclick="return enviar(' + l.id + ')">Enviar no WhatsApp</a><button onclick="editar(' + l.id + ')">Editar</button>' + (l.status !== 'aprovado' ? '<button onclick="mudar(' + l.id + ',\'aprovado\')">Aprovar</button>' : '') + (l.status !== 'negado' ? '<button onclick="mudar(' + l.id + ',\'negado\')">Negar</button>' : '') + (l.status !== 'bloqueado' ? '<button onclick="mudar(' + l.id + ',\'bloqueado\')">Bloquear</button>' : '') + '</div></div>';
   }).join('') : '<p style="color:var(--muted)">Nenhum lojista aqui ainda.</p>';
@@ -166,6 +185,18 @@ function salvar(ev) { ev.preventDefault(); var f = ev.target;
   rpc('lojista_salvar', { senha:SENHA, p_id:EDIT, p_nome:f.nome.value, p_whatsapp:f.whatsapp.value, p_cidade:f.cidade.value, p_uf:f.uf.value, p_loja:f.loja.value,
     p_instagram:f.instagram.value, p_tipo:f.tipo.value, p_atacado:f.atacado.value, p_obs:f.obs.value })
   .then(function () { dlg.close(); toast('Salvo'); return carregar(); }).catch(function () { toast('Confira o WhatsApp com DDD'); }); }
+function desenharF() {
+  document.getElementById('forn').innerHTML = FO.length ? FO.map(function (f) {
+    return '<div class="lj"><div class="n">' + esc(f.nome) + ' · ' + esc(f.categoria) + (f.ativo ? '' : ' (escondido)') + '</div><div class="m">' + esc(f.oque || '') + '</div><div class="m">' + f.cliques + ' lojista(s) chamaram</div><div class="row"><button onclick="editarF(' + f.id + ')">Editar</button></div></div>';
+  }).join('') : '<p>Nenhum fornecedor ainda.</p>';
+}
+function novoF() { dlgF = dlgF || document.getElementById('dlgF'); EDF = null; dlgF.querySelector('form').reset(); dlgF.showModal(); }
+function editarF(id) { dlgF = dlgF || document.getElementById('dlgF'); var f = FO.filter(function (x) { return x.id === id; })[0], fm = dlgF.querySelector('form'); EDF = id;
+  ['categoria','nome','oque','pedido_min','envia','pagamento','whatsapp','instagram'].forEach(function (k) { fm[k].value = f[k] || ''; }); fm.ativo.checked = !!f.ativo; dlgF.showModal(); }
+function salvarF(ev) { ev.preventDefault(); var f = ev.target;
+  rpc('fornecedor_salvar', { senha:SENHA, p_id:EDF, p_categoria:f.categoria.value, p_nome:f.nome.value, p_oque:f.oque.value, p_pedido_min:f.pedido_min.value, p_envia:f.envia.value,
+    p_pagamento:f.pagamento.value, p_whatsapp:f.whatsapp.value, p_instagram:f.instagram.value, p_ativo:f.ativo.checked })
+  .then(function () { dlgF.close(); toast('Fornecedor salvo'); return carregar(); }).catch(function () { toast('Confira os dados'); }); }
 function salvarLink() { rpc('kit_config_salvar', { senha:SENHA, p_link:document.getElementById('link').value }).then(function () { toast('Link salvo'); }); }
 function csv() {
   var c = ['nome','whatsapp','loja','cidade','uf','instagram','tipo','compra_atacado','interesse','obs','origem','criado'];
