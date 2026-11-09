@@ -84,6 +84,16 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offse
 .alerts{display:flex;flex-direction:column;gap:6px}
 .alert{display:flex;justify-content:space-between;gap:8px;align-items:center;background:var(--late-soft);color:var(--late);border:0;border-radius:10px;padding:10px 12px;font-weight:600;font-size:14px;text-align:left;width:100%}
 .alert.soon{background:var(--warn-soft);color:var(--warn)}
+button.alert{font:inherit;font-weight:600;font-size:14px;cursor:pointer}
+button.alert:hover{filter:brightness(.97)}
+.alert.sem{background:var(--surface,#f6f5f1);color:var(--muted,#6f6a5e);font-weight:500;font-size:13px}
+.alert .av{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.alert .chv{font-style:normal;transition:transform .2s;display:inline-block}
+.alert[aria-expanded="true"] .chv{transform:rotate(180deg)}
+.alert[aria-expanded="true"]{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.alist{border:2px solid var(--late-soft);border-top:0;border-radius:0 0 10px 10px;padding:0 10px;margin-top:-6px}
+.alist.soon{border-color:var(--warn-soft)}
+.alist.sem{border-color:var(--line,#e7e4dc)}
 .seg{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--surface);border-radius:12px;padding:4px;gap:4px}
 .seg button{border:0;background:none;border-radius:9px;padding:8px 4px;font-weight:600;font-size:14px;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--bg);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.08)}
@@ -337,6 +347,7 @@ let view=ls.get('cp_view','geral');      // geral | cal | icloud | P|<área> | E
 let tipo=ls.get('cp_tipo2','todas');
 let mes=ym(today);
 let diaSel=null;
+let alertaAberto=null;
 let abertos;try{abertos=JSON.parse(ls.get('cp_menu','{"Pessoal":true,"Empresa":true}'))}catch(e){abertos={Pessoal:true,Empresa:true}}
 
 function noMes(r){
@@ -392,10 +403,15 @@ function totalsCard(lista,alertas=true){
   const pagas=lista.filter(r=>r.status==='paga'),falta=lista.filter(r=>r.status!=='paga');
   const tot=S(lista),pg=S(pagas);
   const late=falta.filter(r=>estado(r)[0]==='late'),soon=falta.filter(r=>estado(r)[0]==='soon');
-  const sem=falta.filter(r=>r.valor==null).length;
+  const sem=falta.filter(r=>r.valor==null);
   return `<div class="card"><div class="totals"><div><span>Total do mês</span><b>${brl(tot)}</b></div><div class="ok"><span>Pago</span><b>${brl(pg)}</b></div><div><span>Falta pagar</span><b>${brl(S(falta))}</b></div></div>
     <div class="bar"><i style="width:${tot?Math.round(pg/tot*100):0}%"></i></div>
-    ${alertas?`<div class="alerts">${late.length?`<div class="alert"><span>${late.length} ${late.length>1?'contas atrasadas':'conta atrasada'}</span><span>${brl(S(late))}${plus(late)}</span></div>`:''}${soon.length?`<div class="alert soon"><span>${soon.length} vence${soon.length>1?'m':''} nos próximos 7 dias</span><span>${brl(S(soon))}${plus(soon)}</span></div>`:''}${sem?`<p class="empty" style="padding:0;font-size:12px">+ ${sem} conta${sem>1?'s':''} ainda sem valor (ver boleto)</p>`:''}</div>`:''}</div>`;
+    ${alertas?`<div class="alerts">${blocoAlerta('late','',`${late.length} ${late.length>1?'contas atrasadas':'conta atrasada'}`,late)}${blocoAlerta('soon','soon',`${soon.length} vence${soon.length>1?'m':''} nos próximos 7 dias`,soon)}${blocoAlerta('sem','sem',`+ ${sem.length} conta${sem.length>1?'s':''} ainda sem valor (ver boleto)`,sem,true)}</div>`:''}</div>`;
+}
+function blocoAlerta(k,cls,label,arr,semValor){
+  if(!arr.length)return '';
+  const ab=alertaAberto===k;
+  return `<button class="alert ${cls}" data-alerta="${k}" aria-expanded="${ab}"><span>${label}</span><span class="av">${semValor?'':brl(S(arr))+plus(arr)}<i class="chv">▾</i></span></button>${ab?`<div class="alist ${cls}">${itemsHtml(ordenar([...arr]),false)}</div>`:''}`;
 }
 function itemsHtml(its,agrupar=true){
   if(!its.length)return '';
@@ -576,11 +592,12 @@ function render(){
 let toastT=null;
 function toast(msg,undo){const t=document.getElementById('toast');t.innerHTML=`<span>${esc(msg)}</span>`+(undo?`<button data-volta="${esc(undo)}">Desfazer</button>`:'');t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,6000)}
 function nextDue(dia){let y=today.getFullYear(),m=today.getMonth();const mk=(y,m)=>new Date(y,m,Math.min(dia,new Date(y,m+1,0).getDate()));let d=mk(y,m);if(d<today){m++;if(m>11){m=0;y++}d=mk(y,m)}return iso(d)}
-function irPara(v){view=v;ls.set('cp_view',v);editing=null;diaSel=v==='cal'?diaSel:null;setMenu(false);render();window.scrollTo({top:0})}
+function irPara(v){view=v;alertaAberto=null;ls.set('cp_view',v);editing=null;diaSel=v==='cal'?diaSel:null;setMenu(false);render();window.scrollTo({top:0})}
 
 document.addEventListener('click',async e=>{
   const T=s=>e.target.closest(s);let b;
   if(b=T('[data-ob]')){b.classList.toggle('full');return}
+  if(b=T('[data-alerta]')){const k=b.dataset.alerta;alertaAberto=alertaAberto===k?null:k;render();return}
   if(b=T('[data-menu]')){setMenu(b.dataset.menu==='1');return}
   if(b=T('[data-grp]')){const g=b.dataset.grp;abertos[g]=!abertos[g];ls.set('cp_menu',JSON.stringify(abertos));renderNav();return}
   if(b=T('[data-view]')){irPara(b.dataset.view);return}
