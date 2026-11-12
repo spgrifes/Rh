@@ -337,6 +337,11 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
 .rg .bt{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
 .rg .bt button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 11px;font-size:.78rem;font-weight:700;color:var(--ink)}
 .rg .bt .del{color:var(--red)}
+.fx{display:grid;gap:10px}.fx h4{margin:4px 0 2px;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--soft)}
+.fx .ln{display:flex;justify-content:space-between;gap:10px;font-size:.9rem;border-bottom:1px dashed var(--line);padding:3px 0}.fx .ln span:first-child{color:var(--soft)}.fx .ln b{text-align:right;word-break:break-all}
+.fx .mk{font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em}
+.fx .olho{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:3px 10px;font-size:.74rem;font-weight:700;margin-left:6px}
+.fx .falta{color:var(--amber);font-weight:700}
 .mat{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:14px}
 .mat table{font-size:.84rem}
 .mat th{font-size:.7rem;text-transform:uppercase;color:var(--soft);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -404,6 +409,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <button type="button" data-tab="agenda" aria-pressed="false">Agenda de pagamentos</button>
     <button type="button" data-tab="totais" aria-pressed="false">Totais</button>
     <button type="button" data-tab="equipe" aria-pressed="false">Equipe</button>
+    <button type="button" data-tab="ficha" aria-pressed="false">Ficha do Funcionário</button>
     <button type="button" data-tab="comissoes" aria-pressed="false">Comissões</button>
     <button type="button" data-tab="avaliacoes" aria-pressed="false">Avaliações do Google</button>
     <button type="button" data-tab="pagamentos" data-grupo="salario bonus comissaopg vt adiant vales descmerc" aria-pressed="false">Pagamentos</button>
@@ -619,7 +625,7 @@ function renderFicha(){const pg=$('fpg'); const e=fichaId&&(D.EQUIPE_ALL||D.EQUI
    ${DESL[e.id]?`<div class="dsl-ban">Desligado(a) · último dia ${dBR(DESL[e.id].d.ultimo)} · ${esc(DESL[e.id].d.motivo)}${DESL[e.id].d.obs?' · '+esc(DESL[e.id].d.obs):''}</div>`:''}
    <div class="card fcab">${fichaTopo(e)}<div class="money"><div class="a num">${e.sal?F(e.sal):'—'}</div><div class="b">salário</div></div></div>
    <div class="card fcorpo"><div class="dos">${alertasDe(e).map(a=>`<div class="al alto" style="color:#fff;border-radius:12px"><div class="t"><div class="q">Alerta</div><div class="x">${esc(a.texto)}</div></div></div>`).join('')}
-    ${g('dados','Dados','dados')}${g('din','Dinheiro do mês','money3')}${valesFicha(e)}${g('saude','Saúde','saude')}${contaHTML(e)}${obsHTML(e)}${desligHTML(e)}</div></div>
+    ${g('dados','Dados','dados')}${g('din','Dinheiro do mês','money3')}${valesFicha(e)}${fichaBlk(e)}${g('saude','Saúde','saude')}${contaHTML(e)}${obsHTML(e)}${desligHTML(e)}</div></div>
    <button type="button" class="fvolta" data-volta="1">‹ Voltar para todos</button>`;
   if(tx)$('obstx').value=tx;
   pg.hidden=false;document.querySelectorAll('[data-sec]').forEach(el=>el.hidden=true);return true;}
@@ -915,6 +921,14 @@ const OBRIG=['Contrato / ficha de registro','Documentos pessoais (RG, CPF, CTPS)
 const VTIPOS=['Vale em dinheiro','Compra na loja','Outro'];
 const valNum=v=>{const t=String(v??'').trim();if(!t)return 0;return Number(t.includes(',')?t.replace(/\./g,'').replace(',','.'):t)||0;};
 const TIPOS={
+ ficha:{tipo:'ficha',titulo:'Ficha do Funcionário',intro:'Dados de pagamento e contato de emergência de cada funcionário. O CPF e a chave Pix ficam escondidos: toque em "Mostrar" para ver (escondem sozinhos depois de 20 segundos). Só você e a Taine veem esta área.',law:'Dados pessoais e bancários são protegidos pela LGPD: use só para pagar o funcionário e falar com a família numa urgência. Atualize sempre que mudar.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'nome',l:'Nome completo',t:'text'},{k:'cpf',l:'CPF',t:'text'},{k:'cargo',l:'Cargo / função',t:'text'},
+     {k:'pixtipo',l:'Tipo da chave Pix',t:'select',o:['CPF','Celular','E-mail','Aleatória']},{k:'pix',l:'Chave Pix',t:'text'},{k:'pixnome',l:'Nome que aparece no Pix',t:'text'},
+     {k:'forma',l:'Forma preferida de receber',t:'select',o:['Pix','Transferência','Espécie (dinheiro)']},
+     {k:'em1nome',l:'Contato de emergência: nome',t:'text'},{k:'em1par',l:'Parentesco',t:'text'},{k:'em1tel',l:'Telefone / WhatsApp de urgência',t:'tel'},
+     {k:'em2nome',l:'Segundo contato: nome',t:'text'},{k:'em2par',l:'Segundo contato: parentesco',t:'text'},{k:'em2tel',l:'Segundo contato: telefone',t:'tel'},
+     {k:'obs',l:'Observações',t:'textarea'}],
+   linha:r=>[]},
  salario:{grupo:'pagamentos',tipo:'salario',titulo:'Salário',intro:'Pagamento do salário de cada funcionário. Lance quando pagar, com a forma (Pix, dinheiro) e, se tiver, a foto do recibo.',law:'Salário pago até o 5º dia útil do mês seguinte. Guarde o recibo ou comprovante do Pix.',
    campos:[{k:'func',l:'Funcionário',t:'func'},{k:'ref',l:'Mês de referência',t:'month'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'data',l:'Data do pagamento',t:'date'},{k:'forma',l:'Forma',t:'select',o:['Pix','Dinheiro','Transferência','Cartão']},{k:'obs',l:'Observação',t:'textarea'},{k:'arqs',l:'Recibo / comprovante',t:'file'}],
    linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+(r.d.data?' · pago em '+dBR(r.d.data):'')+(r.d.forma?' · '+r.d.forma:''),r.d.ref?'ref. '+r.d.ref.split('-').reverse().join('/'):'',r.d.obs]},
@@ -966,18 +980,38 @@ const TIPOS={
 };
 function optsFunc(sel,vazio){return `<option value="">${vazio||'Escolha'}</option>`+D.EQUIPE.map(e=>`<option value="${e.id}" ${sel===e.id?'selected':''}>${esc(e.nome)}</option>`).join('');}
 function formHTML(cfg,r){
-  const d=r?r.d:{}, f=r?r.func:'';
+  let d=r?r.d:{}, f=r?r.func:'';
+  if(!r&&cfg.tipo==='ficha'&&regPre){f=regPre;const e=(D.EQUIPE_ALL||D.EQUIPE).find(x=>x.id===regPre)||{};d={nome:e.completo||e.nome||'',cargo:e.funcao||''};}
   const c=cfg.campos.map(c=>{const v=d[c.k]??'';
     if(c.t==='func')return `<label>${c.l}<select data-k="func">${optsFunc(f,cfg.tipo==='despesa'?'Não sei / geral':'Geral / ninguém')}</select></label>`;
     if(c.t==='select')return `<label>${c.l}<select data-k="${c.k}">${c.o.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
     if(c.t==='textarea')return `<label style="grid-column:1/-1">${c.l}<textarea data-k="${c.k}" rows="2" placeholder="Pode ditar pelo microfone do teclado">${esc(v)}</textarea></label>`;
     if(c.t==='check')return `<div style="grid-column:1/-1"><div style="font-size:.8rem;font-weight:700;color:var(--soft);margin-bottom:4px">${c.l}</div><div class="chk">${c.o.map(o=>`<label><input type="checkbox" data-ck="${esc(o)}" ${(d.check||[]).includes(o)?'checked':''}>${esc(o)}</label>`).join('')}</div></div>`;
     if(c.t==='file')return `<label style="grid-column:1/-1">${c.l}<input type="file" id="arq" accept="image/*,application/pdf" multiple>${(d.arqs||[]).length?`<span style="font-weight:500">${d.arqs.length} arquivo(s) já guardado(s)</span>`:''}</label>`;
-    return `<label>${c.l}<input type="${c.t==='money'?'text':c.t}" data-k="${c.k}" value="${esc(v)}" ${c.t==='number'?'step="0.5" inputmode="decimal"':''}${c.t==='money'?'inputmode="decimal" placeholder="0,00"':''}></label>`;}).join('');
+    return `<label>${c.l}<input type="${c.t==='money'?'text':c.t}" ${c.t==='tel'?'inputmode="tel" placeholder="(11) 90000-0000"':''} data-k="${c.k}" value="${esc(v)}" ${c.t==='number'?'step="0.5" inputmode="decimal"':''}${c.t==='money'?'inputmode="decimal" placeholder="0,00"':''}></label>`;}).join('');
   return `<div class="frm"><b>${r?'Editar registro':'Novo registro'} · ${cfg.titulo}</b><div class="row">${c}</div>
    <div class="acts"><button type="button" class="btn" id="rsave">${r?'Salvar alterações':'Salvar'}</button><button type="button" class="btn sec2" id="rcancel">Cancelar</button><span class="sy2" id="rst"></span></div></div>`;
 }
 const ehDe=(r,cfg)=>cfg.filtra?cfg.filtra(r):r.tipo===cfg.tipo;
+let regPre='', fxVer={};
+const fichaDe=id=>REGS.filter(r=>r.tipo==='ficha'&&r.func===id).sort((a,b)=>String(b.ae||b.ce).localeCompare(String(a.ae||a.ce)))[0];
+const FX_OBR=['nome','cpf','cargo','pix','pixnome','forma','em1nome','em1par','em1tel'];
+function fxMask(v){v=String(v||'');if(!v)return '';const d=v.replace(/\D/g,'');
+  if(/^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/.test(v.trim()))return '•••.'+d.slice(3,6)+'.•••-••';
+  if(v.includes('@')){const [a,b]=v.split('@');return a.slice(0,2)+'•••@'+b;}
+  if(v.length<=6)return '•'.repeat(v.length);return v.slice(0,2)+'•'.repeat(Math.min(10,v.length-5))+v.slice(-3);}
+function fxSec(r,k){const v=r.d[k];if(!v)return '<span class="falta">falta</span>';const id=r.id+'_'+k;
+  return `<span style="display:flex;align-items:center;gap:4px">`+(fxVer[id]?`<b>${esc(v)}</b><button type="button" class="olho" data-fxver="${id}">Esconder</button>`:`<b class="mk">${esc(fxMask(v))}</b><button type="button" class="olho" data-fxver="${id}">Mostrar</button>`)+'</span>';}
+function fichaCorpo(r){const d=r.d,ln=(l,v)=>`<div class="ln"><span>${l}</span>${v==null?'':v}</div>`,t=v=>v?`<b>${esc(v)}</b>`:'<span class="falta">falta</span>';
+  const tel=v=>v?`<b><a href="https://wa.me/55${String(v).replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'')}" target="_blank" rel="noopener">${esc(v)}</a></b>`:'<span class="falta">falta</span>';
+  return `<div class="fx"><h4>1. Identificação</h4>${ln('Nome completo',t(d.nome))}${ln('CPF',fxSec(r,'cpf'))}${ln('Cargo / função',t(d.cargo))}
+   <h4>2. Pix</h4>${ln('Tipo da chave',t(d.pixtipo))}${ln('Chave Pix',fxSec(r,'pix'))}${ln('Nome que aparece no Pix',t(d.pixnome))}
+   <h4>3. Controle</h4>${ln('Forma preferida de receber',t(d.forma))}${ln('Cadastrado em',`<b>${new Date(r.ce).toLocaleDateString('pt-BR')}</b>`)}${ln('Última atualização',`<b>${new Date(r.ae||r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}${r.ap?' · '+esc(r.ap):''}</b>`)}${d.obs?ln('Observações',`<b>${esc(d.obs)}</b>`):''}
+   <h4>4. Contato de emergência</h4>${ln('Nome do familiar',t(d.em1nome))}${ln('Parentesco',t(d.em1par))}${ln('Telefone / WhatsApp',tel(d.em1tel))}
+   ${d.em2nome||d.em2tel?ln('Segundo contato',`<b>${esc([d.em2nome,d.em2par].filter(Boolean).join(' · '))}</b>`)+ln('Telefone do 2º contato',tel(d.em2tel)):ln('Segundo contato','<span style="color:var(--soft)">não informado</span>')}</div>`;}
+function fichaBlk(e){const r=fichaDe(e.id);
+  return `<div class="blk"><h3>Ficha do Funcionário</h3>${r?fichaCorpo(r):'<div class="t2" style="color:var(--soft)">Ainda sem dados de Pix e contato de emergência.</div>'}
+   <div class="acts" style="margin-top:10px"><button type="button" class="btn${r?' sec2':''}" data-fxed="${e.id}">${r?'Editar ficha':'Adicionar ficha'}</button></div></div>`;}
 function regsDe(cfg){return REGS.filter(r=>ehDe(r,cfg)&&(regFunc==='todos'||r.func===regFunc));}
 function extraTopo(t){
   if(t==='documentos'){
@@ -985,6 +1019,10 @@ function extraTopo(t){
       const hol=ds.some(r=>r.d.cat==='Holerite do mês'&&(r.d.ref||'')===mesYM())||ds.some(r=>r.d.cat==='Recibo de pagamento (Pix ou dinheiro)'&&(r.d.ref||'')===mesYM());
       return `<tr><td><b>${esc(e.nome)}</b></td>${OBRIG.map(c=>`<td class="${tem(c)?'ok2':'no2'}">${tem(c)?'✓':'✗'}</td>`).join('')}<td class="${hol?'ok2':'no2'}">${hol?'✓':'✗'}</td><td>${ds.length}</td></tr>`;}).join('');
     return `<div class="mat"><table><tr><th>Funcionário</th><th>Contrato</th><th>Documentos</th><th>Exame</th><th>Termo VT</th><th>Holerite/recibo do mês</th><th>Total</th></tr>${rows}</table></div>`;}
+  if(t==='ficha'){
+    const rows=D.EQUIPE.map(e=>{const r=fichaDe(e.id);const f=r?FX_OBR.filter(k=>!r.d[k]).length:FX_OBR.length;
+      return `<tr><td><b>${esc(e.nome)}</b></td><td class="${r&&r.d.pix?'ok2':'no2'}">${r&&r.d.pix?'✓':'✗'}</td><td class="${r&&r.d.em1tel?'ok2':'no2'}">${r&&r.d.em1tel?'✓':'✗'}</td><td>${r?(r.d.forma||'—'):'—'}</td><td class="${f?'no2':'ok2'}">${f?f+' faltando':'completa'}</td><td>${r?`<button type="button" class="olho" data-fxed="${e.id}" style="border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-weight:700;background:var(--card)">Editar</button>`:`<button type="button" data-fxed="${e.id}" style="border:0;border-radius:999px;padding:4px 10px;font-weight:700;background:var(--blue,#2563eb);color:#fff">Adicionar</button>`}</td></tr>`;}).join('');
+    return `<div class="mat"><table><tr><th>Funcionário</th><th>Pix</th><th>Emergência</th><th>Recebe por</th><th>Ficha</th><th></th></tr>${rows}</table></div>`;}
   if(t==='ponto'){
     const rows=D.EQUIPE.map(e=>{const mud=REGS.filter(r=>r.tipo==='ponto'&&r.func===e.id&&r.d.tipo==='Mudança de horário').sort((a,b)=>(b.d.data||'').localeCompare(a.d.data||''))[0];
       const he=REGS.filter(r=>r.tipo==='ponto'&&r.func===e.id&&r.d.tipo==='Hora extra'&&(r.d.data||'').slice(0,7)===mesYM()).reduce((s,r)=>s+Number(String(r.d.horas||0).replace(',','.')),0);
@@ -1033,6 +1071,7 @@ function renderReg(t){
    <div class="sel"><button type="button" class="btn" id="rnew">+ Novo registro</button><select id="rfil">${optsFunc(regFunc==='todos'?'':regFunc,'Todos os funcionários').replace('value=""','value="todos"')}</select></div>
    <div id="rform">${regEdit?formHTML(cfg,regEdit==='novo'?null:REGS.find(r=>r.id===regEdit)):''}</div>
    <div class="grid">${L.map(r=>{const ln=cfg.linha(r).filter(Boolean);
+     if(cfg.tipo==='ficha')return `<div class="rg"><div class="t1">${esc(nomeF(r.func))}</div>${fichaCorpo(r)}<div class="bt"><button type="button" data-redit="${r.id}">Editar</button><button type="button" class="del" data-rdel="${r.id}">Excluir</button></div></div>`;
      return `<div class="rg"><div class="h"><div><div class="t1">${esc(nomeF(r.func))}${r.d.nome?' · '+esc(r.d.nome):''}</div></div></div>
       ${ln.map((x,i)=>`<div class="${i?'t2':''}" ${i?'':'style="font-weight:700"'}>${esc(x)}</div>`).join('')}
       <div class="bt">${(r.d.arqs||[]).map((a,i)=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}${r.d.arqs.length>1?' '+(i+1):''}</button>`).join('')}<button type="button" data-redit="${r.id}">Editar</button><button type="button" class="del" data-rdel="${r.id}">Excluir</button></div>
@@ -1057,7 +1096,8 @@ async function subirArquivos(files,pasta){
   return out;
 }
 async function salvarReg(){
-  const cfg=TIPOS[aba], box=$('rform'), old=regEdit!=='novo'?REGS.find(r=>r.id===regEdit):null;
+  const cfg=TIPOS[aba], box=$('rform'); let old=regEdit!=='novo'?REGS.find(r=>r.id===regEdit):null;
+  if(!old&&cfg.tipo==='ficha'){const fs=box.querySelector('[data-k="func"]');if(!fs||!fs.value){$('rst').textContent='Escolha o funcionário.';return;}old=fichaDe(fs.value)||null;}
   const d=old?{...old.d}:{}; let func='';
   box.querySelectorAll('[data-k]').forEach(i=>{if(i.dataset.k==='func')func=i.value;else d[i.dataset.k]=i.value;});
   const cks=[...box.querySelectorAll('[data-ck]')]; if(cks.length)d.check=cks.filter(c=>c.checked).map(c=>c.dataset.ck);
@@ -1065,7 +1105,7 @@ async function salvarReg(){
   try{
     if(fi&&fi.files.length){$('rst').textContent='Enviando arquivo...';d.arqs=(d.arqs||[]).concat(await subirArquivos([...fi.files],cfg.tipo+'-'+(func||'geral')));}
     await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:old?old.id:null,p_tipo:old?old.tipo:cfg.tipo,p_func:func||null,p_dados:d});
-    regEdit=null;await carregar();render();toast('Registro salvo');
+    regEdit=null;regPre='';await carregar();render();toast(cfg.tipo==='ficha'?'Ficha salva':'Registro salvo');
   }catch(e){$('rst').textContent='Não salvou. Verifique a internet e tente de novo.';}
 }
 async function verArq(path){
@@ -1095,12 +1135,14 @@ async function salvarFunc(){
 }
 function abrirHist(){
   $('mtit').textContent='Histórico de alterações';
-  $('mbody').innerHTML=LOG.map(l=>`<div class="lg"><b>${esc(l.q||'')}</b> · ${new Date(l.w).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${esc(l.a||'')}${l.d?' · '+esc(l.d.slice(0,60)):''}</div>`).join('')||'<div class="lg">Nada ainda.</div>';
+  $('mbody').innerHTML=LOG.map(l=>`<div class="lg"><b>${esc(l.q||'')}</b> · ${new Date(l.w).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${esc(l.a||'')}${l.d&&!/ficha/.test(l.a||'')?' · '+esc(l.d.slice(0,60)):''}</div>`).join('')||'<div class="lg">Nada ainda.</div>';
   $('modal').hidden=false;
 }
 document.addEventListener('click',ev=>{
   const t=ev.target;
-  if(t.closest('#rnew')){regEdit='novo';renderReg(aba);$('rform').scrollIntoView({block:'center'});return;}
+  const fv=t.closest('[data-fxver]'); if(fv){const id=fv.dataset.fxver;fxVer[id]=!fxVer[id];if(fxVer[id])setTimeout(()=>{if(fxVer[id]){fxVer[id]=false;fichaId?render():(aba==='ficha'&&!regEdit&&renderReg('ficha'));}},20000);fichaId?render():renderReg(aba);return;}
+  const fxe=t.closest('[data-fxed]'); if(fxe){const id=fxe.dataset.fxed,r=fichaDe(id);trocarAba('ficha');regPre=id;regEdit=r?r.id:'novo';renderReg('ficha');$('rform').scrollIntoView({block:'center'});return;}
+  if(t.closest('#rnew')){regPre='';regEdit='novo';renderReg(aba);$('rform').scrollIntoView({block:'center'});return;}
   if(t.closest('#rcancel')){regEdit=null;renderReg(aba);return;}
   if(t.closest('#rsave')){salvarReg();return;}
   const re=t.closest('[data-redit]'); if(re){regEdit=re.dataset.redit;renderReg(aba);$('rform').scrollIntoView({block:'center'});return;}
