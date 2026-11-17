@@ -1074,12 +1074,25 @@ function renderReg(t){
    ${extraTopo(t)}
    <div class="sel"><button type="button" class="btn" id="rnew">+ Novo registro</button><select id="rfil">${optsFunc(regFunc==='todos'?'':regFunc,'Todos os funcionários').replace('value=""','value="todos"')}</select></div>
    <div id="rform">${regEdit?formHTML(cfg,regEdit==='novo'?null:REGS.find(r=>r.id===regEdit)):''}</div>
-   <div class="grid">${L.map(r=>{const ln=cfg.linha(r).filter(Boolean);
+   ${gridReg(cfg,L)}`;
+}
+function cardReg(cfg,r){const ln=cfg.linha(r).filter(Boolean);
      if(cfg.tipo==='ficha')return `<div class="rg"><div class="t1">${esc(nomeF(r.func))}</div>${fichaCorpo(r)}<div class="bt"><button type="button" data-redit="${r.id}">Editar</button><button type="button" class="del" data-rdel="${r.id}">Excluir</button></div></div>`;
      return `<div class="rg"><div class="h"><div><div class="t1">${esc(nomeF(r.func))}${r.d.nome?' · '+esc(r.d.nome):''}</div></div></div>
       ${ln.map((x,i)=>`<div class="${i?'t2':''}" ${i?'':'style="font-weight:700"'}>${esc(x)}</div>`).join('')}
       <div class="bt">${(r.d.arqs||[]).map((a,i)=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}${r.d.arqs.length>1?' '+(i+1):''}</button>`).join('')}<button type="button" data-redit="${r.id}">Editar</button><button type="button" class="del" data-rdel="${r.id}">Excluir</button></div>
-      <div class="by">${esc(r.cp||'')} · ${new Date(r.ce).toLocaleDateString('pt-BR')}${r.ap&&r.ae!==r.ce?` · editado por ${esc(r.ap)}`:''}</div></div>`}).join('')||'<div class="rg"><div class="t2">Nenhum registro ainda. Toque em "+ Novo registro".</div></div>'}</div>`;
+      <div class="by">${esc(r.cp||'')} · ${new Date(r.ce).toLocaleDateString('pt-BR')}${r.ap&&r.ae!==r.ce?` · editado por ${esc(r.ap)}`:''}</div></div>`}
+function gridReg(cfg,L){
+  const vazio='<div class="rg"><div class="t2">Nenhum registro ainda. Toque em "+ Novo registro".</div></div>';
+  if(cfg.tipo==='imposto'){
+    const pago=r=>r.d.st==='Pago';
+    const ap=L.filter(r=>!pago(r)).sort((x,y)=>(x.d.venc||'9999').localeCompare(y.d.venc||'9999'));
+    const hp=L.filter(pago).sort((x,y)=>(y.d.data||y.d.venc||'').localeCompare(x.d.data||x.d.venc||''));
+    const totAp=ap.reduce((n,r)=>n+(valNum(r.d.valor)||0),0), totHp=hp.reduce((n,r)=>n+(valNum(r.d.valor)||0),0);
+    return `<h3 style="margin:14px 0 6px">A pagar (${ap.length}) · ${F(totAp)||'R$ 0,00'}</h3><div class="grid">${ap.map(r=>cardReg(cfg,r)).join('')||'<div class="rg"><div class="t2">Nenhuma guia a pagar. Tudo em dia.</div></div>'}</div>
+    <h3 style="margin:22px 0 6px">Histórico de pagos (${hp.length}) · ${F(totHp)||'R$ 0,00'}</h3><div class="grid">${hp.map(r=>cardReg(cfg,r)).join('')||'<div class="rg"><div class="t2">Nenhuma guia paga ainda.</div></div>'}</div>`;
+  }
+  return `<div class="grid">${L.map(r=>cardReg(cfg,r)).join('')||vazio}</div>`;
 }
 async function salvarObs(fid){const tx=$('obstx').value.trim(), fi=$('obsarq');
   if(!tx&&!fi.files.length){$('obsst').textContent='Escreva algo ou anexe um arquivo.';return;}
