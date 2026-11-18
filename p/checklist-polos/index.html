@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Checklist diário — Polos SP Grifes</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;overflow-anchor:none}
+button{touch-action:manipulation;font-family:inherit}
 body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f6f5f2;color:#111}
 header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #e6e3dc;padding:12px 14px 10px}
 h1{margin:0;font-size:19px;letter-spacing:.2px}
@@ -22,8 +23,11 @@ h1{margin:0;font-size:19px;letter-spacing:.2px}
 main{padding:12px;display:grid;grid-template-columns:1fr;gap:14px;max-width:560px;margin:0 auto}
 .card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.08);border:3px solid transparent}
 .card.ok{border-color:#1fa34a}.card.no{border-color:#d93025}
-.ph{position:relative;background:#222}
-.ph img{display:block;width:100%;height:auto}
+.ph{position:relative;background:#222;aspect-ratio:1086/1448}
+.ph img{display:block;width:100%;height:100%;object-fit:cover}
+.card.hide{display:none}
+.clr{display:none;margin:0 10px 10px;border:0;background:none;color:#777;font-size:13px;text-decoration:underline;padding:4px}
+.card.ok .clr,.card.no .clr{display:block}
 .n{position:absolute;left:10px;top:10px;background:rgba(0,0,0,.72);color:#fff;font-weight:700;font-size:15px;padding:4px 11px;border-radius:20px}
 .st{position:absolute;right:10px;top:10px;font-weight:800;font-size:13px;padding:5px 11px;border-radius:20px;color:#fff;display:none}
 .card.ok .st{display:block;background:#1fa34a}.card.no .st{display:block;background:#d93025}
@@ -53,6 +57,7 @@ main{padding:12px;display:grid;grid-template-columns:1fr;gap:14px;max-width:560p
   <div class="tabs" id="tabs"></div>
 </header>
 <main id="list"></main>
+<div class="empty" id="vazio" style="display:none">Nenhuma peça aqui.</div>
 <section class="sum">
   <h2>Resumo para o CD</h2>
   <textarea id="txt" readonly></textarea>
@@ -65,6 +70,7 @@ const FOTOS = ["data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFB
 const hoje = new Date();
 const dia = hoje.toISOString().slice(0,10);
 const KEY = 'checklist-polos-' + dia;
+const total = FOTOS.length;
 let estado = {};
 let filtro = 'todas';
 try { estado = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e) { estado = {}; }
@@ -73,42 +79,51 @@ const nomes = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-f
 document.getElementById('data').textContent = nomes[hoje.getDay()] + ', ' + hoje.toLocaleDateString('pt-BR');
 const tabs = [['todas','Todas'],['falta','Faltam marcar'],['ok','Tenho'],['no','Não tenho']];
 const tabsEl = document.getElementById('tabs');
-tabs.forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;b.dataset.k=k;b.onclick=()=>{filtro=k;render();};tabsEl.appendChild(b);});
+tabs.forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;b.dataset.k=k;b.onclick=()=>{filtro=k;aplicarFiltro();window.scrollTo(0,0);};tabsEl.appendChild(b);});
 const list = document.getElementById('list');
-function render(){
-  const total = FOTOS.length;
-  let g=0,r=0;
-  for(let i=1;i<=total;i++){ if(estado[i]==='ok')g++; else if(estado[i]==='no')r++; }
+const cards = [];
+FOTOS.forEach((src,idx)=>{
+  const n=idx+1;
+  const c=document.createElement('div');
+  c.className='card';
+  c.innerHTML='<div class="ph"><img alt="Peça '+n+'" decoding="async"><span class="n">Peça '+n+'</span><span class="st"></span></div><div class="btns"><button class="yes">✔ TENHO</button><button class="nop">✖ NÃO TENHO</button></div><button class="clr">limpar marcação</button>';
+  const im=c.querySelector('img'); im.src=src;
+  im.onclick=()=>{document.getElementById('zimg').src=src;document.getElementById('zoom').classList.add('on');};
+  c.querySelector('.yes').onclick=()=>marcar(n,'ok');
+  c.querySelector('.nop').onclick=()=>marcar(n,'no');
+  c.querySelector('.clr').onclick=()=>marcar(n,'');
+  list.appendChild(c); cards.push(c);
+});
+function pintar(n){
+  const c=cards[n-1], s=estado[n]||'';
+  c.classList.toggle('ok',s==='ok');
+  c.classList.toggle('no',s==='no');
+  c.querySelector('.st').textContent = s==='ok'?'TEM':(s==='no'?'NÃO TEM':'');
+}
+function marcar(n,s){ if(s)estado[n]=s; else delete estado[n]; salvar(); pintar(n); contar(); }
+function contar(){
+  let g=0,r=0; const faltam=[],sem=[];
+  for(let i=1;i<=total;i++){ const s=estado[i]; if(s==='ok')g++; else if(s==='no'){r++;faltam.push(i);} else sem.push(i); }
   document.getElementById('cg').textContent = g+' tenho';
   document.getElementById('cr').textContent = r+' não tenho';
   document.getElementById('cf').textContent = (total-g-r)+' faltam';
   document.getElementById('bg').style.width = (g/total*100)+'%';
   document.getElementById('br').style.width = (r/total*100)+'%';
-  [...tabsEl.children].forEach(b=>b.classList.toggle('on',b.dataset.k===filtro));
-  list.innerHTML='';
-  let shown=0;
-  FOTOS.forEach((src,idx)=>{
-    const n=idx+1, s=estado[n]||'';
-    if(filtro==='falta' && s) return;
-    if(filtro==='ok' && s!=='ok') return;
-    if(filtro==='no' && s!=='no') return;
-    shown++;
-    const c=document.createElement('div');
-    c.className='card '+s;
-    c.innerHTML='<div class="ph"><img loading="lazy" alt="Peça '+n+'"><span class="n">Peça '+n+'</span><span class="st">'+(s==='ok'?'TEM':'NÃO TEM')+'</span></div><div class="btns"><button class="yes">✔ TENHO</button><button class="nop">✖ NÃO TENHO</button></div>';
-    const im=c.querySelector('img'); im.src=src; im.onclick=()=>{document.getElementById('zimg').src=src;document.getElementById('zoom').classList.add('on');};
-    c.querySelector('.yes').onclick=()=>{estado[n]=(estado[n]==='ok'?'':'ok');salvar();render();};
-    c.querySelector('.nop').onclick=()=>{estado[n]=(estado[n]==='no'?'':'no');salvar();render();};
-    list.appendChild(c);
-  });
-  if(!shown){const e=document.createElement('div');e.className='empty';e.textContent='Nenhuma peça aqui.';list.appendChild(e);}
-  const faltam=[],sem=[];
-  for(let i=1;i<=total;i++){ if(estado[i]==='no')faltam.push(i); else if(!estado[i])sem.push(i); }
   let t='*Conferência de polos — '+hoje.toLocaleDateString('pt-BR')+'*\n\n';
   if(faltam.length){ t+='*Trazer do CD ('+faltam.length+' peças):*\n'+faltam.map(i=>'Peça '+i).join(', ')+'\n\n'; } else { t+='Nenhuma peça faltando até agora.\n\n'; }
   t+='Tenho para vender: '+g+'\n';
   if(sem.length) t+='Ainda não conferi: '+sem.length+'\n';
   document.getElementById('txt').value=t;
+}
+function aplicarFiltro(){
+  [...tabsEl.children].forEach(b=>b.classList.toggle('on',b.dataset.k===filtro));
+  let shown=0;
+  cards.forEach((c,i)=>{
+    const s=estado[i+1]||'';
+    const ver = filtro==='todas' || (filtro==='falta'&&!s) || (filtro==='ok'&&s==='ok') || (filtro==='no'&&s==='no');
+    c.classList.toggle('hide',!ver); if(ver)shown++;
+  });
+  document.getElementById('vazio').style.display = shown?'none':'block';
 }
 document.getElementById('zoom').onclick=()=>document.getElementById('zoom').classList.remove('on');
 document.getElementById('copy').onclick=async()=>{
@@ -118,10 +133,10 @@ document.getElementById('copy').onclick=async()=>{
 };
 document.getElementById('reset').onclick=()=>{
   const b=document.getElementById('reset');
-  if(b.dataset.c){estado={};salvar();delete b.dataset.c;b.textContent='Zerar para amanhã';render();window.scrollTo(0,0);}
+  if(b.dataset.c){estado={};salvar();cards.forEach((_,i)=>pintar(i+1));contar();aplicarFiltro();delete b.dataset.c;b.textContent='Zerar para amanhã';window.scrollTo(0,0);}
   else{b.dataset.c=1;b.textContent='Toque de novo para zerar';setTimeout(()=>{delete b.dataset.c;b.textContent='Zerar para amanhã';},4000);}
 };
-render();
+cards.forEach((_,i)=>pintar(i+1)); contar(); aplicarFiltro();
 </script>
 </body>
 </html>
