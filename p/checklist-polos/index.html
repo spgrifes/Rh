@@ -44,7 +44,8 @@ main{padding:12px;display:grid;grid-template-columns:1fr;gap:14px;max-width:560p
 .hint{font-size:12.5px;color:#777;margin-top:8px;line-height:1.4}
 .empty{text-align:center;color:#777;padding:30px 10px}
 #limpar{display:block;width:calc(100% - 24px);max-width:536px;margin:12px auto 0;border:0;border-radius:14px;background:#111;color:#fff;font-size:17px;font-weight:800;padding:17px 10px}
-#limpar.conf{background:#d93025}
+#limpar.conf,.limpar2.conf{background:#d93025}
+.limpar2{display:block;width:100%;margin-top:12px;border:0;border-radius:12px;background:#111;color:#fff;font-size:16px;font-weight:800;padding:16px}
 .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
 .mini div{position:relative;border-radius:10px;overflow:hidden;background:#222;aspect-ratio:1086/1448}
 .mini img{width:100%;height:100%;object-fit:cover;display:block}
@@ -74,6 +75,8 @@ main{padding:12px;display:grid;grid-template-columns:1fr;gap:14px;max-width:560p
   <button class="send" id="send">Enviar fotos + texto no WhatsApp</button>
   <textarea id="txt" readonly style="margin-top:10px"></textarea>
   <div class="act"><button class="copy" id="copy">Copiar resumo</button></div>
+  <button class="limpar2" id="limpar2">Limpar todos e contar de novo</button>
+  <div style="display:none"></div>
   <div class="hint" id="hint">Toque no verde se tem a peça. Toque no vermelho se não tem: ela entra aqui com a foto. Use "Enviar fotos + texto" para o CD saber qual peça trazer.</div>
 </section>
 <div id="zoom"><img id="zimg" alt=""></div>
@@ -167,12 +170,13 @@ document.getElementById('send').onclick=async()=>{
     h.textContent='Este celular não abre o envio direto. O texto foi copiado. Segure o dedo em cada foto acima e escolha Compartilhar ou Salvar imagem.';
   }
 };
-const bl=document.getElementById('limpar');
-bl.onclick=()=>{
-  if(bl.dataset.c){ estado={}; salvar(); cards.forEach((_,i)=>pintar(i+1)); contar(); aplicarFiltro(); filtro='todas'; aplicarFiltro(); delete bl.dataset.c; bl.classList.remove('conf'); bl.textContent='Limpar todos e contar de novo'; window.scrollTo(0,0); }
-  else{ bl.dataset.c=1; bl.classList.add('conf'); bl.textContent='Toque de novo para limpar tudo'; setTimeout(()=>{ if(bl.dataset.c){ delete bl.dataset.c; bl.classList.remove('conf'); bl.textContent='Limpar todos e contar de novo'; } },4000); }
-};
-
+const botoesLimpar=[document.getElementById('limpar'),document.getElementById('limpar2')];
+const TXT_L='Limpar todos e contar de novo';
+function resetBotoes(){ botoesLimpar.forEach(b=>{ delete b.dataset.c; b.classList.remove('conf'); b.textContent=TXT_L; }); }
+botoesLimpar.forEach(bl=>{ bl.onclick=()=>{
+  if(bl.dataset.c){ estado={}; salvar(); cards.forEach((_,i)=>pintar(i+1)); contar(); filtro='todas'; aplicarFiltro(); resetBotoes(); window.scrollTo(0,0); }
+  else{ resetBotoes(); bl.dataset.c=1; bl.classList.add('conf'); bl.textContent='Toque de novo para limpar tudo'; setTimeout(()=>{ if(bl.dataset.c) resetBotoes(); },4000); }
+}; });
 cards.forEach((_,i)=>pintar(i+1)); contar(); aplicarFiltro();
 </script>
 </body>
