@@ -61,7 +61,8 @@ main{padding:12px;display:grid;grid-template-columns:1fr;gap:14px;max-width:560p
 </head>
 <body>
 <header>
-  <h1>Checklist diário · Polos</h1>
+  <a href="../checklist/" style="color:#555;font-size:13px;font-weight:700;text-decoration:none">← Menu de produtos</a>
+  <h1>Checklist diário · Polo chinesa</h1>
   <div class="sub" id="data"></div>
   <div class="bar"><i class="g" id="bg"></i><i class="r" id="br"></i></div>
   <div class="cnt"><span class="g" id="cg">0 tenho</span><span class="r" id="cr">0 não tenho</span><span id="cf">33 faltam</span></div>
@@ -128,10 +129,11 @@ function contar(){
   const cnt={falta:total-g-r,ok:g,no:r}; [...tabsEl.children].forEach(b=>{b.querySelector('b').textContent=cnt[b.dataset.k];});
   document.getElementById('bg').style.width = (g/total*100)+'%';
   document.getElementById('br').style.width = (r/total*100)+'%';
-  let t='*Conferência de polos — '+hoje.toLocaleDateString('pt-BR')+'*\n\n';
-  if(faltam.length){ t+='*Trazer do CD ('+faltam.length+' peças):*\n'+faltam.map(i=>'Peça '+i).join(', ')+'\n\n'; } else { t+='Nenhuma peça faltando até agora.\n\n'; }
-  t+='Tenho para vender: '+g+'\n';
-  if(sem.length) t+='Ainda não conferi: '+sem.length+'\n';
+  let t='*Reposição de polos — '+hoje.toLocaleDateString('pt-BR')+'*\n\n';
+  if(faltam.length){
+    t+='Oi! Estes produtos (fotos acima) precisam de reposição — são '+faltam.length+(faltam.length===1?' peça':' peças')+':\n'+faltam.map(i=>'Peça '+i).join(', ')+'\n\n';
+    t+='Por favor, me retorne informando:\n\n1. Quais você TEM e já vai trazer\n\n2. Quais você NÃO TEM, para eu pedir ao fabricante\n\nDesde já, obrigada!';
+  } else { t+='Nenhuma peça para repor até agora.'; }
   document.getElementById('txt').value=t;
   renderMini();
 }
