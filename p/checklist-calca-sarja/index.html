@@ -43,6 +43,15 @@ main{padding:12px;display:grid;gap:12px;max-width:560px;margin:0 auto}
 .empty{text-align:center;color:#777;padding:30px 10px}
 .limpar{display:block;width:calc(100% - 24px);max-width:536px;margin:12px auto 0;border:0;border-radius:14px;background:#111;color:#fff;font-size:17px;font-weight:800;padding:17px 10px}
 .limpar.conf{background:#d93025}
+.card.cor{display:flex;align-items:center;gap:12px;padding:12px}
+.sw{flex:none;width:84px;text-align:center}
+.sw i{display:block;width:58px;height:58px;border-radius:50%;margin:0 auto;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35),0 2px 6px rgba(0,0,0,.25);border:2px solid #ddd}
+.sw b{display:block;font-size:14px;margin-top:6px;font-weight:800}
+.card.cor .rt{flex:1;min-width:0}
+.card.cor .btns{gap:8px}.card.cor .btns button{padding:18px 4px;font-size:15px}
+.card.cor .st{position:absolute;display:none}
+.card.cor{position:relative}
+.card.cor .clr{margin:4px 0 0}
 </style>
 </head>
 <body>
@@ -81,8 +90,10 @@ const tabsEl=document.getElementById('tabs');
 const list=document.getElementById('list'), cards=[];
 ITENS.forEach((nome,i)=>{
   const c=document.createElement('div'); c.className='card';
-  c.innerHTML='<div class="nm"><span></span><span class="st"></span></div><div class="btns"><button class="yes">✔ TENHO</button><button class="nop">✖ NÃO TENHO</button></div><button class="clr">limpar marcação</button>';
-  c.querySelector('.nm span').textContent=nome;
+  c.className='card cor';
+  c.innerHTML='<div class="sw"><i></i><b></b></div><div class="rt"><div class="btns"><button class="yes">✔ TENHO</button><button class="nop">✖ NÃO TENHO</button></div><button class="clr">limpar marcação</button></div><span class="st"></span>';
+  c.querySelector('.sw i').style.background=({Preto:'#141414',Cinza:'#8d8f92',Verde:'#4a5d3a',Marrom:'#6b4630',Creme:'#eadfc2',Azul:'#1f3b73'})[nome]||'#ccc';
+  c.querySelector('.sw b').textContent=nome;
   c.querySelector('.yes').onclick=()=>marcar(i,'ok');
   c.querySelector('.nop').onclick=()=>marcar(i,'no');
   c.querySelector('.clr').onclick=()=>marcar(i,'');
