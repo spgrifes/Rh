@@ -1,143 +1,124 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex">
-<title>Checklist diário — Calça jeans</title>
+<meta charset="utf-8"><meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checklist diário — Calça jeans SP Grifes</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{overflow-anchor:none}
-body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f4f2ec;color:#111;touch-action:manipulation}
-header{position:sticky;top:0;z-index:5;background:#f4f2ec;padding:10px 12px 8px;border-bottom:1px solid #ddd9cd}
-.in{max-width:560px;margin:0 auto}
-header a{color:#555;font-size:13px;font-weight:700;text-decoration:none}
-h1{margin:4px 0 0;font-size:20px}
-.sub{color:#666;font-size:13px}
-.cnt{display:flex;gap:12px;margin-top:6px;font-size:14px;font-weight:700}
-.cnt .g{color:#1fa34a}.cnt .r{color:#d93025}
-.chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto;padding-bottom:2px}
-.chips button{flex:none;border:2px solid #d8d5cd;background:#fff;border-radius:14px;padding:8px 12px;font-size:14px;font-weight:700;color:#333}
-.chips button.on{background:#111;color:#fff;border-color:#111}
-.chips button i{font-style:normal;display:inline-block;min-width:18px;margin-left:6px;padding:1px 6px;border-radius:10px;font-size:12px;background:#eee;color:#555}
-.chips button i.r{background:#d93025;color:#fff}
-.chips button i.ok{background:#1fa34a;color:#fff}
-main{max-width:560px;margin:0 auto;padding:12px}
-.sec{display:none}.sec.on{display:block}
-.sec h2{margin:2px 0 10px;font-size:19px}
-.row{display:grid;grid-template-columns:54px 1fr 1fr;gap:8px;align-items:center;background:#fff;border-radius:14px;padding:8px;margin-bottom:8px;border:3px solid transparent;box-shadow:0 1px 5px rgba(0,0,0,.07)}
-.row.ok{border-color:#1fa34a}.row.no{border-color:#d93025}
-.row .t{font-size:24px;font-weight:800;text-align:center}
-.row button{border:0;border-radius:12px;padding:16px 4px;font-size:15px;font-weight:800;color:#fff}
-.row .yes{background:#1fa34a}.row .nop{background:#d93025}
-.row.ok .nop,.row.no .yes{opacity:.3}
-.clrv{border:0;background:none;color:#777;font-size:13px;text-decoration:underline;padding:8px 4px}
-.big{display:block;width:100%;border:0;border-radius:12px;padding:15px;font-size:15px;font-weight:800;background:#111;color:#fff;margin:6px 0 10px}
-.big.conf{background:#d93025}
-.sum{margin:16px 0 120px;background:#fff;border-radius:16px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;overflow-anchor:none}
+button{touch-action:manipulation;font-family:inherit}
+body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f6f5f2;color:#111}
+header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #e6e3dc;padding:12px 14px 10px}
+h1{margin:0;font-size:19px}
+.sub{font-size:13px;color:#666;margin-top:2px}
+.bar{height:8px;background:#ececec;border-radius:6px;margin-top:10px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}.bar .g{background:#1fa34a}.bar .r{background:#d93025}
+.cnt{display:flex;gap:8px;margin-top:8px;font-size:13px;font-weight:600}
+.cnt span{padding:4px 9px;border-radius:20px;background:#f0f0f0}
+.cnt .g{background:#e3f6ea;color:#12783a}.cnt .r{background:#fde8e6;color:#b3261e}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px}
+.tabs button{border:2px solid #d8d5cd;background:#fff;border-radius:14px;padding:9px 4px;font-size:13px;font-weight:700;color:#333;line-height:1.25}
+.tabs button b{display:block;font-size:20px}
+.tabs button[data-k=ok].on{background:#1fa34a;border-color:#1fa34a}.tabs button[data-k=no].on{background:#d93025;border-color:#d93025}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+main{padding:12px;display:grid;gap:12px;max-width:560px;margin:0 auto}
+.card{background:#fff;border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.08);border:3px solid transparent;padding:14px 12px 12px}
+.card.ok{border-color:#1fa34a}.card.no{border-color:#d93025}.card.hide{display:none}
+.nm{font-size:24px;font-weight:800;margin:0 0 10px 2px;display:flex;justify-content:space-between;align-items:center}
+.st{font-size:13px;font-weight:800;padding:5px 11px;border-radius:20px;color:#fff;display:none}
+.card.ok .st{display:block;background:#1fa34a}.card.no .st{display:block;background:#d93025}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btns button{border:0;border-radius:14px;padding:20px 6px;font-size:17px;font-weight:800;color:#fff}
+.btns .yes{background:#1fa34a}.btns .nop{background:#d93025}
+.card.ok .nop,.card.no .yes{opacity:.35}
+.clr{display:none;margin:8px 0 0;border:0;background:none;color:#777;font-size:13px;text-decoration:underline;padding:4px}
+.card.ok .clr,.card.no .clr{display:block}
+.sum{margin:14px auto 120px;max-width:536px;background:#fff;border-radius:16px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.08)}
 .sum h2{margin:0 0 6px;font-size:17px}
-.sum textarea{width:100%;min-height:200px;border:1px solid #ddd;border-radius:10px;padding:10px;font-size:14px;font-family:inherit}
-.send{background:#1fa34a;color:#fff;width:100%;border:0;border-radius:12px;padding:16px;font-size:16px;font-weight:800;margin:6px 0}
-.cp{width:100%;border:2px solid #111;background:#fff;color:#111;border-radius:12px;padding:13px;font-size:15px;font-weight:700}
-.hint{color:#666;font-size:13px;margin-top:8px}
+.sum textarea{width:100%;min-height:170px;border:1px solid #ddd;border-radius:10px;padding:10px;font-size:14px;font-family:inherit;margin-top:10px}
+.send{background:#1fa34a;color:#fff;width:100%;border:0;border-radius:12px;padding:16px;font-size:16px;font-weight:800;margin-top:8px}
+.send[disabled]{opacity:.4}
+.copy{background:#111;color:#fff;width:100%;border:0;border-radius:12px;padding:14px;font-size:15px;font-weight:700;margin-top:8px}
+.hint{font-size:12.5px;color:#777;margin-top:8px;line-height:1.4}
+.empty{text-align:center;color:#777;padding:30px 10px}
+.limpar{display:block;width:calc(100% - 24px);max-width:536px;margin:12px auto 0;border:0;border-radius:14px;background:#111;color:#fff;font-size:17px;font-weight:800;padding:17px 10px}
+.limpar.conf{background:#d93025}
 </style>
 </head>
 <body>
-<header><div class="in">
-  <a href="../checklist/">← Menu de produtos</a>
+<header>
+  <a href="../checklist/" style="color:#555;font-size:13px;font-weight:700;text-decoration:none">← Menu de produtos</a>
   <h1>Checklist diário · Calça jeans</h1>
   <div class="sub" id="data"></div>
+  <div class="bar"><i class="g" id="bg"></i><i class="r" id="br"></i></div>
   <div class="cnt"><span class="g" id="cg">0 tenho</span><span class="r" id="cr">0 não tenho</span><span id="cf"></span></div>
-  <div class="chips" id="chips"></div>
-</div></header>
-<main>
-  <button class="big" id="limpar">Limpar todos e contar de novo</button>
-  <div id="secs"></div>
-  <div class="sum">
-    <h2>Resumo para o CD</h2>
-    <div id="qtd" style="font-weight:700;margin-bottom:8px"></div>
-    <button class="send" id="send">Enviar no WhatsApp</button>
-    <textarea id="txt" readonly></textarea>
-    <button class="cp" id="copy" style="margin-top:8px">Copiar resumo</button>
-    <div class="hint" id="hint">Toque no verde se tem o tamanho. Toque no vermelho se não tem: ele entra no resumo para o CD trazer.</div>
-  </div>
-  <button class="big" id="limpar2">Limpar todos e contar de novo</button>
-</main>
+  <div class="tabs" id="tabs"></div>
+</header>
+<button class="limpar" id="limpar1">Limpar todos e contar de novo</button>
+<main id="list"></main>
+<div class="empty" id="vazio" style="display:none"></div>
+<section class="sum">
+  <h2>Resumo para o CD</h2>
+  <div id="qtd" class="sub"></div>
+  <button class="send" id="send">Enviar no WhatsApp</button>
+  <textarea id="txt" readonly></textarea>
+  <button class="copy" id="copy">Copiar resumo</button>
+  <button class="limpar" id="limpar2" style="width:100%;margin-top:12px">Limpar todos e contar de novo</button>
+  <div class="hint" id="hint">Toque no verde se tem. Toque no vermelho se não tem: entra no resumo para o CD mandar a grade.</div>
+</section>
 <script>
-const CFG = {"key": "calca-jeans", "nome": "calça jeans", "titulo": "Calça jeans", "rotulo": "Marca", "variantes": ["Boss", "Armani", "Ellus", "Lacoste", "Diesel"], "tamanhos": ["38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48"]};
-const hoje = new Date();
-const dia = hoje.toISOString().slice(0,10);
-const KEY = 'checklist-' + CFG.key + '-' + dia;
-const V = CFG.variantes, T = CFG.tamanhos;
-let estado = {};
-try { estado = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e) { estado = {}; }
-function salvar(){ try{ localStorage.setItem(KEY, JSON.stringify(estado)); }catch(e){} }
-const nomes = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
-document.getElementById('data').textContent = nomes[hoje.getDay()] + ', ' + hoje.toLocaleDateString('pt-BR');
-const chipsEl = document.getElementById('chips'), secsEl = document.getElementById('secs');
-const rows = {}; let atual = 0;
-V.forEach((v,vi)=>{
-  const b=document.createElement('button'); b.innerHTML=v+'<i>0</i>'; b.onclick=()=>{ mostrar(vi); window.scrollTo(0,0); }; chipsEl.appendChild(b);
-  const s=document.createElement('div'); s.className='sec';
-  s.innerHTML='<h2>'+CFG.rotulo+': '+v+'</h2>';
-  T.forEach(t=>{
-    const k=vi+'|'+t;
-    const r=document.createElement('div'); r.className='row';
-    r.innerHTML='<div class="t">'+t+'</div><button class="yes">✔ TENHO</button><button class="nop">✖ NÃO TENHO</button>';
-    r.querySelector('.yes').onclick=()=>marcar(k,'ok');
-    r.querySelector('.nop').onclick=()=>marcar(k,'no');
-    rows[k]=r; s.appendChild(r);
-  });
-  const c=document.createElement('button'); c.className='clrv'; c.textContent='limpar só '+v;
-  c.onclick=()=>{ T.forEach(t=>{ delete estado[vi+'|'+t]; pintar(vi+'|'+t); }); salvar(); contar(); };
-  s.appendChild(c);
-  secsEl.appendChild(s);
+const CFG = {"key": "calca-jeans", "nome": "calça jeans", "titulo": "Calça jeans", "frase": "Estas marcas de calça jeans precisam de reposição de grade", "itens": ["Boss", "Armani", "Ellus", "Lacoste", "Diesel"]};
+const ITENS = CFG.itens, total = ITENS.length;
+const hoje = new Date(), dia = hoje.toISOString().slice(0,10);
+const KEY = 'checklist-'+CFG.key+'-'+dia;
+let estado = {}, filtro = 'falta', tmr = null;
+try { estado = JSON.parse(localStorage.getItem(KEY)||'{}')||{}; } catch(e){ estado={}; }
+const salvar=()=>{ try{localStorage.setItem(KEY,JSON.stringify(estado));}catch(e){} };
+const dn=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+document.getElementById('data').textContent = dn[hoje.getDay()]+', '+hoje.toLocaleDateString('pt-BR');
+const tabsEl=document.getElementById('tabs');
+[['falta','Faltam marcar'],['ok','Tenho'],['no','Não tenho']].forEach(([k,t])=>{const b=document.createElement('button');b.innerHTML=t+'<b>0</b>';b.dataset.k=k;b.onclick=()=>{filtro=k;aplicar();window.scrollTo(0,0);};tabsEl.appendChild(b);});
+const list=document.getElementById('list'), cards=[];
+ITENS.forEach((nome,i)=>{
+  const c=document.createElement('div'); c.className='card';
+  c.innerHTML='<div class="nm"><span></span><span class="st"></span></div><div class="btns"><button class="yes">✔ TENHO</button><button class="nop">✖ NÃO TENHO</button></div><button class="clr">limpar marcação</button>';
+  c.querySelector('.nm span').textContent=nome;
+  c.querySelector('.yes').onclick=()=>marcar(i,'ok');
+  c.querySelector('.nop').onclick=()=>marcar(i,'no');
+  c.querySelector('.clr').onclick=()=>marcar(i,'');
+  list.appendChild(c); cards.push(c);
 });
-function mostrar(i){ atual=i; [...secsEl.children].forEach((s,j)=>s.classList.toggle('on',j===i)); [...chipsEl.children].forEach((b,j)=>b.classList.toggle('on',j===i)); }
-function pintar(k){ const r=rows[k], s=estado[k]||''; r.classList.toggle('ok',s==='ok'); r.classList.toggle('no',s==='no'); }
-function marcar(k,s){ if(estado[k]===s) return; estado[k]=s; salvar(); pintar(k); contar(); }
+function pintar(i){const c=cards[i],s=estado[i]||'';c.classList.toggle('ok',s==='ok');c.classList.toggle('no',s==='no');c.querySelector('.st').textContent=s==='ok'?'TEM':(s==='no'?'NÃO TEM':'');}
+function marcar(i,s){ if(s)estado[i]=s; else delete estado[i]; salvar(); pintar(i); contar(); clearTimeout(tmr); tmr=setTimeout(aplicar,350); }
+function faltam(){return ITENS.map((n,i)=>estado[i]==='no'?i:-1).filter(i=>i>=0);}
 function contar(){
-  let g=0,r=0; const falta=[];
-  V.forEach((v,vi)=>{
-    let vg=0,vr=0; const lista=[];
-    T.forEach(t=>{ const s=estado[vi+'|'+t]; if(s==='ok'){g++;vg++;} else if(s==='no'){r++;vr++;lista.push(t);} });
-    if(lista.length) falta.push([v,lista]);
-    const i=chipsEl.children[vi].querySelector('i');
-    i.textContent = vr? vr : (vg?'✔':'0'); i.className = vr?'r':(vg?'ok':'');
-  });
-  const total=V.length*T.length;
+  let g=0,r=0; ITENS.forEach((_,i)=>{if(estado[i]==='ok')g++;else if(estado[i]==='no')r++;});
   document.getElementById('cg').textContent=g+' tenho';
   document.getElementById('cr').textContent=r+' não tenho';
   document.getElementById('cf').textContent=(total-g-r)+' faltam';
-  let t='*Reposição de '+CFG.nome+' — '+hoje.toLocaleDateString('pt-BR')+'*\n\n';
-  if(falta.length){
-    t+='Oi! Estas peças precisam de reposição ('+r+(r===1?' peça':' peças')+'):\n\n';
-    t+=falta.map(([v,l])=>'*'+v+':* '+(l.length>1?'tamanhos ':'tamanho ')+l.join(', ')).join('\n')+'\n\n';
+  const cnt={falta:total-g-r,ok:g,no:r};[...tabsEl.children].forEach(b=>{b.querySelector('b').textContent=cnt[b.dataset.k];});
+  document.getElementById('bg').style.width=(g/total*100)+'%';
+  document.getElementById('br').style.width=(r/total*100)+'%';
+  const f=faltam(); let t='*Reposição de '+CFG.nome+' — '+hoje.toLocaleDateString('pt-BR')+'*\n\n';
+  if(f.length){
+    t+='Oi! '+CFG.frase+' ('+f.length+'):\n\n'+f.map((i,k)=>(k+1)+'. '+ITENS[i]).join('\n')+'\n\n';
     t+='Por favor, me retorne informando:\n\n1. Quais você TEM e já vai trazer\n\n2. Quais você NÃO TEM, para eu pedir ao fabricante\n\nDesde já, obrigada!';
-  } else { t+='Nenhuma peça para repor até agora.'; }
+  } else t+='Nada para repor até agora.';
   document.getElementById('txt').value=t;
-  document.getElementById('qtd').textContent = r ? (r+(r===1?' peça para o CD trazer':' peças para o CD trazer')) : 'Nenhuma peça marcada como "não tenho".';
-  document.getElementById('send').disabled = !r;
-  document.getElementById('send').style.opacity = r?1:.4;
+  document.getElementById('qtd').textContent=f.length?(f.length+(f.length===1?' item para o CD trazer':' itens para o CD trazer')):'Nenhum item marcado como "não tenho".';
+  document.getElementById('send').disabled=!f.length;
 }
-document.getElementById('send').onclick=async()=>{
-  const text=document.getElementById('txt').value;
-  if(!estadoTemVermelho()) return;
-  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
-};
-function estadoTemVermelho(){ return Object.values(estado).includes('no'); }
-document.getElementById('copy').onclick=async()=>{
-  const ta=document.getElementById('txt'),h=document.getElementById('hint');
-  try{ await navigator.clipboard.writeText(ta.value); h.textContent='Resumo copiado. Cole no WhatsApp.'; }
-  catch(e){ ta.removeAttribute('readonly'); ta.focus(); ta.select(); h.textContent='Segure no texto, toque em Copiar e cole no WhatsApp.'; }
-};
-const bl=[document.getElementById('limpar'),document.getElementById('limpar2')], TXT='Limpar todos e contar de novo';
-function resetB(){ bl.forEach(b=>{ delete b.dataset.c; b.classList.remove('conf'); b.textContent=TXT; }); }
-bl.forEach(b=>{ b.onclick=()=>{
-  if(b.dataset.c){ estado={}; salvar(); Object.keys(rows).forEach(pintar); contar(); resetB(); mostrar(0); window.scrollTo(0,0); }
-  else{ resetB(); b.dataset.c=1; b.classList.add('conf'); b.textContent='Toque de novo para limpar tudo'; setTimeout(()=>{ if(b.dataset.c) resetB(); },4000); }
-}; });
-Object.keys(rows).forEach(pintar); mostrar(0); contar();
+function aplicar(){
+  [...tabsEl.children].forEach(b=>b.classList.toggle('on',b.dataset.k===filtro));
+  let n=0; cards.forEach((c,i)=>{const s=estado[i]||'';const v=(filtro==='falta'&&!s)||(filtro==='ok'&&s==='ok')||(filtro==='no'&&s==='no');c.classList.toggle('hide',!v);if(v)n++;});
+  const ve=document.getElementById('vazio'); ve.textContent={falta:'Tudo conferido. Veja as abas Tenho e Não tenho.',ok:'Nada marcado como Tenho.',no:'Nada marcado como Não tenho.'}[filtro]; ve.style.display=n?'none':'block';
+}
+document.getElementById('copy').onclick=async()=>{const ta=document.getElementById('txt'),h=document.getElementById('hint');try{await navigator.clipboard.writeText(ta.value);h.textContent='Resumo copiado. Cole no WhatsApp.';}catch(e){ta.removeAttribute('readonly');ta.focus();ta.select();h.textContent='Segure no texto, toque em Copiar e cole no WhatsApp.';}};
+document.getElementById('send').onclick=()=>{ if(!faltam().length)return; location.href='https://wa.me/?text='+encodeURIComponent(document.getElementById('txt').value); };
+const bl=[document.getElementById('limpar1'),document.getElementById('limpar2')], TXT='Limpar todos e contar de novo';
+function rb(){bl.forEach(b=>{delete b.dataset.c;b.classList.remove('conf');b.textContent=TXT;});}
+bl.forEach(b=>{b.onclick=()=>{ if(b.dataset.c){estado={};salvar();cards.forEach((_,i)=>pintar(i));contar();filtro='falta';aplicar();rb();window.scrollTo(0,0);} else{rb();b.dataset.c=1;b.classList.add('conf');b.textContent='Toque de novo para limpar tudo';setTimeout(()=>{if(b.dataset.c)rb();},4000);} };});
+cards.forEach((_,i)=>pintar(i)); contar(); aplicar();
 </script>
 </body>
 </html>
