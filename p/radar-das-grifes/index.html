@@ -90,6 +90,7 @@ select.sem { font:600 .9rem var(--body); color:var(--fg); background:var(--tile)
 .votos { padding:12px 16px 16px; display:grid; gap:8px; margin-top:auto; }
 .par { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .v { border:1px solid var(--line); background:var(--tile); border-radius:12px; padding:11px 8px; font-weight:700; font-size:.92rem; }
+.v.share { background:var(--fg); color:var(--bg); border-color:var(--fg); }
 .v.sim[aria-pressed="true"] { background:var(--ok); border-color:var(--ok); color:#fff; }
 .v.nao[aria-pressed="true"] { background:var(--no); border-color:var(--no); color:#fff; }
 .nota { display:flex; gap:8px; }
@@ -132,7 +133,7 @@ select.sem { font:600 .9rem var(--body); color:var(--fg); background:var(--tile)
   <main class="wrap">
     <section class="hero">
       <h2 id="titulo">Lançamentos da semana</h2>
-      <p>Toque em <b>Gostei</b> e <b>Venderia</b> em cada peça. Tudo fica guardado para você rever depois.</p>
+      <p>Toque em <b>Gostei</b> ou <b>Não gostei</b> em cada peça e use <b>Compartilhar</b> para mandar o modelo. Tudo fica guardado para você rever depois.</p>
     </section>
 
     <div class="chips" id="fGrupo" role="group" aria-label="Categoria"></div>
@@ -148,7 +149,7 @@ select.sem { font:600 .9rem var(--body); color:var(--fg); background:var(--tile)
 var SB = 'https://hkhbyeygzfdhwxsdgaxl.supabase.co';
 var KEY = 'sb_publishable_xWMdnQkoqYURdHwGeCiiwQ_0p6bV5C1';
 var GRUPOS = ['Luxo', 'Streetwear de luxo', 'Clássicas', 'Esporte premium'];
-var VOTOS = [['todos','Todas'],['sem','Sem avaliação'],['gostei','Gostei'],['naogostei','Não gostei'],['venderia','Venderia'],['naovenderia','Não venderia'],['todas-semanas','Tudo que gostei (todas as semanas)']];
+var VOTOS = [['todos','Todas'],['sem','Sem avaliação'],['gostei','Gostei'],['naogostei','Não gostei'],['todas-semanas','Tudo que gostei (todas as semanas)']];
 var D = { itens: [], semanas: [] }, semana = null, grupo = 'Todos', fvoto = 'todos', SENHA = '';
 
 function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
@@ -187,7 +188,7 @@ function carregar() {
 function trocaSemana(v) { semana = v; desenha(); window.scrollTo(0, 0); }
 
 function passaVoto(i) {
-  if (fvoto === 'sem') return i.gostei == null && i.venderia == null;
+  if (fvoto === 'sem') return i.gostei == null;
   if (fvoto === 'gostei' || fvoto === 'todas-semanas') return i.gostei === true;
   if (fvoto === 'naogostei') return i.gostei === false;
   if (fvoto === 'venderia') return i.venderia === true;
@@ -215,13 +216,12 @@ function desenha() {
     if (s.tendencias && s.tendencias.length) ins += '<div class="box"><h3>O que se repete entre as marcas</h3><ul>' + s.tendencias.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
     if (s.sugestao) ins += '<div class="box sp"><h3>O que a SP Grifes pode trazer</h3><p>' + esc(s.sugestao) + '</p></div>';
   }
-  var av = daSemana.filter(function (i) { return i.gostei != null || i.venderia != null; }).length;
+  var av = daSemana.filter(function (i) { return i.gostei != null; }).length;
   if (fvoto !== 'todas-semanas' && daSemana.length) {
     ins += '<div class="resumo" style="grid-column:1/-1">' +
       '<div class="stat"><b>' + daSemana.length + '</b><span>lançamentos</span></div>' +
       '<div class="stat"><b>' + av + '</b><span>avaliados</span></div>' +
-      '<div class="stat"><b>' + daSemana.filter(function (i) { return i.gostei === true; }).length + '</b><span>gostei</span></div>' +
-      '<div class="stat"><b>' + daSemana.filter(function (i) { return i.venderia === true; }).length + '</b><span>venderia</span></div></div>';
+      '<div class="stat"><b>' + daSemana.filter(function (i) { return i.gostei === true; }).length + '</b><span>gostei</span></div></div>';
   }
   document.getElementById('insights').innerHTML = ins;
 
@@ -241,7 +241,6 @@ function card(i) {
   var sem = '<div class="sem"' + (i.imagem ? ' hidden' : '') + '><div><b>' + esc(i.marca) + '</b>Foto no site da marca</div></div>';
   var vs = [];
   if (i.gostei === true) vs.push('Gostei'); if (i.gostei === false) vs.push('Não gostei');
-  if (i.venderia === true) vs.push('Venderia'); if (i.venderia === false) vs.push('Não venderia');
   return '<article class="card" id="i' + i.id + '">' +
     '<a class="foto" href="' + esc(i.link || '#') + '" target="_blank" rel="noopener">' + foto + sem +
       '<span class="selo">' + esc(i.marca) + '</span>' +
@@ -258,11 +257,16 @@ function card(i) {
     '<div class="votos">' +
       '<div class="par"><button class="v sim" aria-pressed="' + (i.gostei === true) + '" onclick="vota(' + i.id + ',\'gostei\',true)">Gostei</button>' +
       '<button class="v nao" aria-pressed="' + (i.gostei === false) + '" onclick="vota(' + i.id + ',\'gostei\',false)">Não gostei</button></div>' +
-      '<div class="par"><button class="v sim" aria-pressed="' + (i.venderia === true) + '" onclick="vota(' + i.id + ',\'venderia\',true)">Venderia</button>' +
-      '<button class="v nao" aria-pressed="' + (i.venderia === false) + '" onclick="vota(' + i.id + ',\'venderia\',false)">Não venderia</button></div>' +
       '<div class="nota"><input id="n' + i.id + '" value="' + esc(i.nota || '') + '" placeholder="Comentário (ex.: trazer em preto)" onchange="salvaNota(' + i.id + ')">' +
       '<button class="mic" aria-label="Falar comentário" onclick="falar(' + i.id + ',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>' +
+    '<button class="v share" onclick="compartilha(' + i.id + ')">Compartilhar</button>' +
     '</div></article>';
+}
+function compartilha(id) {
+  var i = D.itens.filter(function (x) { return x.id === id; })[0]; if (!i) return;
+  var t = '*' + (i.colecao || i.marca) + '* — ' + i.marca + (i.peca ? '\n' + i.peca : '') + (i.preco_brl != null ? '\n' + reais(i.preco_brl) : '') + (i.link ? '\n\n' + i.link : '');
+  if (navigator.share) { navigator.share({ text: t }).catch(function () {}); }
+  else { window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank'); }
 }
 function semFoto(img) { var c = img.closest('.card'); if (c) c.remove(); }
 function reais(v) { return 'R$ ' + Math.round(v).toLocaleString('pt-BR'); }
