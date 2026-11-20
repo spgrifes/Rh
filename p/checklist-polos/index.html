@@ -57,11 +57,18 @@ main{padding:12px;display:grid;grid-template-columns:1fr;gap:14px;max-width:560p
 #zoom{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:20;align-items:center;justify-content:center}
 #zoom img{max-width:100%;max-height:100%}
 #zoom.on{display:flex}
-</style>
+
+.gsbar{background:linear-gradient(160deg,#0b0b0b,#1d1d1d);padding:16px;border-radius:0 0 26px 26px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.gsbar div{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.gsbar img{height:46px}
+.gsbar a{display:flex;align-items:center;gap:8px;background:#e8c76a;color:#111;font-size:16px;font-weight:800;text-decoration:none;padding:14px 20px;border-radius:14px;min-height:50px;box-shadow:0 4px 14px rgba(232,199,106,.35)}
+.gsbar a:active{transform:scale(.95)}
+main{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;max-width:680px!important}.card .nm{font-size:16px!important}.card .btns{grid-template-columns:1fr!important}.card .btns button{font-size:16px!important;padding:14px 6px!important}</style>
 </head>
 <body>
+<div class="gsbar"><div><img src="../../gs/img/logo-sp-grifes-branco-fornecedor-bras.png" alt="SP Grifes"><a href="../checklist/"><span style="font-size:22px;line-height:1">←</span> VOLTAR</a></div></div>
 <header>
-  <a href="../checklist/" style="display:flex;align-items:center;gap:8px;width:fit-content;background:#e8c76a;color:#111;font-size:16px;font-weight:800;text-decoration:none;padding:14px 20px;border-radius:14px;min-height:50px"><span style="font-size:22px">←</span> VOLTAR</a>
+  
   <h1>Checklist diário · Polo chinesa</h1>
   <div class="sub" id="data"></div>
   <div class="bar"><i class="g" id="bg"></i><i class="r" id="br"></i></div>

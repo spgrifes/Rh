@@ -49,11 +49,26 @@ main{padding:12px;display:grid;gap:12px;max-width:560px;margin:0 auto}
 .empty{text-align:center;color:#777;padding:30px 10px}
 .limpar{display:block;width:calc(100% - 24px);max-width:536px;margin:12px auto 0;border:0;border-radius:14px;background:#111;color:#fff;font-size:17px;font-weight:800;padding:17px 10px}
 .limpar.conf{background:#d93025}
+
+.gsbar{background:linear-gradient(160deg,#0b0b0b,#1d1d1d);padding:16px;border-radius:0 0 26px 26px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.gsbar div{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.gsbar img{height:46px}
+.gsbar a{display:flex;align-items:center;gap:8px;background:#e8c76a;color:#111;font-size:16px;font-weight:800;text-decoration:none;padding:14px 20px;border-radius:14px;min-height:50px;box-shadow:0 4px 14px rgba(232,199,106,.35)}
+.gsbar a:active{transform:scale(.95)}
+
+main{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;max-width:680px!important;padding:12px 10px!important}
+.card .top{display:block!important;margin-bottom:8px}
+.card .top img{width:100%!important;max-width:none!important;aspect-ratio:1/1!important;object-fit:contain!important;background:#f3f1ea}
+.card .top .tx{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.card .nm{font-size:16px!important;min-height:2.5em;margin:0!important;text-transform:uppercase;letter-spacing:.3px}
+.card .btns{grid-template-columns:1fr!important;gap:8px!important}
+.card .btns button{padding:16px 6px!important;font-size:16px!important}
 </style>
 </head>
 <body>
+<div class="gsbar"><div><img src="../../gs/img/logo-sp-grifes-branco-fornecedor-bras.png" alt="SP Grifes"><a href="../checklist/"><span style="font-size:22px;line-height:1">←</span> VOLTAR</a></div></div>
 <header>
-  <a href="../checklist/" style="display:flex;align-items:center;gap:8px;width:fit-content;background:#e8c76a;color:#111;font-size:16px;font-weight:800;text-decoration:none;padding:14px 20px;border-radius:14px;min-height:50px"><span style="font-size:22px">←</span> VOLTAR</a>
+  
   <h1>Checklist diário · Gola polo</h1>
   <div class="sub" id="data"></div>
   <div class="bar"><i class="g" id="bg"></i><i class="r" id="br"></i></div>
@@ -88,9 +103,9 @@ const tabsEl=document.getElementById('tabs');
 const list=document.getElementById('list'), cards=[];
 ITENS.forEach((nome,i)=>{
   const c=document.createElement('div'); c.className='card';
-  const foto=(CFG.fotos||[])[i];
+  const ICONE="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20300%20300%22%3E%3Crect%20width%3D%22300%22%20height%3D%22300%22%20fill%3D%22%23f3f1ea%22/%3E%3Cg%20fill%3D%22%23fff%22%20stroke%3D%22%23111%22%20stroke-width%3D%227%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M105%2048%20L72%2062%20L28%20108%20L60%20138%20L86%20118%20L86%20258%20L214%20258%20L214%20118%20L240%20138%20L272%20108%20L228%2062%20L195%2048%20L172%2070%20L150%2062%20L128%2070%20Z%22/%3E%3Cpath%20d%3D%22M150%2062%20L150%20140%22%20fill%3D%22none%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2288%22%20r%3D%224%22%20fill%3D%22%23111%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%22112%22%20r%3D%224%22%20fill%3D%22%23111%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%22136%22%20r%3D%224%22%20fill%3D%22%23111%22/%3E%3Cpath%20d%3D%22M128%2070%20L112%2092%20L136%20100%20Z%20M172%2070%20L188%2092%20L164%20100%20Z%22%20fill%3D%22%23e8c76a%22/%3E%3C/g%3E%3C/svg%3E"; const real=(CFG.fotos||[])[i]; const foto=real||ICONE;
   c.innerHTML=(foto?'<div class="top"><img alt=""><div class="tx"><div class="nm"></div><span class="st"></span></div></div>':'<div class="nm sem"><span class="nt"></span><span class="st"></span></div>')+'<div class="btns"><button class="yes">✔ TENHO</button><button class="nop">✖ NÃO TENHO</button></div><button class="clr">limpar marcação</button>';
-  if(foto){ const im=c.querySelector('.top img'); im.src=foto; im.onclick=()=>{document.getElementById('zimg').src=foto;document.getElementById('zoom').classList.add('on');}; c.querySelector('.nm').textContent=nome; } else { c.querySelector('.nt').textContent=nome; }
+  if(foto){ const im=c.querySelector('.top img'); im.src=foto; if(real) im.onclick=()=>{document.getElementById('zimg').src=foto;document.getElementById('zoom').classList.add('on');}; c.querySelector('.nm').textContent=nome; } else { c.querySelector('.nt').textContent=nome; }
   c.querySelector('.yes').onclick=()=>marcar(i,'ok');
   c.querySelector('.nop').onclick=()=>marcar(i,'no');
   c.querySelector('.clr').onclick=()=>marcar(i,'');
