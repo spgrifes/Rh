@@ -111,7 +111,7 @@ async function entrar(auto){
   try{
     const rows=await rpc('ig_seg_listar',{p_senha:s,p_conta:CONTA});
     SENHA=s;try{localStorage.setItem('ig_senha',s)}catch(e){}
-    D=rows.map(r=>({u:r[0],n:r[1],v:r[2]===1,p:r[3]===1,s:r[4],d:r[5],e:r[6]}));
+    D=rows.map(r=>({u:r[0],n:r[1],v:r[2]===1,p:r[3]===1,s:r[4],d:(r[5]==='pendente'?null:r[5]),e:r[6]}));
     $('login').classList.add('hide');mostraHome();
   }catch(e){$('erroLogin').textContent='Senha errada ou sem conexão.';try{localStorage.removeItem('ig_senha')}catch(x){}}
 }
