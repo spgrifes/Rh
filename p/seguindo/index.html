@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Limpeza do Instagram</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#fff;color:#111}
+.wrap{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:8px 0 4px}
+.sub{color:#666;font-size:14px;margin:0 0 16px}
+input[type=text],input[type=password]{width:100%;padding:14px;font-size:17px;border:1px solid #ccc;border-radius:12px}
+button{font:inherit;cursor:pointer}
+.btn{padding:14px 18px;border:0;border-radius:12px;background:#111;color:#fff;font-size:16px;font-weight:600}
+.btn.sec{background:#f1f1f1;color:#111}
+.btn.sm{padding:10px 14px;font-size:14px}
+.card{border:1px solid #e5e5e5;border-radius:16px;padding:14px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.card b{font-size:17px}
+.muted{color:#777;font-size:13px}
+.tot{display:flex;gap:8px;margin:12px 0}
+.tot div{flex:1;border-radius:14px;padding:12px;text-align:center;background:#f6f6f6}
+.tot strong{display:block;font-size:24px}
+.sai{background:#fdecea!important}.fica{background:#e9f7ee!important}
+.bar{position:sticky;top:0;background:#fff;padding:10px 0;z-index:5;border-bottom:1px solid #eee}
+.row{display:flex;gap:8px;align-items:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.chip{padding:8px 12px;border-radius:20px;background:#f1f1f1;border:0;font-size:14px}
+.chip.on{background:#111;color:#fff}
+.item{border-bottom:1px solid #eee;padding:12px 0}
+.item a{color:#111;font-weight:600;text-decoration:none;font-size:16px;word-break:break-all}
+.nome{color:#666;font-size:14px}
+.tag{font-size:11px;background:#eef;border-radius:6px;padding:2px 6px;margin-left:6px;color:#335}
+.acts{display:flex;gap:8px;margin-top:8px}
+.acts button{flex:1;padding:12px;border-radius:10px;border:2px solid #ddd;background:#fff;font-size:15px;font-weight:600}
+.acts .k.on{background:#1f9d55;border-color:#1f9d55;color:#fff}
+.acts .s.on{background:#d93025;border-color:#d93025;color:#fff}
+.mic{width:52px;flex:none;padding:12px;border-radius:12px;border:0;background:#f1f1f1;font-size:15px}
+.mic.on{background:#d93025;color:#fff}
+.err{color:#d93025;font-size:14px;min-height:20px;margin-top:8px}
+.hide{display:none}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.2s;pointer-events:none}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="login">
+  <h1>Limpeza do Instagram</h1>
+  <p class="sub">@fabioleiite — escolha quem continua e quem sai.</p>
+  <input type="password" id="senha" placeholder="Senha" autocomplete="current-password">
+  <div class="err" id="erroLogin"></div>
+  <p><button class="btn" id="entrar" style="width:100%">Entrar</button></p>
+</div>
+
+<div id="home" class="hide">
+  <h1>Quem você segue</h1>
+  <p class="sub" id="resumoTxt"></p>
+  <div class="tot">
+    <div class="sai"><strong id="tSai">0</strong><span class="muted">vão sair</span></div>
+    <div class="fica"><strong id="tFica">0</strong><span class="muted">continuam</span></div>
+    <div><strong id="tFalta">0</strong><span class="muted">faltam</span></div>
+  </div>
+  <div id="setores"></div>
+  <p class="muted">Toque num grupo, marque os perfis e pronto. Todo dia eu deixo de seguir aos poucos quem estiver marcado para sair.</p>
+</div>
+
+<div id="setor" class="hide">
+  <div class="bar">
+    <div class="row">
+      <button class="btn sec sm" id="voltar">Voltar</button>
+      <b id="setorNome" style="flex:1;font-size:18px"></b>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <input type="text" id="busca" placeholder="Buscar (digite ou fale)">
+      <button class="mic" id="mic">Falar</button>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <button class="btn sm" id="todosFica" style="flex:1;background:#1f9d55">Todos continuam</button>
+      <button class="btn sm" id="todosSai" style="flex:1;background:#d93025">Todos saem</button>
+    </div>
+    <div class="muted" id="contaVisivel" style="margin-top:6px"></div>
+  </div>
+  <div id="lista"></div>
+  <p><button class="btn sec" id="mais" style="width:100%">Mostrar mais</button></p>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const URL_SB='https://cuiqmczhtcrrxafmzmhh.supabase.co';
+const KEY='sb_publishable_2A36EPYGbgAXMOPj0Up6yg_IxSsYmak';
+const CONTA='fabioleiite';
+const NOMES={famosos_verificados:'Famosos e perfis verificados',perfis_pessoais:'Pessoas e perfis comuns',perfis_privados:'Perfis privados (pessoas)',musica_artistas:'Música e artistas',moda:'Moda e lojas de roupa',marketing:'Marketing e design',negocios:'Negócios e empreendedorismo',bras_comercio:'Brás e comércio',viagem_comida:'Viagem e comida',carro:'Carros e motores',ia_tecnologia:'IA e tecnologia',futebol_esportes:'Futebol e esportes',fitness:'Academia e saúde',religiao:'Religião',humor_noticias:'Humor e notícias'};
+let SENHA='',D=[],setorAtual=null,filtro='faltam',busca='',pagina=1;
+const $=id=>document.getElementById(id);
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1800)}
+async function rpc(fn,args){
+  const r=await fetch(URL_SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(args)});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function entrar(auto){
+  const s=auto||$('senha').value.trim();
+  if(!s){$('erroLogin').textContent='Digite a senha.';return}
+  $('erroLogin').textContent='Carregando...';
+  try{
+    const rows=await rpc('ig_seg_listar',{p_senha:s,p_conta:CONTA});
+    SENHA=s;try{localStorage.setItem('ig_senha',s)}catch(e){}
+    D=rows.map(r=>({u:r[0],n:r[1],v:r[2]===1,p:r[3]===1,s:r[4],d:r[5],e:r[6]}));
+    $('login').classList.add('hide');mostraHome();
+  }catch(e){$('erroLogin').textContent='Senha errada ou sem conexão.';try{localStorage.removeItem('ig_senha')}catch(x){}}
+}
+function mostraHome(){
+  setorAtual=null;$('setor').classList.add('hide');$('home').classList.remove('hide');
+  const g={};D.forEach(x=>{(g[x.s]=g[x.s]||{t:0,sai:0,fica:0,feito:0}).t++;if(x.e==='feito')g[x.s].feito++;else if(x.d==='deixar')g[x.s].sai++;else if(x.d==='seguir')g[x.s].fica++;});
+  const sai=D.filter(x=>x.d==='deixar'&&x.e!=='feito').length,fica=D.filter(x=>x.d==='seguir').length,feito=D.filter(x=>x.e==='feito').length;
+  $('tSai').textContent=sai;$('tFica').textContent=fica;$('tFalta').textContent=D.length-sai-fica-feito;
+  $('resumoTxt').textContent=D.length+' perfis'+(feito?' · '+feito+' já deixados de seguir':'');
+  $('setores').innerHTML=Object.keys(g).sort((a,b)=>g[b].t-g[a].t).map(k=>{const x=g[k];const falta=x.t-x.sai-x.fica-x.feito;
+    return `<div class="card" data-s="${k}"><div><b>${NOMES[k]||k}</b><div class="muted">${x.t} perfis · ${x.sai} saem · ${x.fica} continuam · ${falta} faltam</div></div><button class="btn sm">Abrir</button></div>`}).join('');
+  document.querySelectorAll('#setores .card').forEach(c=>c.onclick=()=>abreSetor(c.dataset.s));
+}
+function abreSetor(s){
+  setorAtual=s;filtro='faltam';busca='';pagina=1;$('busca').value='';
+  $('home').classList.add('hide');$('setor').classList.remove('hide');$('setorNome').textContent=NOMES[s]||s;
+  window.scrollTo(0,0);desenha();
+}
+function visiveis(){
+  const q=busca.toLowerCase();
+  return D.filter(x=>x.s===setorAtual&&x.e!=='feito'&&(!q||x.u.toLowerCase().includes(q.replace(/\s+/g,''))||(x.n||'').toLowerCase().includes(q))&&
+    (filtro==='todos'||(filtro==='faltam'&&!x.d)||(filtro==='sai'&&x.d==='deixar')||(filtro==='fica'&&x.d==='seguir')));
+}
+function desenha(){
+  const base=D.filter(x=>x.s===setorAtual&&x.e!=='feito');
+  const c={faltam:base.filter(x=>!x.d).length,sai:base.filter(x=>x.d==='deixar').length,fica:base.filter(x=>x.d==='seguir').length,todos:base.length};
+  $('chips').innerHTML=[['faltam','Faltam'],['sai','Saem'],['fica','Continuam'],['todos','Todos']].map(([k,t])=>`<button class="chip ${filtro===k?'on':''}" data-f="${k}">${t} ${c[k]}</button>`).join('');
+  document.querySelectorAll('#chips .chip').forEach(b=>b.onclick=()=>{filtro=b.dataset.f;pagina=1;desenha()});
+  const v=visiveis();
+  $('contaVisivel').textContent=v.length+' na tela agora';
+  $('lista').innerHTML=v.slice(0,pagina*60).map(x=>`<div class="item" data-u="${x.u}"><a href="https://instagram.com/${x.u}" target="_blank" rel="noopener">@${x.u}</a>${x.v?'<span class="tag">verificado</span>':''}${x.p?'<span class="tag">privado</span>':''}<div class="nome">${(x.n||'').replace(/</g,'&lt;')}</div><div class="acts"><button class="k ${x.d==='seguir'?'on':''}" data-a="seguir">Continua</button><button class="s ${x.d==='deixar'?'on':''}" data-a="deixar">Sai</button></div></div>`).join('')||'<p class="muted">Nada aqui.</p>';
+  $('mais').classList.toggle('hide',v.length<=pagina*60);
+  document.querySelectorAll('#lista .acts button').forEach(b=>b.onclick=()=>marca([b.closest('.item').dataset.u],b.dataset.a));
+}
+async function marca(us,dec){
+  const set=new Set(us);const antes=D.filter(x=>set.has(x.u)).map(x=>[x,x.d]);
+  const novo=antes.every(([x])=>x.d===dec)?null:dec;
+  D.forEach(x=>{if(set.has(x.u))x.d=novo});
+  desenha();
+  try{for(let i=0;i<us.length;i+=500)await rpc('ig_seg_decidir',{p_senha:SENHA,p_conta:CONTA,p_usuarios:us.slice(i,i+500),p_decisao:novo});toast('Salvo')}
+  catch(e){antes.forEach(([x,d])=>x.d=d);desenha();toast('Não salvou, tente de novo')}
+}
+$('entrar').onclick=()=>entrar();$('senha').onkeydown=e=>{if(e.key==='Enter')entrar()};
+$('voltar').onclick=mostraHome;
+$('busca').oninput=e=>{busca=e.target.value;pagina=1;desenha()};
+$('mais').onclick=()=>{pagina++;desenha()};
+$('todosFica').onclick=()=>{const v=visiveis();if(v.length&&confirm('Marcar '+v.length+' perfis como CONTINUAM?'))marca(v.map(x=>x.u),'seguir')};
+$('todosSai').onclick=()=>{const v=visiveis();if(v.length&&confirm('Marcar '+v.length+' perfis para SAIR?'))marca(v.map(x=>x.u),'deixar')};
+// voz
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR)$('mic').classList.add('hide');else{
+  const rec=new SR();rec.lang='pt-BR';rec.interimResults=false;
+  rec.onresult=e=>{const t=e.results[0][0].transcript;$('busca').value=t;busca=t;pagina=1;desenha()};
+  rec.onend=()=>$('mic').classList.remove('on');
+  $('mic').onclick=()=>{try{$('mic').classList.add('on');rec.start()}catch(e){}};
+}
+try{const s=localStorage.getItem('ig_senha');if(s){$('senha').value='';entrar(s)}}catch(e){}
+</script>
+</body>
+</html>
