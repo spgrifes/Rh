@@ -245,7 +245,7 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 .blk.conta{background:#f0f7ff;border:1px solid #cfe2ff;border-radius:14px;padding:6px 14px 14px}.blk.conta h3{color:#1d4ed8}
 .ct-sub{font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--soft);margin:12px 0 4px}
 .ct-l{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed #cfe2ff}
-.ct-d{font-size:.85rem;color:var(--soft);margin-top:2px}.ct-v{font-weight:800;white-space:nowrap;text-align:right}.ct-ok{font-size:.75rem;color:var(--green);font-weight:700}
+.ct-d{font-size:.85rem;color:var(--soft);margin-top:2px}.ct-v{font-weight:800;white-space:nowrap;text-align:right}.ct-b{margin-top:4px;text-align:right}.ct-b .pg{border:1px solid var(--green);background:var(--card);color:var(--green);border-radius:999px;padding:5px 14px;font-size:.8rem;font-weight:800}.ct-b .pg.on{background:var(--green);color:#fff}.ct-ok{font-size:.75rem;color:var(--green);font-weight:700}
 .neg{color:#c0262d}
 .ct-tot{margin-top:12px;background:#fff;border-radius:12px;padding:10px 12px;display:grid;gap:6px}
 .ct-r{display:flex;justify-content:space-between;gap:10px}.ct-r.big{font-size:1.15rem;border-top:1px solid var(--line);padding-top:8px}.ct-r.big2{font-size:1.25rem;color:#1d4ed8}
@@ -516,7 +516,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const $=id=>document.getElementById(id);
 const SETOR_COR={Vendas:'#12895a',Caixa:'#2563eb',Site:'#7048e8',Loja:'#d97706',Apoio:'#475569',CD:'#0e7490',RH:'#be185d','Mídia':'#c026d3'};
 
-const PAGO=['ok','pix','dinheiro','cartao','transf'], FORMA={ok:'Pago',pix:'Pix',dinheiro:'Dinheiro',cartao:'Cartão',transf:'Transferência'}; let pgEsc=null;
+const PAGO=['ok','pix','dinheiro','cartao','transf'], FORMA={ok:'Pago',pix:'Pix',dinheiro:'Dinheiro',cartao:'Cartão',transf:'Transferência'}; let pgEsc=null; const rrPg=()=>{if(typeof fichaId!=='undefined'&&fichaId)render();else renderAgenda();};
 let QUEM='', MESATUAL=null, MESES=[], REGS=[], LOG=[], AGEQ=[], regTipo=null, regEdit=null, regFunc='todos';
 let DESL={}; let D=null, REV={}, SENHA='', filtro='todos', editando=null, editAl=null, aba='painel', agf='todos', agEd=null, agVal=null;
 
@@ -581,7 +581,7 @@ function valesNoMes(e,ym){const L=[];valesDe(e).filter(r=>r.d.st!=='Descontado')
   if(r.d.parcelas&&r.d.parcelas.length)r.d.parcelas.forEach((p,i)=>{if(p.mes===ym)L.push({r,valor:valNum(p.valor),parc:r.d.parcelas.length>1?(i+1)+'ª de '+r.d.parcelas.length:''});});
   else if(mesDesconto(r)===ym)L.push({r,valor:valNum(r.d.valor),parc:''});});return L;}
 function contaMes(e){const ym=mesYM(); let itens=[];
-  try{gerarAgenda().filter(d=>d.data.slice(0,7)===ym).forEach(d=>d.itens.filter(i=>i.quem===e.nome).forEach(i=>itens.push({data:d.dia,tit:d.titulo,desc:i.motivo,valor:i.valor,obs:i.obs,pago:PAGO.includes((REV[i.id]||{}).s),forma:FORMA[(REV[i.id]||{}).s]||''})));}catch(err){}
+  try{gerarAgenda().filter(d=>d.data.slice(0,7)===ym).forEach(d=>d.itens.filter(i=>i.quem===e.nome).forEach(i=>itens.push({id:i.id,data:d.dia,tit:d.titulo,desc:i.motivo,valor:i.valor,obs:i.obs,baixa:(REV[i.id]||{}).a,pago:PAGO.includes((REV[i.id]||{}).s),forma:FORMA[(REV[i.id]||{}).s]||''})));}catch(err){}
   const vs=valesNoMes(e,ym);
   const ent=itens.reduce((t,i)=>t+(i.valor||0),0), sai=vs.reduce((t,v)=>t+v.valor,0), pago=itens.filter(i=>i.pago).reduce((t,i)=>t+(i.valor||0),0);
   return {itens,vs,ent,sai,total:Math.round((ent-sai)*100)/100,pago,falta:Math.round((ent-sai-pago)*100)/100,semValor:itens.filter(i=>i.valor==null).length};}
@@ -589,7 +589,9 @@ function contaHTML(e){const c=contaMes(e), nm=(MESES.find(m=>m.id===MESATUAL)||{
   if(!c.itens.length&&!c.vs.length)return `<div class="blk conta"><h3>Conta do mês · ${esc(nm)}</h3><div class="vf2" style="padding:6px 0">Ainda não há pagamentos na agenda deste mês para ${esc(e.nome)}.</div></div>`;
   return `<div class="blk conta"><h3>Conta do mês · ${esc(nm)}</h3>
    <div class="ct-sub">Entradas (o que ela recebe)</div>
-   ${c.itens.map(i=>`<div class="ct-l"><div><b>${esc(i.data)} · ${esc(i.tit)}</b><div class="ct-d">${esc(i.desc)}${i.obs?' · <i>'+esc(i.obs)+'</i>':''}</div></div><div class="ct-v num">${i.valor==null?'<span style="color:var(--amber)">falta valor</span>':F(i.valor)}${i.pago?`<div class="ct-ok">✓ pago${i.forma&&i.forma!=='Pago'?' · '+esc(i.forma):''}</div>`:''}</div></div>`).join('')||'<div class="ct-d">Nada a receber neste mês.</div>'}
+   ${c.itens.map(i=>`<div class="ct-l"><div><b>${esc(i.data)} · ${esc(i.tit)}</b><div class="ct-d">${esc(i.desc)}${i.obs?' · <i>'+esc(i.obs)+'</i>':''}</div></div><div class="ct-v num">${i.valor==null?'<span style="color:var(--amber)">falta valor</span>':F(i.valor)}${i.pago?`<div class="ct-ok">✓ pago${i.forma&&i.forma!=='Pago'?' · '+esc(i.forma):''}${i.baixa?' · '+new Date(i.baixa).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}</div>`:''}
+     <div class="ct-b"><button type="button" class="pg ${i.pago?'on':''}" data-pg="${i.id}">${i.pago?'Pago ✓ (desfazer)':'Pago'}</button></div></div></div>
+     ${pgEsc===i.id?`<div class="formas"><b>Como foi pago?</b>${['pix','dinheiro','cartao','transf'].map(f=>`<button type="button" data-forma="${f}" data-id="${i.id}">${FORMA[f]}</button>`).join('')}<button type="button" class="cx" data-forma="" data-id="${i.id}">Cancelar</button></div>`:''}`).join('')||'<div class="ct-d">Nada a receber neste mês.</div>'}
    <div class="ct-sub">Saídas (vales e compras a descontar)</div>
    ${c.vs.map(v=>`<div class="ct-l"><div><b>${esc(v.r.d.tipo||'Vale')}${v.parc?' · parcela '+v.parc:''}</b><div class="ct-d">${esc(v.r.d.motivo||'')} · lançado em ${new Date(v.r.ce).toLocaleDateString('pt-BR')}</div></div><div class="ct-v num neg">− ${F(v.valor)}</div></div>`).join('')||'<div class="ct-d">Nenhum vale para descontar neste mês.</div>'}
    <div class="ct-tot"><div class="ct-r"><span>Entradas</span><b class="num">${F(c.ent)}</b></div><div class="ct-r"><span>Saídas (vales)</span><b class="num neg">− ${F(c.sai)}</b></div>
@@ -597,7 +599,7 @@ function contaHTML(e){const c=contaMes(e), nm=(MESES.find(m=>m.id===MESATUAL)||{
      <div class="ct-r"><span>Já pago</span><b class="num" style="color:var(--green)">${F(c.pago)}</b></div>
      <div class="ct-r big2"><span>Falta pagar</span><b class="num">${F(c.falta)}</b></div>
      ${c.semValor?`<div class="ct-d" style="color:var(--amber)">${c.semValor} pagamento(s) sem valor: o total vai mudar quando forem informados.</div>`:''}
-     <div class="ct-d">Os vales são abatidos no primeiro pagamento do mês. Para marcar como pago, use a Agenda de pagamentos.</div></div></div>`;}
+     <div class="ct-d">Os vales são abatidos no primeiro pagamento do mês. Toque em Pago em cada pagamento para abater (vale para a Agenda e os Totais também).</div></div></div>`;}
 /* ===== Observações e anexos da ficha (por mês) ===== */
 const obsDe=e=>REGS.filter(r=>r.tipo==='obs'&&r.func===e.id&&r.d.mes===mesYM());
 function obsHTML(e){const L=obsDe(e);
@@ -1210,11 +1212,11 @@ document.addEventListener('click',ev=>{
   const ttv=ev.target.closest('[data-ttver]'); if(ttv){agf=ttv.dataset.ttver;trocarAba('agenda');return;}
   const ag=ev.target.closest('[data-agf]'); if(ag){agf=ag.dataset.agf;renderAgenda();return;}
   const pg=ev.target.closest('[data-pg]'); if(pg){ev.preventDefault();const id=pg.dataset.pg;REV[id]=REV[id]||{};
-    if(PAGO.includes(REV[id].s)){REV[id].s='';salvar(id);pgEsc=null;renderAgenda();toast('Pagamento desfeito');return;}
-    pgEsc=pgEsc===id?null:id;renderAgenda();return;}
+    if(PAGO.includes(REV[id].s)){REV[id].s='';salvar(id);pgEsc=null;rrPg();toast('Pagamento desfeito');return;}
+    pgEsc=pgEsc===id?null:id;rrPg();return;}
   const fm=ev.target.closest('[data-forma]'); if(fm){ev.preventDefault();const id=fm.dataset.id,f=fm.dataset.forma;pgEsc=null;
     if(f){REV[id]=REV[id]||{};REV[id].s=f;REV[id].a=new Date().toISOString();salvar(id);toast('Baixa feita: pago em '+FORMA[f]);}
-    renderAgenda();return;}
+    rrPg();return;}
   const pv=ev.target.closest('[data-pgval]'); if(pv){ev.preventDefault();agVal=agVal===pv.dataset.pgval?null:pv.dataset.pgval;agEd=null;renderAgenda();const i=$('v_'+agVal);if(i)i.focus({preventScroll:true});return;}
   const vs=ev.target.closest('[data-vsave]'); if(vs){ev.preventDefault();const id=vs.dataset.vsave,inp=$('v_'+id),t=(inp?inp.value:'').trim().replace(/R\$\s*/i,'');if(t&&!valNum(t)&&!/^0+([.,]0+)?$/.test(t)){toast('Digite só o número. Ex.: 120,00');return;}
     const k='v_'+id;REV[k]=REV[k]||{};REV[k].n=t;REV[k].s=t?'valor':'';salvar(k);agVal=null;renderAgenda();toast(t?'Valor corrigido para '+F(valNum(t)):'Voltou ao valor da conta');return;}
