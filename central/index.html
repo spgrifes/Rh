@@ -893,6 +893,16 @@ document.getElementById('busca').addEventListener('input', function (e) { render
 </script>
 
 <style id="boss-room-tech">
+.live{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px;position:relative;z-index:1}
+.live span{font:600 .78rem ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:6px 10px;border-radius:10px;border:1px solid rgba(0,224,255,.35);background:rgba(0,224,255,.08);color:#bff6ff}
+.live span.ruim{border-color:rgba(255,77,99,.6);background:rgba(255,77,99,.12);color:#ffc2ca}
+.live b{color:#fff}
+#perg{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(max(20px,env(safe-area-inset-bottom,0px)) + 76px);z-index:41;display:none;gap:6px;width:min(24rem,calc(100vw - 32px))}
+#perg.on{display:flex}
+#perg input{flex:1;min-width:0;padding:12px 14px;border-radius:14px;border:1px solid rgba(0,224,255,.5);background:rgba(6,9,13,.96);color:#e9fbff;font:600 1rem var(--body)}
+#perg button{padding:0 14px;border-radius:14px;border:1px solid rgba(0,224,255,.5);background:#0d2a32;color:#7ff0ff;font:700 .9rem var(--body)}
+#voz-msg{white-space:pre-line;bottom:calc(max(20px,env(safe-area-inset-bottom,0px)) + 136px)!important;max-height:40vh;overflow:auto}
+#vozp{position:fixed;right:max(88px,calc(env(safe-area-inset-right,0px) + 88px));bottom:max(32px,env(safe-area-inset-bottom,0px));z-index:40;width:40px;height:40px;border-radius:50%;border:1px solid rgba(0,224,255,.5);background:#06090d;color:#7ff0ff;font:800 1.1rem var(--body);cursor:pointer}
 /* Boss Room · visual de tecnologia */
 .topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,#00e0ff,#c8102e,#00e0ff,transparent);background-size:200% 100%;animation:fio 6s linear infinite}
 @keyframes fio{to{background-position:-200% 0}}
@@ -937,6 +947,7 @@ a.app:hover .ico,a.app:focus-visible .ico{box-shadow:0 0 0 1px rgba(0,224,255,.5
     var f = frase.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[.,!?]/g, '').trim();
     if (!f) return dizer('Não entendi. Toque no microfone e fale de novo.');
     if (/^(bloquear|trancar|sair)/.test(f)) { dizer('Bloqueando.', true); document.getElementById('sair').click(); return; }
+    if (!/^(por favor )?(abrir|abre|abra|ir para|vai para|va para|me leva|mostrar|mostra|procurar|procura|buscar|busca|acessar|acessa|entrar)/.test(f) && /^(quanto|quantas|quantos|qual|quais|que |o que|como|tenho|tem |temos|resumo|me diz|diga|fala|ha |existe)|atrasad|vencid|vencem|anotei|compromisso/.test(f) && window.__assist) { window.__assist(f, dizer); return; }
     var q = f.replace(/^(por favor )?(abrir|abre|abra|ir para|vai para|va para|me leva (para|pra)|mostrar|mostra|procurar|procura|buscar|busca|acessar|acessa|entrar (em|no|na))( o| a| os| as| no| na| em| do| da| de)? /, '').trim();
     var area = AREAS.filter(function (a) { return norm(a.t) === norm(q); })[0];
     if (area) { dizer('Mostrando ' + area.t + '.', true); irPara(area.id); return; }
@@ -962,6 +973,79 @@ a.app:hover .ico,a.app:focus-visible .ico{box-shadow:0 0 0 1px rgba(0,224,255,.5
     rec.onend = function () { btn.classList.remove('on'); rec = null; if (final) exec(final); };
     try { rec.start(); } catch (e) { btn.classList.remove('on'); rec = null; dizer('Não consegui ligar o microfone.'); }
   });
+})();
+</script>
+<script id="boss-room-assistente">
+(function () {
+  var cache = { t: 0, cc: null, cp: null };
+  function brl2(v) { return 'R$ ' + Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function carrega(forca) {
+    if (!forca && cache.cc && Date.now() - cache.t < 60000) return Promise.resolve(cache);
+    var senha = ''; try { senha = localStorage.getItem('cc-pw') || ''; } catch (e) {}
+    if (!senha) return Promise.reject(new Error('sem senha'));
+    return Promise.all([rpc('cc_get', { p_senha: senha }), rpc('cp_get', { p_senha: senha })]).then(function (r) { cache = { t: Date.now(), cc: r[0], cp: r[1] }; return cache; });
+  }
+  function abertas(cp) { return (cp.contas || []).filter(function (c) { return c.status !== 'paga' && c.status !== 'cancelada' && c.venc; }); }
+  function soma(l) { return l.reduce(function (s, c) { return s + (Number(c.valor) || 0); }, 0); }
+  function resumo(cp) {
+    var h = hojeISO(), l7 = hojeISO(7), ab = abertas(cp);
+    return { atr: ab.filter(function (c) { return c.venc < h; }), sem: ab.filter(function (c) { return c.venc >= h && c.venc <= l7; }), hoje: ab.filter(function (c) { return c.venc === h; }), ab: ab };
+  }
+  function numeros() {
+    carrega(true).then(function (d) {
+      var r = resumo(d.cp), box = document.getElementById('live');
+      if (!box) { box = document.createElement('div'); box.id = 'live'; box.className = 'live'; var st = document.getElementById('stats'); st.parentNode.insertBefore(box, st); }
+      box.innerHTML = '<span class="' + (r.atr.length ? 'ruim' : '') + '">Contas atrasadas <b>' + r.atr.length + '</b></span><span>Vencem em 7 dias <b>' + r.sem.length + ' · ' + brl2(soma(r.sem)) + '</b></span>';
+    }).catch(function () {});
+  }
+  function lista(l, max) { max = max || 6; return l.slice(0, max).map(function (c) { return '• ' + c.nome + ' — ' + brl2(c.valor) + ' (' + c.venc.split('-').reverse().slice(0, 2).join('/') + ')'; }).join('\n') + (l.length > max ? '\n… e mais ' + (l.length - max) : ''); }
+  function sem(t) { return String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  function responde(f, d) {
+    var h = hojeISO(), am = hojeISO(1), cc = d.cc, cp = d.cp, r = resumo(cp);
+    function comp(dia) { return cc.compromissos.filter(function (c) { return c.quando === dia && !c.feito; }); }
+    if (/(conta|boleto|pagar|vencer|vence|vencid|atrasad)/.test(f)) {
+      if (/atrasad|vencid/.test(f)) return r.atr.length ? 'Contas atrasadas: ' + r.atr.length + ', total ' + brl2(soma(r.atr)) + '.\n' + lista(r.atr) : 'Nenhuma conta atrasada.';
+      if (/hoje/.test(f)) return r.hoje.length ? 'Vencem hoje: ' + r.hoje.length + ', total ' + brl2(soma(r.hoje)) + '.\n' + lista(r.hoje) : 'Nada vence hoje.';
+      return 'Em aberto: ' + r.ab.length + ' contas, ' + brl2(soma(r.ab)) + '. Atrasadas: ' + r.atr.length + '. Vencem em 7 dias: ' + r.sem.length + ' (' + brl2(soma(r.sem)) + ').' + (r.sem.length ? '\n' + lista(r.sem, 5) : '');
+    }
+    if (/(anotei|anotac|nota)/.test(f)) {
+      var ns = cc.notas.filter(function (n) { return String(n.criado).slice(0, 10) === h; }), hoje = ns.length > 0;
+      if (!hoje) ns = cc.notas.slice(0, 3);
+      return ns.length ? (hoje ? 'Anotações de hoje:' : 'Últimas anotações:') + '\n' + ns.slice(0, 5).map(function (n) { return '• [' + n.assunto + '] ' + String(n.texto).slice(0, 140); }).join('\n') : 'Nenhuma anotação ainda.';
+    }
+    if (/(compromisso|agenda|tenho|marcad|amanha)/.test(f)) {
+      var dia = /amanha/.test(f) ? am : h, l = comp(dia), nome = dia === am ? 'amanhã' : 'hoje';
+      var atr = cc.compromissos.filter(function (c) { return c.quando < h && !c.feito; });
+      return (l.length ? 'Compromissos de ' + nome + ': ' + l.length + '.\n' + l.map(function (c) { return '• ' + (c.hora ? String(c.hora).slice(0, 5) + ' ' : '') + c.texto; }).join('\n') : 'Nenhum compromisso ' + nome + '.') + (dia === h && atr.length ? '\nAtrasados: ' + atr.length + '.' : '');
+    }
+    if (/(meta|foco|semana)/.test(f)) {
+      var ms = cc.metas.filter(function (m) { return m.semana === cc.semana; });
+      return ms.length ? 'Foco da semana:\n' + ms.map(function (m) { return '• ' + m.texto + ' (' + (m.progresso || 0) + '%)'; }).join('\n') : 'Sem foco definido para esta semana.';
+    }
+    if (/(pauta|reuniao)/.test(f)) {
+      var ps = cc.pauta.filter(function (p) { return !p.decidido; });
+      return ps.length ? 'Pauta da reunião: ' + ps.length + ' itens.\n' + ps.slice(0, 6).map(function (p) { return '• ' + p.texto; }).join('\n') : 'Pauta vazia.';
+    }
+    if (/(regra)/.test(f)) {
+      var rs = cc.regras.filter(function (x) { var a = sem(x.area); return /caixa|atendimento|loja|vendas|horarios|equipe/.test(f) ? f.indexOf(a) > -1 : true; });
+      return rs.length ? 'Regras:\n' + rs.slice(0, 6).map(function (x) { return '• [' + x.area + '] ' + String(x.texto).slice(0, 140); }).join('\n') : 'Nenhuma regra encontrada.';
+    }
+    if (/(relatorio)/.test(f)) {
+      var rl = cc.relatorios[0]; return rl ? 'Último relatório: ' + rl.titulo + ' (' + rl.area + ', ' + String(rl.criado).slice(0, 10).split('-').reverse().join('/') + ').' : 'Nenhum relatório ainda.';
+    }
+    return null;
+  }
+  var NAO = 'Eu respondo sobre contas a pagar, agenda, anotações, foco da semana, pauta e regras. Vendas, caixa e estoque ainda não chegam aqui.';
+  window.__assist = function (f, dizer) {
+    return carrega(false).then(function (d) { dizer(responde(f, d) || NAO, true); }).catch(function () { dizer('Não consegui ler os dados agora. Confira a conexão e a senha.', true); });
+  };
+  var site = document.getElementById('site');
+  site.insertAdjacentHTML('beforeend', '<button id="vozp" type="button" aria-label="Escrever uma pergunta">?</button><form id="perg"><input id="perg-in" type="text" placeholder="Pergunte: contas atrasadas?" autocomplete="off"><button type="submit">Ir</button></form>');
+  var fm = document.getElementById('perg'), inp = document.getElementById('perg-in');
+  document.getElementById('vozp').addEventListener('click', function () { fm.classList.toggle('on'); if (fm.classList.contains('on')) inp.focus(); });
+  fm.addEventListener('submit', function (e) { e.preventDefault(); var v = inp.value.trim(); if (v) { window.__vozExec(v); inp.value = ''; } });
+  new MutationObserver(function (m, o) { if (!site.hidden) { o.disconnect(); setTimeout(numeros, 300); } }).observe(site, { attributes: true, attributeFilter: ['hidden'] });
+  if (!site.hidden) setTimeout(numeros, 300);
 })();
 </script>
 
