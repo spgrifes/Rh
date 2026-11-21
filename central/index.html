@@ -934,13 +934,13 @@ a.app:hover .ico,a.app:focus-visible .ico{box-shadow:0 0 0 1px rgba(0,224,255,.5
     return out;
   }
   function exec(frase) {
-    var f = norm(frase).replace(/[.,!?]/g, '').trim();
+    var f = frase.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[.,!?]/g, '').trim();
     if (!f) return dizer('Não entendi. Toque no microfone e fale de novo.');
     if (/^(bloquear|trancar|sair)/.test(f)) { dizer('Bloqueando.', true); document.getElementById('sair').click(); return; }
     var q = f.replace(/^(por favor )?(abrir|abre|abra|ir para|vai para|va para|me leva (para|pra)|mostrar|mostra|procurar|procura|buscar|busca|acessar|acessa|entrar (em|no|na))( o| a| os| as| no| na| em| do| da| de)? /, '').trim();
-    var area = AREAS.filter(function (a) { return norm(a.t) === q; })[0];
+    var area = AREAS.filter(function (a) { return norm(a.t) === norm(q); })[0];
     if (area) { dizer('Mostrando ' + area.t + '.', true); irPara(area.id); return; }
-    var hits = acha(q), exato = hits.filter(function (x) { return norm(x[0]) === q; })[0], pick = exato || (hits.length === 1 ? hits[0] : null);
+    var hits = acha(q), exato = hits.filter(function (x) { return norm(x[0]) === norm(q); })[0], pick = exato || (hits.length === 1 ? hits[0] : null);
     if (pick) {
       var w = null; try { w = window.open(url(pick[1]), '_blank', 'noopener'); } catch (e) {}
       if (w) dizer('Abrindo ' + pick[0] + '.', true);
