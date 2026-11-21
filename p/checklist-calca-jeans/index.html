@@ -82,7 +82,7 @@ main{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!import
   <div class="hint" id="hint">Toque no verde se tem. Toque no vermelho se não tem: entra no resumo para o CD mandar a grade.</div>
 </section>
 <script>
-const CFG = {"key": "calca-jeans", "nome": "calça jeans", "titulo": "Calça jeans", "frase": "Estas marcas de calça jeans precisam de reposição de grade", "itens": ["Boss", "Armani", "Ellus", "Lacoste", "Diesel", "Calvin Klein", "Gucci", "John John", "Philipp Plein", "Tommy Hilfiger", "Zara"]};
+const CFG = {"key": "calca-jeans", "nome": "calça jeans", "titulo": "Calça jeans", "frase": "Estas marcas de calça jeans precisam de reposição de grade", "itens": ["Calça Top", "Calça Premium", "Calça Comum", "Boss", "Armani", "Ellus", "Lacoste", "Diesel", "Calvin Klein", "Gucci", "John John", "Philipp Plein", "Tommy Hilfiger", "Zara"], "fotos": [null, null, null, null, null, null, null, null, null, null, null, null, null, null]};
 const ITENS = CFG.itens, total = ITENS.length;
 const hoje = new Date(), dia = hoje.toISOString().slice(0,10);
 const KEY = 'checklist-'+CFG.key+'-'+dia;
@@ -136,5 +136,6 @@ function rb(){bl.forEach(b=>{delete b.dataset.c;b.classList.remove('conf');b.tex
 bl.forEach(b=>{b.onclick=()=>{ if(b.dataset.c){estado={};salvar();cards.forEach((_,i)=>pintar(i));contar();filtro='falta';aplicar();rb();window.scrollTo(0,0);} else{rb();b.dataset.c=1;b.classList.add('conf');b.textContent='Toque de novo para limpar tudo';setTimeout(()=>{if(b.dataset.c)rb();},4000);} };});
 cards.forEach((_,i)=>pintar(i)); contar(); aplicar();
 </script>
+<script src="../checklist/historico.js?v=1"></script>
 </body>
 </html>
