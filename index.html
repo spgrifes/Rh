@@ -389,12 +389,20 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <p class="sub">Escolha o funcionário, o valor, o motivo e tire a foto do papel assinado. A data e a hora entram sozinhas e vai direto para o RH.</p>
   </div></header>
   <main class="gut"><div class="wrap">
+    <div class="tps" id="cxabas" style="margin:0 0 14px"><button type="button" data-cxab="v" aria-pressed="true">Vales e compras</button><button type="button" data-cxab="p" aria-pressed="false">Pagamentos</button></div>
+    <div id="cxvales">
     <div id="cxresw" hidden></div>
     <div class="frm cxf" id="cxform"></div>
     <h2 style="margin:22px 0 2px">Seus lançamentos</h2><div class="sy2" style="margin-bottom:10px">Últimos 45 dias</div>
     <div class="grid" id="cxlist"></div>
     <div id="cxhistw" hidden><h2 style="margin:26px 0 2px">Histórico de pagos</h2><div class="sy2" style="margin-bottom:10px">Vales que já foram pagos ao funcionário</div>
     <div class="grid" id="cxhist"></div></div>
+    </div>
+    <div id="cxpags" hidden>
+      <div class="frm cxf" id="cxpform"></div>
+      <h2 style="margin:22px 0 2px">Pagamentos lançados</h2><div class="sy2" style="margin-bottom:10px">Pagamentos avulsos registrados (últimos 45 dias)</div>
+      <div class="grid" id="cxplist"></div>
+    </div>
   </div></main>
 </div>
 
@@ -1297,7 +1305,7 @@ $('abrevale').addEventListener('click',abrirVales);
 if($('copy'))$('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(correcoes());toast('Correções copiadas. Cole no grupo RH.');}catch(e){toast('Não deu para copiar neste aparelho');}});
 
 async function carregar(){const d=await rpc('rh_get',{p_senha:SENHA,p_mes:MESATUAL});
-  if(d.papel==='caixa'){CX=d;QUEM=d.quem;return;}
+  if(d.papel==='caixa'){CX=d;CX.pagtos=(d.registros||[]).filter(r=>r.tipo==='pagto');CX.registros=(d.registros||[]).filter(r=>r.tipo!=='pagto');QUEM=d.quem;return;}
   D=d.dados||{};D.EQUIPE=D.EQUIPE||[];D.EQUIPE.forEach(e=>{e.setor=e.setor||(/vend/i.test(e.funcao||'')?'Vendas':'Equipe');e.extra=e.extra||[];});
   D.AGENDA=(d.agenda||{}).AGENDA;D.ALERTAS=(d.agenda||{}).ALERTAS||[];AGEQ=d.agenda_eq||D.EQUIPE;AGEQ.forEach(e=>{e.setor=e.setor||'Equipe'});
   QUEM=d.quem;MESATUAL=d.mes;MESES=d.meses||[];REGS=d.registros||[];LOG=d.log||[];
@@ -1413,10 +1421,10 @@ async function cxDesfazPago(id){
   const d={...r.d};delete d.pago;delete d.pagoEm;delete d.pagoForma;delete d.pagoPor;
   try{await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:r.id,p_tipo:'vale',p_func:r.func,p_dados:d});await carregar();cxAtualiza();renderCaixa();toast('Voltou para a lista a pagar');}
   catch(e){toast('Não salvou. Tente de novo.');}}
-function renderCaixa(){$('cxquem').textContent='Olá, '+CX.quem;$('cxsair').textContent=CX.admin?'‹ Voltar ao painel':'Sair';cxForm();cxResumo();cxLista();}
+function renderCaixa(){$('cxquem').textContent='Olá, '+CX.quem;$('cxsair').textContent=CX.admin?'‹ Voltar ao painel':'Sair';cxForm();cxResumo();cxLista();cxAba(cxAb);}
 const parcHTML=d=>(d.parcelas&&d.parcelas.length)?`<div class="parcl">${d.parcelas.map(p=>`<span>${esc(nomeMes(p.mes))}: ${F(valNum(p.valor))}${p.quando?' · '+(p.quando==='dia20'?'dia 20':'final do mês'):''}</span>`).join('')}</div>`:'';
 /* Fábio e Taine também lançam vales, na mesma tela da Cris */
-function cxAtualiza(){if(CX&&CX.admin)CX={admin:true,quem:QUEM,equipe:(D.EQUIPE||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao})),registros:REGS.filter(r=>r.tipo==='vale')};}
+function cxAtualiza(){if(CX&&CX.admin)CX={admin:true,quem:QUEM,equipe:(D.EQUIPE||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao})),registros:REGS.filter(r=>r.tipo==='vale'),pagtos:REGS.filter(r=>r.tipo==='pagto')};}
 function abrirVales(){CX={admin:true};cxAtualiza();cxEdit=null;$('app').hidden=true;$('cx').hidden=false;renderCaixa();window.scrollTo(0,0);}
 function fecharVales(){CX=null;cxEdit=null;$('cx').hidden=true;$('app').hidden=false;render();window.scrollTo(0,0);}
 async function cxSalvar(){
@@ -1455,6 +1463,56 @@ document.addEventListener('click',async ev=>{
 });
 document.addEventListener('input',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pv!=null){cxParc[+t.dataset.pv].valor=t.value;resumoParc();}else if(t.id==='cxval'){if(cxParc.length>1)sugereParc(cxParc.length);else resumoParc();}});
 document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset&&t.dataset.ps!=null){const x=t.value.split('|');cxParc[+t.dataset.ps].mes=x[0];cxParc[+t.dataset.ps].quando=x[1];resumoParc();}else if(t.id==='cxnp'){sugereParc(t.value);}});
+
+/* ===== Pagamentos avulsos (aba da Cris) ===== */
+let cxAb='v', cxPEdit=null;
+const PAGFORMAS=['Pix','Dinheiro','Transferência','Outro'];
+function cxPagForm(){
+  const r=cxPEdit?CX.pagtos.find(x=>x.id===cxPEdit):null, d=r?r.d:{};
+  const outro=r?(r.func==='avulso'):false, forma=d.forma||'Pix';
+  $('cxpform').innerHTML=`<b>${r?'Editar pagamento':'Novo pagamento'}</b>
+   <label>Quem recebeu<select id="cxpfunc"><option value="">Escolha quem recebeu</option>${CX.equipe.map(e=>`<option value="${esc(e.id)}" ${r&&r.func===e.id?'selected':''}>${esc(e.nome)}${e.funcao?' · '+esc(e.funcao):''}</option>`).join('')}<option value="avulso" ${outro?'selected':''}>Outra pessoa (freelancer): escrever o nome</option></select></label>
+   <label id="cxpnomel" ${outro?'':'hidden'}>Nome da pessoa<input id="cxpnome" type="text" placeholder="Nome de quem recebeu" value="${esc(outro?(d.nome||''):'')}"></label>
+   <label>Valor pago (R$)<input id="cxpval" class="valor" type="text" inputmode="decimal" placeholder="0,00" value="${esc(d.valor||'')}"></label>
+   <label>Forma de pagamento<select id="cxpforma">${PAGFORMAS.map(f=>`<option ${f===forma?'selected':''}>${f}</option>`).join('')}</select></label>
+   <label>Pagamento de quê<textarea id="cxpmot" rows="2" placeholder="Ex.: diária de sábado / frete / serviço de costura">${esc(d.motivo||'')}</textarea></label>
+   <label class="foto" id="cxpfotol"><input type="file" id="cxpfoto" accept="image/*,application/pdf" hidden><span id="cxpfotot">${(d.arqs||[]).length?'Recibo já guardado · toque para trocar':'Tirar foto do recibo'}</span></label>
+   <div class="acts"><button type="button" class="btn" id="cxpsave">${r?'Salvar alteração':'Registrar pagamento'}</button>${r?'<button type="button" class="btn sec2" id="cxpcancel">Cancelar</button>':''}<span class="sy2" id="cxpst"></span></div>`;
+}
+function cxPagCard(r){
+  const e=CX.equipe.find(x=>x.id===r.func);const nome=r.func==='avulso'?(r.d.nome||'Sem nome'):(e?e.nome:'—');
+  return `<div class="rg"><div class="h"><div class="t1">${esc(nome)}${r.func==='avulso'?' <span class="tag t-amber">avulso</span>':''}</div><div style="font-weight:800">${F(valNum(r.d.valor))}</div></div>
+   <div class="t2">${esc(r.d.forma||'')}${r.d.motivo?' · '+esc(r.d.motivo):''}</div>
+   <div class="bt">${(r.d.arqs||[]).map(a=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'recibo'}</button>`).join('')}<button type="button" data-cxpedit="${r.id}">Editar</button><button type="button" class="del" data-cxpdel="${r.id}">Excluir</button></div>
+   <div class="by">Lançado em ${dtBR(r.ce)}${r.cp?' · por '+esc(r.cp):''}</div></div>`;}
+function cxPagLista(){const L=(CX.pagtos||[]);$('cxplist').innerHTML=L.map(cxPagCard).join('')||'<div class="rg"><div class="t2">Nenhum pagamento lançado.</div></div>';}
+function cxAba(a){cxAb=a;$('cxvales').hidden=a!=='v';$('cxpags').hidden=a!=='p';document.querySelectorAll('[data-cxab]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.cxab===a));if(a==='p'){cxPagForm();cxPagLista();}}
+async function cxPagSalvar(){
+  const func=$('cxpfunc').value, v=$('cxpval').value.trim(), mot=$('cxpmot').value.trim(), nome=$('cxpnome').value.trim(), fi=$('cxpfoto');
+  const r=cxPEdit?CX.pagtos.find(x=>x.id===cxPEdit):null, st=$('cxpst');
+  if(!func){st.textContent='Escolha quem recebeu.';return;}
+  if(func==='avulso'&&!nome){st.textContent='Escreva o nome da pessoa.';return;}
+  if(!(valNum(v)>0)){st.textContent='Coloque o valor.';return;}
+  if(!mot){st.textContent='Escreva o pagamento de quê.';return;}
+  if(!r&&!fi.files.length&&!confirm('Registrar sem a foto do recibo?'))return;
+  const d=r?{...r.d}:{};d.valor=v;d.motivo=mot;d.forma=$('cxpforma').value;if(func==='avulso')d.nome=nome;else delete d.nome;
+  $('cxpsave').disabled=true;st.textContent='Salvando...';
+  try{
+    if(fi.files.length){st.textContent='Enviando o recibo...';d.arqs=await subirArquivos([...fi.files],'pagamentos');}
+    await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:r?r.id:null,p_tipo:'pagto',p_func:func,p_dados:d});
+    cxPEdit=null;await carregar();cxAtualiza();renderCaixa();cxAba('p');toast('Pagamento registrado');window.scrollTo(0,0);
+  }catch(e){$('cxpsave').disabled=false;st.textContent='Não salvou. Verifique a internet e tente de novo.';}
+}
+document.addEventListener('click',async ev=>{
+  if($('cx').hidden)return;
+  const ab=ev.target.closest('[data-cxab]');if(ab){cxAba(ab.dataset.cxab);return;}
+  if(ev.target.closest('#cxpsave'))return cxPagSalvar();
+  if(ev.target.closest('#cxpcancel')){cxPEdit=null;cxPagForm();return;}
+  const pe=ev.target.closest('[data-cxpedit]');if(pe){cxPEdit=pe.dataset.cxpedit;cxPagForm();window.scrollTo(0,0);return;}
+  const pd=ev.target.closest('[data-cxpdel]');if(pd){if(!confirm('Excluir este pagamento?'))return;try{await rpc('rh_reg_excluir',{p_senha:SENHA,p_id:pd.dataset.cxpdel});await carregar();cxAtualiza();renderCaixa();cxAba('p');toast('Excluído');}catch(e){toast('Não consegui excluir');}return;}
+});
+document.addEventListener('change',ev=>{if(ev.target.id==='cxpfunc'){$('cxpnomel').hidden=ev.target.value!=='avulso';}
+  if(ev.target.id==='cxpfoto'){const n=ev.target.files.length;$('cxpfotot').textContent=n?'Recibo pronto ✓ (toque para trocar)':'Tirar foto do recibo';$('cxpfotol').classList.toggle('ok',!!n);}});
 document.addEventListener('change',ev=>{if(ev.target.id==='nf_cargo'){const o=ev.target.value==='Outro';$('nf_outrol').hidden=!o;$('nf_setorl').hidden=!o;}});
 document.addEventListener('change',ev=>{if(ev.target.id==='obsarq'){const n=ev.target.files.length;$('obsarqt').textContent=n?n+' arquivo(s) pronto(s) ✓':'+ Anexar foto ou PDF (atestado, recibo, documento)';}});
 document.addEventListener('change',ev=>{if(ev.target.id==='cxfoto'){const n=ev.target.files.length;$('cxfotot').textContent=n?'Foto pronta ✓ (toque para trocar)':'Tirar foto do papel assinado';$('cxfotol').classList.toggle('ok',!!n);}});
