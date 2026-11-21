@@ -759,6 +759,7 @@ function gerarAgenda(){
   const A=D.AGENDA; if(!A)return [];
   APLIC=new Set();
   const eq=AGEQ, adih=A.adih||{}, xd=A.extraDesc||{};
+  const adiBase=e=>adih[e.id]||e.adi||((e.adiAuto&&e.sal&&e.reg!=null)?Math.round(e.sal*(e.reg?0.4:0.5)*100)/100:0);
   const ativo=(e,data)=>!DESL[e.id]||data<=DESL[e.id].d.ultimo;
   const extras=Object.values(DESL).map(r=>{const e=AGEQ.find(x=>x.id===r.func)||(D.EQUIPE_ALL||[]).find(x=>x.id===r.func);if(!e)return null;const a=acerto(e,r);
     return {data:prazoAcerto(r.d.ultimo),tipo:'acerto',titulo:'Acerto final',nota:'Prazo da lei: até 10 dias depois do último dia. Valor estimado: o contador confirma (registrados).',itens:[{quem:e.nome,motivo:`Acerto final · ${r.d.motivo} · último dia ${dBR(r.d.ultimo)}`,valor:a.tot,obs:a.falta?'Falta informação para fechar a conta':''}]};}).filter(Boolean);
@@ -773,7 +774,7 @@ function gerarAgenda(){
       eqD.forEach(e=>{const v=num(e.vt), ss=/segunda a sexta/i.test(e.hor||''), n=dd.mesref?diasTrabMes(dd.mesref,ss):(ss?diasTrab(dd.data,true):dd.dias), f=dd.metade?2:1;
         itens.push({quem:e.nome,motivo:`Condução de ${dd.semana}: ${n} dias${ss?' de segunda a sexta':''} no mês${v?' × '+F(v):''}${f===2?' ÷ 2 (metade)':''}`,valor:v?Math.round(v*n/f*100)/100:null,obs:v?'':'Falta o valor do vale-transporte'});});}
     if(dd.tipo==='salario'){titulo='Saldo do salário';
-      eqD.forEach(e=>{const ad=adih[e.id]||e.adi||0, ds=descNa(e,'05/11'), x=xd[e.id];
+      eqD.forEach(e=>{const ad=adiBase(e), ds=descNa(e,'05/11'), x=xd[e.id];
         if(e.id==='taine'||e.id==='vitoria')return;
         let v=e.sal?e.sal-ad-ds-(x?x[0]:0):null;
         const partes=[e.sal?'salário '+F(e.sal):null, ad?'− adiantamento '+F(ad):null, ds?'− desconto '+F(ds):null, x?'− '+x[1]:null].filter(Boolean).join(' ');
@@ -781,8 +782,8 @@ function gerarAgenda(){
     if(dd.tipo==='comissao'&&!dd.itens){titulo='Comissões';
       eqD.filter(e=>e.comval).sort((a,b)=>b.comval-a.comval).forEach(e=>itens.push({quem:e.nome,motivo:`Comissão de outubro (${e.comref||''})`,valor:e.comval,obs:e.reg?'Registrada: incluir no holerite.':''}));}
     if(dd.tipo==='adiantamento'){titulo='Adiantamento + impostos';
-      eqD.filter(e=>e.adi||adih[e.id]).forEach(e=>{const base=adih[e.id]||e.adi, ds=descNa(e,'20/11');
-        itens.push({quem:e.nome,motivo:'Adiantamento de novembro (40%)'+(ds?' − vale '+F(ds):''),valor:base-ds,obs:e.reg?'Registrada: holerite de adiantamento do contador.':''});});}
+      eqD.filter(e=>adiBase(e)).forEach(e=>{const base=adiBase(e), ds=descNa(e,'20/11'), pc=e.sal?Math.round(base/e.sal*100):40;
+        itens.push({quem:e.nome,motivo:'Adiantamento de novembro ('+pc+'%)'+(ds?' − vale '+F(ds):''),valor:base-ds,obs:e.reg?'Registrada: holerite de adiantamento do contador.':''});});}
     if(dd.tipo==='decimo'){titulo=(dd.parcela===1?'1ª':'2ª')+' parcela do 13º';
       eqD.forEach(e=>{if(!e.sal){itens.push({quem:e.nome,motivo:`13º salário, ${dd.parcela}ª parcela`,valor:null,obs:'Falta o salário cheio'});return;}
         let meses=12, nota='';
@@ -1152,7 +1153,7 @@ function formFunc(){
    <label>Nome<input id="nf_nome"></label><label>Nome completo<input id="nf_comp"></label><label>Cargo (obrigatório)<select id="nf_cargo"><option value="">Escolha o cargo</option>${Object.keys(CARGOS).map(x=>`<option>${x}</option>`).join('')}<option>Outro</option></select></label>
    <label id="nf_outrol" hidden>Qual o cargo?<input id="nf_func"></label>
    <label id="nf_setorl" hidden>Setor<select id="nf_setor">${['Vendas','Caixa','Site','Loja','Apoio','CD','RH','Mídia'].map(x=>`<option>${x}</option>`).join('')}</select></label>
-   <label>Registrado?<select id="nf_reg"><option value="">A confirmar</option><option value="1">Sim</option><option value="0">Não</option></select></label>
+   <label>Registrado em carteira? (obrigatório)<select id="nf_reg"><option value="">Escolha</option><option value="1">Sim · adiantamento de 40% no dia 20</option><option value="0">Não · adiantamento de 50% no dia 20</option></select></label>
    <label>Salário cheio (R$)<input id="nf_sal" inputmode="decimal"></label><label>Data de entrada<input id="nf_ent" type="date"></label>
    <label>Horário<input id="nf_hor" placeholder="Ex.: 07h40 às 16h"></label><label>Vale-transporte por dia (R$)<input id="nf_vt" inputmode="decimal"></label></div>
    <div class="acts"><button type="button" class="btn" id="nf_ok">Adicionar</button><button type="button" class="btn sec2" id="nf_x">Cancelar</button><span class="sy2" id="nf_st"></span></div></div>`;
@@ -1161,12 +1162,13 @@ const CARGOS={'Vendedora':'Vendas','Caixa':'Caixa','Atendente online (site)':'Si
 async function salvarFunc(){
   const nome=$('nf_nome').value.trim(); if(!nome){$('nf_st').textContent='Escreva o nome.';return;}
   const cg=$('nf_cargo').value; if(!cg){$('nf_st').textContent='Escolha o cargo.';return;}
+  if($('nf_reg').value===''){$('nf_st').textContent='Diga se é registrado ou não.';return;}
   const cargo=cg==='Outro'?$('nf_func').value.trim():cg; if(!cargo){$('nf_st').textContent='Escreva qual é o cargo.';return;}
   const setor=cg==='Outro'?$('nf_setor').value:CARGOS[cg];
   const n=v=>{const x=Number(String(v).replace(/\./g,'').replace(',','.'));return isFinite(x)&&x>0?x:null};
   const ent=$('nf_ent').value, vt=n($('nf_vt').value), sal=n($('nf_sal').value), rg=$('nf_reg').value;
   const f={id:slug(nome)+'_'+Date.now().toString(36),nome,completo:$('nf_comp').value.trim()||null,funcao:cargo,setor,
-    reg:rg===''?null:rg==='1',sal,ent:ent?dBR(ent):null,hor:$('nf_hor').value.trim()||null,vt:vt?`${F(vt)} por dia`:null,extra:[]};
+    reg:rg==='1',adiAuto:true,sal,ent:ent?dBR(ent):null,hor:$('nf_hor').value.trim()||null,vt:vt?`${F(vt)} por dia`:null,extra:[]};
   Object.keys(f).forEach(k=>f[k]===null&&delete f[k]);
   $('nf_st').textContent='Salvando...';
   try{await rpc('rh_func_salvar',{p_senha:SENHA,p_mes:MESATUAL,p_func:f});$('formf').innerHTML='';await carregar();render();toast(nome+' adicionado(a)');}
