@@ -701,7 +701,7 @@ function render(){
 }
 
 const valesDe=e=>REGS.filter(r=>r.tipo==='vale'&&r.func===e.id);
-const valesPend=e=>valesDe(e).filter(r=>(r.d.st||'A descontar')!=='Descontado').reduce((t,r)=>t+valNum(r.d.valor),0);
+const valesPend=e=>valesDe(e).filter(r=>(r.d.st||'A descontar')!=='Descontado').reduce((t,r)=>t+vSplit(r.d).falta,0);
 const REGSF=[['documentos','Documentos'],['saude','Saúde'],['ponto','Ponto e jornada'],['ocorrencias','Ocorrências'],['ferias','Férias e 13º']];
 function regsFicha(e){return `<div class="blk"><h3>Registros de ${esc(e.nome)}</h3><div class="chips">${REGSF.filter(([k])=>TIPOS[k]).map(([k,l])=>{const n=REGS.filter(r=>ehDe(r,TIPOS[k])&&r.func===e.id).length;return `<button type="button" class="chip" data-fregs="${k}" data-func="${e.id}">${l}${n?' ('+n+')':''}</button>`;}).join('')}</div><div class="ct-d" style="margin-top:6px">Toque para ver ou lançar só desta pessoa.</div></div>`;}
 function valesFicha(e){const vs=valesDe(e);
@@ -1387,23 +1387,29 @@ function cxCard(r){
    <div style="font-weight:700">${esc(r.d.tipo||'Vale')}${pg?' · <span class="tag t-green">pago</span>':''}${desc?' · <span class="tag t-green">descontado</span>':''}</div>
    ${pg?`<div class="t2">Pago em ${dtBR(r.d.pagoEm)}${r.d.pagoForma?' · '+esc(r.d.pagoForma):''}${r.d.pagoPor?' · por '+esc(r.d.pagoPor):''}</div>`:''}
    ${r.d.motivo?`<div class="t2">${esc(r.d.motivo)}</div>`:''}
+   ${(()=>{const sp=vSplit(r.d);return `<div class="t2">Total <b>${F(sp.tot)}</b> · já descontado <b>${F(sp.desc)}</b> · <b>falta ${F(sp.falta)}</b></div>`;})()}
    ${parcHTML(r.d)}
    <div class="bt">${(r.d.arqs||[]).map(a=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}</button>`).join('')}${bpago}${(desc||pg)?'':`<button type="button" data-cxedit="${r.id}">Editar</button><button type="button" class="del" data-cxdel="${r.id}">Excluir</button>`}</div>
    <div class="by">Lançado em ${dtBR(r.ce)}</div></div>`;}
+function parcData(p){const x=String(p.mes||'').split('-').map(Number);if(!x[0])return null;return p.quando==='dia20'?new Date(x[0],x[1]-1,20):new Date(x[0],x[1],0);}
+function vSplit(d){const tot=valNum(d.valor);if(d.st==='Descontado')return{tot,desc:tot,falta:0};
+  const h=new Date();h.setHours(0,0,0,0);const ps=(d.parcelas||[]).filter(p=>valNum(p.valor)>0&&p.mes);if(!ps.length)return{tot,desc:0,falta:tot};
+  let desc=0;ps.forEach(p=>{const dt=parcData(p);if(dt&&dt<=h)desc+=valNum(p.valor);});desc=Math.min(desc,tot);return{tot,desc,falta:Math.round((tot-desc)*100)/100};}
 function cxResumo(){
   const w=$('cxresw');if(!w)return;  const m={};CX.registros.filter(r=>r.d.st!=='Descontado').forEach(r=>{
-    const e=CX.equipe.find(x=>x.id===r.func);const k=r.func;if(!m[k])m[k]={id:k,nome:e?e.nome:'—',dev:0,apagar:0,n:0,meses:{}};
-    const v=valNum(r.d.valor);m[k].dev+=v;m[k].n++;if(!r.d.pago)m[k].apagar+=v;
+    const e=CX.equipe.find(x=>x.id===r.func);const k=r.func;if(!m[k])m[k]={id:k,nome:e?e.nome:'—',tot:0,desc:0,dev:0,apagar:0,n:0,meses:{}};
+    const sp=vSplit(r.d),v=sp.falta;m[k].dev+=v;m[k].tot+=sp.tot;m[k].desc+=sp.desc;m[k].n++;if(!r.d.pago)m[k].apagar+=sp.tot;
     const ps=(r.d.parcelas&&r.d.parcelas.length)?r.d.parcelas:[{mes:'',valor:r.d.valor,quando:'fim'}];
-    ps.forEach(p=>{const q=valNum(p.valor);if(!(q>0))return;const key=(p.mes||'sem data')+'|'+(p.quando==='dia20'?'20':'30');m[k].meses[key]=(m[k].meses[key]||0)+q;});});
-  const L=Object.values(m).sort((a,b)=>b.dev-a.dev);
+    ps.forEach(p=>{const q=valNum(p.valor);if(!(q>0))return;const dt=p.mes?parcData(p):null;if(dt&&dt<=new Date(new Date().setHours(0,0,0,0)))return;const key=(p.mes||'sem data')+'|'+(p.quando==='dia20'?'20':'30');m[k].meses[key]=(m[k].meses[key]||0)+q;});});
+  const L=Object.values(m).filter(x=>x.dev>0.004||x.n>0).sort((a,b)=>b.dev-a.dev);
   if(!L.length){w.hidden=false;w.innerHTML='<h2 style="margin:0 0 2px">Contas dos funcionários</h2><div class="rg"><div class="t2">Ninguém tem vale ou compra a descontar.</div></div>';return;}
   const tot=L.reduce((t,x)=>t+x.dev,0),tap=L.reduce((t,x)=>t+x.apagar,0);
   const dsc=k=>{const [ym,d]=k.split('|');return ym?('Dia '+d+' de '+nomeMes(ym)):'Sem data';};
   w.hidden=false;
   w.innerHTML=`<h2 style="margin:0 0 2px">Contas dos funcionários</h2><div class="sy2" style="margin-bottom:10px">${CX.admin?'Vales e compras ainda não descontados, por funcionário':'O que você lançou e ainda não foi descontado. Toque num funcionário para ver os lançamentos dele.'}</div>
   <div class="grid">${L.map(x=>`<div class="rg"><div class="h"><div class="t1">${esc(x.nome)}</div><div style="font-weight:800">${F(x.dev)}</div></div>
-    <div class="t2">${x.n} lançamento${x.n>1?'s':''} a descontar${x.apagar>0?' · <b>'+F(x.apagar)+'</b> ainda não pago a ele':''}</div>
+    <div class="t2">Total lançado <b>${F(x.tot)}</b> · já descontado <b>${F(x.desc)}</b> · <b>falta ${F(x.dev)}</b></div>
+    <div class="t2">${x.n} lançamento${x.n>1?'s':''}${x.apagar>0?' · <b>'+F(x.apagar)+'</b> ainda não pago a ele':''}</div>
     <div class="bt" style="margin-top:8px"><button type="button" data-cxfunc="${x.id}">Ver lançamentos de ${esc(x.nome.split(' ')[0])}</button></div><div class="t2">${Object.keys(x.meses).sort().map(k=>dsc(k)+': <b>'+F(x.meses[k])+'</b>').join(' · ')}</div></div>`).join('')}
   <div class="rg"><div class="h"><div class="t1">Total de todos</div><div style="font-weight:800">${F(tot)}</div></div>${tap>0?`<div class="t2">${F(tap)} ainda a pagar aos funcionários</div>`:''}</div></div>`;
 }
