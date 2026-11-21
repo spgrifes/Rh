@@ -550,7 +550,7 @@ function campos(e){
   add('din','adi','Adiantamento / vale do dia 20',e.adi?F(e.adi):null);
   add('din','pago','Pagamentos feitos',e.pago);
   (e.extra||[]).forEach((x,i)=>add('din','x'+i,'Outro pagamento',x));
-  add('din','com','Comissão',e.com||(e.setor==='Vendas'?'1% sobre as vendas dela':'Não recebe comissão'));
+  if(e.setor==='Vendas'||e.comval!=null||e.com)add('din','com','Comissão',e.com||'1% sobre as vendas dela');
   add('din','vt','Vale-transporte',e.vt);
   add('din','desc','Descontos',e.desc||'Nenhum desconto');
   add('saude','at','Atestado',e.atest||'Nenhum atestado no mês');
@@ -1137,18 +1137,23 @@ async function verArq(path){
 }
 function formFunc(){
   $('formf').innerHTML=`<div class="frm"><b>Novo funcionário · entra em ${esc((MESES.find(m=>m.id===MESATUAL)||{}).nome||'')} e nos meses seguintes</b><div class="row">
-   <label>Nome<input id="nf_nome"></label><label>Nome completo<input id="nf_comp"></label><label>Função<input id="nf_func"></label>
-   <label>Setor<select id="nf_setor">${['Vendas','Caixa','Site','Loja','Apoio','CD','RH','Mídia'].map(x=>`<option>${x}</option>`).join('')}</select></label>
+   <label>Nome<input id="nf_nome"></label><label>Nome completo<input id="nf_comp"></label><label>Cargo (obrigatório)<select id="nf_cargo"><option value="">Escolha o cargo</option>${Object.keys(CARGOS).map(x=>`<option>${x}</option>`).join('')}<option>Outro</option></select></label>
+   <label id="nf_outrol" hidden>Qual o cargo?<input id="nf_func"></label>
+   <label id="nf_setorl" hidden>Setor<select id="nf_setor">${['Vendas','Caixa','Site','Loja','Apoio','CD','RH','Mídia'].map(x=>`<option>${x}</option>`).join('')}</select></label>
    <label>Registrado?<select id="nf_reg"><option value="">A confirmar</option><option value="1">Sim</option><option value="0">Não</option></select></label>
    <label>Salário cheio (R$)<input id="nf_sal" inputmode="decimal"></label><label>Data de entrada<input id="nf_ent" type="date"></label>
    <label>Horário<input id="nf_hor" placeholder="Ex.: 07h40 às 16h"></label><label>Vale-transporte por dia (R$)<input id="nf_vt" inputmode="decimal"></label></div>
    <div class="acts"><button type="button" class="btn" id="nf_ok">Adicionar</button><button type="button" class="btn sec2" id="nf_x">Cancelar</button><span class="sy2" id="nf_st"></span></div></div>`;
 }
+const CARGOS={'Vendedora':'Vendas','Caixa':'Caixa','Atendente online (site)':'Site','Atendente da loja':'Loja','Estoquista / CD':'CD','Apoio / limpeza':'Apoio','Administrativo / RH':'RH','Mídia / conteúdo':'Mídia'};
 async function salvarFunc(){
   const nome=$('nf_nome').value.trim(); if(!nome){$('nf_st').textContent='Escreva o nome.';return;}
+  const cg=$('nf_cargo').value; if(!cg){$('nf_st').textContent='Escolha o cargo.';return;}
+  const cargo=cg==='Outro'?$('nf_func').value.trim():cg; if(!cargo){$('nf_st').textContent='Escreva qual é o cargo.';return;}
+  const setor=cg==='Outro'?$('nf_setor').value:CARGOS[cg];
   const n=v=>{const x=Number(String(v).replace(/\./g,'').replace(',','.'));return isFinite(x)&&x>0?x:null};
   const ent=$('nf_ent').value, vt=n($('nf_vt').value), sal=n($('nf_sal').value), rg=$('nf_reg').value;
-  const f={id:slug(nome)+'_'+Date.now().toString(36),nome,completo:$('nf_comp').value.trim()||null,funcao:$('nf_func').value.trim()||null,setor:$('nf_setor').value,
+  const f={id:slug(nome)+'_'+Date.now().toString(36),nome,completo:$('nf_comp').value.trim()||null,funcao:cargo,setor,
     reg:rg===''?null:rg==='1',sal,ent:ent?dBR(ent):null,hor:$('nf_hor').value.trim()||null,vt:vt?`${F(vt)} por dia`:null,extra:[]};
   Object.keys(f).forEach(k=>f[k]===null&&delete f[k]);
   $('nf_st').textContent='Salvando...';
@@ -1407,6 +1412,7 @@ document.addEventListener('click',async ev=>{
 });
 document.addEventListener('input',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pv!=null){cxParc[+t.dataset.pv].valor=t.value;resumoParc();}else if(t.id==='cxval')resumoParc();});
 document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pm!=null){cxParc[+t.dataset.pm].mes=t.value;resumoParc();}});
+document.addEventListener('change',ev=>{if(ev.target.id==='nf_cargo'){const o=ev.target.value==='Outro';$('nf_outrol').hidden=!o;$('nf_setorl').hidden=!o;}});
 document.addEventListener('change',ev=>{if(ev.target.id==='obsarq'){const n=ev.target.files.length;$('obsarqt').textContent=n?n+' arquivo(s) pronto(s) ✓':'+ Anexar foto ou PDF (atestado, recibo, documento)';}});
 document.addEventListener('change',ev=>{if(ev.target.id==='cxfoto'){const n=ev.target.files.length;$('cxfotot').textContent=n?'Foto pronta ✓ (toque para trocar)':'Tirar foto do papel assinado';$('cxfotol').classList.toggle('ok',!!n);}});
 
