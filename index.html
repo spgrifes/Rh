@@ -1358,6 +1358,9 @@ function sugereParc(n){const tot=valNum($('cxval')?$('cxval').value:0)||0;n=Math
   cxParc=Array.from({length:n},(_,k)=>{const sp=(sl[k]||sl[sl.length-1])[0].split('|');let v=k===n-1?Math.round((tot-ac)*100)/100:base;ac+=v;
     return{mes:sp[0],quando:sp[1],valor:tot?String(v.toFixed(2)).replace('.',','):''};});
   if($('cxnp'))$('cxnp').value=n;desenhaParc();}
+function redistParc(){const tot=valNum($('cxval')?$('cxval').value:0)||0,n=cxParc.length;if(!tot||n<1)return;
+  const base=Math.floor(tot/n*100)/100;let ac=0;
+  cxParc.forEach((p,k)=>{const v=k===n-1?Math.round((tot-ac)*100)/100:base;ac+=v;p.valor=String(v.toFixed(2)).replace('.',',');});}
 function desenhaParc(){
   const op=slotsDesc();cxParc.forEach(p=>{const v=p.mes+'|'+(p.quando||'fim');if(!op.some(o=>o[0]===v))op.unshift([v,(p.quando==='dia20'?'Dia 20 de ':'Dia 30 de ')+nomeMes(p.mes)]);});
   const so=cxParc.length===1;
@@ -1450,8 +1453,8 @@ document.addEventListener('click',async ev=>{
   if($('cx').hidden)return;
   const t=ev.target.closest('[data-cxt]');if(t){cxTipo=t.dataset.cxt;document.querySelectorAll('[data-cxt]').forEach(b=>b.setAttribute('aria-pressed',b===t));return;}
   if(ev.target.closest('#cxsave'))return cxSalvar();
-  if(ev.target.closest('#cxpadd')){const L=slotsDesc(),u=cxParc[cxParc.length-1],ix=L.findIndex(o=>o[0]===u.mes+'|'+u.quando),x=(L[ix+1]||L[L.length-1])[0].split('|');cxParc.push({mes:x[0],valor:'',quando:x[1]});desenhaParc();return;}
-  const pd=ev.target.closest('[data-pdel]');if(pd){cxParc.splice(+pd.dataset.pdel,1);desenhaParc();return;}
+  if(ev.target.closest('#cxpadd')){const L=slotsDesc(),u=cxParc[cxParc.length-1],ix=L.findIndex(o=>o[0]===u.mes+'|'+u.quando),x=(L[ix+1]||L[L.length-1])[0].split('|');cxParc.push({mes:x[0],valor:'',quando:x[1]});redistParc();desenhaParc();return;}
+  const pd=ev.target.closest('[data-pdel]');if(pd){cxParc.splice(+pd.dataset.pdel,1);redistParc();desenhaParc();return;}
   const pa=ev.target.closest('[data-cxpagoabre]');if(pa){cxPagoSel=pa.dataset.cxpagoabre;cxLista();return;}
   if(ev.target.closest('[data-cxpagocancel]')){cxPagoSel=null;cxLista();return;}
   const pk=ev.target.closest('[data-cxpago]');if(pk){return cxMarcaPago(pk.dataset.cxpago,pk.dataset.forma);}
