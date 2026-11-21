@@ -776,7 +776,7 @@ function gerarAgenda(){
       eqD.filter(e=>adiBase(e)).forEach(e=>{const base=adiBase(e), ds=descNa(e,'20/11'), pc=e.sal?Math.round(base/e.sal*100):40;
         itens.push({quem:e.nome,motivo:'Adiantamento de novembro ('+pc+'%)'+(ds?' − vale '+F(ds):''),valor:base-ds,obs:e.reg?'Registrada: holerite de adiantamento do contador.':''});});}
     if(dd.tipo==='decimo'){titulo=(dd.parcela===1?'1ª':'2ª')+' parcela do 13º';
-      eqD.forEach(e=>{if(!e.sal){itens.push({quem:e.nome,motivo:`13º salário, ${dd.parcela}ª parcela`,valor:null,obs:'Falta o salário cheio'});return;}
+      eqD.forEach(e=>{if(e.reg!==true)return;if(!e.sal){itens.push({quem:e.nome,motivo:`13º salário, ${dd.parcela}ª parcela`,valor:null,obs:'Falta o salário cheio'});return;}
         let meses=12, nota='';
         if(e.ent){const [dd2,mm,aa]=e.ent.split('/').map(Number);if(aa===2026){meses=12-mm+(dd2<=15?1:0);nota=`proporcional: ${meses}/12 meses (entrou em ${e.ent})`;}}
         else nota='confirmar data de entrada (calculado como ano inteiro)';
