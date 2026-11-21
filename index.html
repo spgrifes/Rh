@@ -393,7 +393,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <div id="cxvales">
     <div id="cxresw" hidden></div>
     <div class="frm cxf" id="cxform"></div>
-    <h2 style="margin:22px 0 2px">Seus lançamentos</h2><div class="sy2" style="margin-bottom:10px">Últimos 45 dias</div>
+    <h2 style="margin:22px 0 2px">Seus lançamentos</h2><div class="sy2" style="margin-bottom:10px">Todos os vales e compras que você lançou</div><div id="cxfiltro"></div>
     <div class="grid" id="cxlist"></div>
     <div id="cxhistw" hidden><h2 style="margin:26px 0 2px">Histórico de pagos</h2><div class="sy2" style="margin-bottom:10px">Vales que já foram pagos ao funcionário</div>
     <div class="grid" id="cxhist"></div></div>
@@ -1391,25 +1391,26 @@ function cxCard(r){
    <div class="bt">${(r.d.arqs||[]).map(a=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}</button>`).join('')}${bpago}${(desc||pg)?'':`<button type="button" data-cxedit="${r.id}">Editar</button><button type="button" class="del" data-cxdel="${r.id}">Excluir</button>`}</div>
    <div class="by">Lançado em ${dtBR(r.ce)}</div></div>`;}
 function cxResumo(){
-  const w=$('cxresw');if(!w)return;if(!CX.admin){w.hidden=true;return;}
-  const m={};CX.registros.filter(r=>r.d.st!=='Descontado').forEach(r=>{
-    const e=CX.equipe.find(x=>x.id===r.func);const k=r.func;if(!m[k])m[k]={nome:e?e.nome:'—',dev:0,apagar:0,n:0,meses:{}};
+  const w=$('cxresw');if(!w)return;  const m={};CX.registros.filter(r=>r.d.st!=='Descontado').forEach(r=>{
+    const e=CX.equipe.find(x=>x.id===r.func);const k=r.func;if(!m[k])m[k]={id:k,nome:e?e.nome:'—',dev:0,apagar:0,n:0,meses:{}};
     const v=valNum(r.d.valor);m[k].dev+=v;m[k].n++;if(!r.d.pago)m[k].apagar+=v;
     const ps=(r.d.parcelas&&r.d.parcelas.length)?r.d.parcelas:[{mes:'',valor:r.d.valor,quando:'fim'}];
     ps.forEach(p=>{const q=valNum(p.valor);if(!(q>0))return;const key=(p.mes||'sem data')+'|'+(p.quando==='dia20'?'20':'30');m[k].meses[key]=(m[k].meses[key]||0)+q;});});
   const L=Object.values(m).sort((a,b)=>b.dev-a.dev);
-  if(!L.length){w.hidden=false;w.innerHTML='<h2 style="margin:0 0 2px">Quem está devendo</h2><div class="rg"><div class="t2">Ninguém tem vale ou compra a descontar.</div></div>';return;}
+  if(!L.length){w.hidden=false;w.innerHTML='<h2 style="margin:0 0 2px">Contas dos funcionários</h2><div class="rg"><div class="t2">Ninguém tem vale ou compra a descontar.</div></div>';return;}
   const tot=L.reduce((t,x)=>t+x.dev,0),tap=L.reduce((t,x)=>t+x.apagar,0);
   const dsc=k=>{const [ym,d]=k.split('|');return ym?('Dia '+d+' de '+nomeMes(ym)):'Sem data';};
   w.hidden=false;
-  w.innerHTML=`<h2 style="margin:0 0 2px">Quem está devendo</h2><div class="sy2" style="margin-bottom:10px">Vales e compras ainda não descontados, por funcionário</div>
+  w.innerHTML=`<h2 style="margin:0 0 2px">Contas dos funcionários</h2><div class="sy2" style="margin-bottom:10px">${CX.admin?'Vales e compras ainda não descontados, por funcionário':'O que você lançou e ainda não foi descontado. Toque num funcionário para ver os lançamentos dele.'}</div>
   <div class="grid">${L.map(x=>`<div class="rg"><div class="h"><div class="t1">${esc(x.nome)}</div><div style="font-weight:800">${F(x.dev)}</div></div>
     <div class="t2">${x.n} lançamento${x.n>1?'s':''} a descontar${x.apagar>0?' · <b>'+F(x.apagar)+'</b> ainda não pago a ele':''}</div>
-    <div class="t2">${Object.keys(x.meses).sort().map(k=>dsc(k)+': <b>'+F(x.meses[k])+'</b>').join(' · ')}</div></div>`).join('')}
+    <div class="bt" style="margin-top:8px"><button type="button" data-cxfunc="${x.id}">Ver lançamentos de ${esc(x.nome.split(' ')[0])}</button></div><div class="t2">${Object.keys(x.meses).sort().map(k=>dsc(k)+': <b>'+F(x.meses[k])+'</b>').join(' · ')}</div></div>`).join('')}
   <div class="rg"><div class="h"><div class="t1">Total de todos</div><div style="font-weight:800">${F(tot)}</div></div>${tap>0?`<div class="t2">${F(tap)} ainda a pagar aos funcionários</div>`:''}</div></div>`;
 }
 function cxLista(){
-  const L=CX.registros, A=L.filter(r=>!r.d.pago), H=L.filter(r=>r.d.pago).sort((a,b)=>String(b.d.pagoEm).localeCompare(String(a.d.pagoEm)));
+  const L=CX.registros.filter(r=>!cxFiltro||r.func===cxFiltro), A=L.filter(r=>!r.d.pago), H=L.filter(r=>r.d.pago).sort((a,b)=>String(b.d.pagoEm).localeCompare(String(a.d.pagoEm)));
+  const fe=cxFiltro?CX.equipe.find(x=>x.id===cxFiltro):null;
+  $('cxfiltro').innerHTML=cxFiltro?`<button type="button" class="btn sec2" id="cxvoltar" style="margin-bottom:10px">‹ Voltar para todos os funcionários</button><div class="sy2" style="margin-bottom:8px">Mostrando só: <b>${esc(fe?fe.nome:'')}</b></div>`:'';
   $('cxlist').innerHTML=A.map(cxCard).join('')||'<div class="rg"><div class="t2">Nenhum lançamento a pagar.</div></div>';
   $('cxhistw').hidden=!H.length;
   $('cxhist').innerHTML=H.map(cxCard).join('');
@@ -1468,7 +1469,7 @@ document.addEventListener('input',ev=>{const t=ev.target;if(t.dataset&&t.dataset
 document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset&&t.dataset.ps!=null){const x=t.value.split('|');cxParc[+t.dataset.ps].mes=x[0];cxParc[+t.dataset.ps].quando=x[1];resumoParc();}else if(t.id==='cxnp'){sugereParc(t.value);}});
 
 /* ===== Pagamentos avulsos (aba da Cris) ===== */
-let cxAb='v', cxPEdit=null;
+let cxAb='v', cxPEdit=null, cxFiltro=null;
 const PAGFORMAS=['Pix','Dinheiro','Transferência','Outro'];
 function cxPagForm(){
   const r=cxPEdit?CX.pagtos.find(x=>x.id===cxPEdit):null, d=r?r.d:{};
@@ -1508,6 +1509,8 @@ async function cxPagSalvar(){
 }
 document.addEventListener('click',async ev=>{
   if($('cx').hidden)return;
+  const vf=ev.target.closest('[data-cxfunc]');if(vf){cxFiltro=vf.dataset.cxfunc;cxLista();$('cxfiltro').scrollIntoView({behavior:'smooth',block:'start'});return;}
+  if(ev.target.closest('#cxvoltar')){cxFiltro=null;cxLista();window.scrollTo({top:0,behavior:'smooth'});return;}
   const ab=ev.target.closest('[data-cxab]');if(ab){cxAba(ab.dataset.cxab);return;}
   if(ev.target.closest('#cxpsave'))return cxPagSalvar();
   if(ev.target.closest('#cxpcancel')){cxPEdit=null;cxPagForm();return;}
