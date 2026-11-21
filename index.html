@@ -389,6 +389,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <p class="sub">Escolha o funcionário, o valor, o motivo e tire a foto do papel assinado. A data e a hora entram sozinhas e vai direto para o RH.</p>
   </div></header>
   <main class="gut"><div class="wrap">
+    <div id="cxresw" hidden></div>
     <div class="frm cxf" id="cxform"></div>
     <h2 style="margin:22px 0 2px">Seus lançamentos</h2><div class="sy2" style="margin-bottom:10px">Últimos 45 dias</div>
     <div class="grid" id="cxlist"></div>
@@ -1378,6 +1379,24 @@ function cxCard(r){
    ${parcHTML(r.d)}
    <div class="bt">${(r.d.arqs||[]).map(a=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}</button>`).join('')}${bpago}${(desc||pg)?'':`<button type="button" data-cxedit="${r.id}">Editar</button><button type="button" class="del" data-cxdel="${r.id}">Excluir</button>`}</div>
    <div class="by">Lançado em ${dtBR(r.ce)}</div></div>`;}
+function cxResumo(){
+  const w=$('cxresw');if(!w)return;if(!CX.admin){w.hidden=true;return;}
+  const m={};CX.registros.filter(r=>r.d.st!=='Descontado').forEach(r=>{
+    const e=CX.equipe.find(x=>x.id===r.func);const k=r.func;if(!m[k])m[k]={nome:e?e.nome:'—',dev:0,apagar:0,n:0,meses:{}};
+    const v=valNum(r.d.valor);m[k].dev+=v;m[k].n++;if(!r.d.pago)m[k].apagar+=v;
+    const ps=(r.d.parcelas&&r.d.parcelas.length)?r.d.parcelas:[{mes:'',valor:r.d.valor,quando:'fim'}];
+    ps.forEach(p=>{const q=valNum(p.valor);if(!(q>0))return;const key=(p.mes||'sem data')+'|'+(p.quando==='dia20'?'20':'30');m[k].meses[key]=(m[k].meses[key]||0)+q;});});
+  const L=Object.values(m).sort((a,b)=>b.dev-a.dev);
+  if(!L.length){w.hidden=false;w.innerHTML='<h2 style="margin:0 0 2px">Quem está devendo</h2><div class="rg"><div class="t2">Ninguém tem vale ou compra a descontar.</div></div>';return;}
+  const tot=L.reduce((t,x)=>t+x.dev,0),tap=L.reduce((t,x)=>t+x.apagar,0);
+  const dsc=k=>{const [ym,d]=k.split('|');return ym?('Dia '+d+' de '+nomeMes(ym)):'Sem data';};
+  w.hidden=false;
+  w.innerHTML=`<h2 style="margin:0 0 2px">Quem está devendo</h2><div class="sy2" style="margin-bottom:10px">Vales e compras ainda não descontados, por funcionário</div>
+  <div class="grid">${L.map(x=>`<div class="rg"><div class="h"><div class="t1">${esc(x.nome)}</div><div style="font-weight:800">${F(x.dev)}</div></div>
+    <div class="t2">${x.n} lançamento${x.n>1?'s':''} a descontar${x.apagar>0?' · <b>'+F(x.apagar)+'</b> ainda não pago a ele':''}</div>
+    <div class="t2">${Object.keys(x.meses).sort().map(k=>dsc(k)+': <b>'+F(x.meses[k])+'</b>').join(' · ')}</div></div>`).join('')}
+  <div class="rg"><div class="h"><div class="t1">Total de todos</div><div style="font-weight:800">${F(tot)}</div></div>${tap>0?`<div class="t2">${F(tap)} ainda a pagar aos funcionários</div>`:''}</div></div>`;
+}
 function cxLista(){
   const L=CX.registros, A=L.filter(r=>!r.d.pago), H=L.filter(r=>r.d.pago).sort((a,b)=>String(b.d.pagoEm).localeCompare(String(a.d.pagoEm)));
   $('cxlist').innerHTML=A.map(cxCard).join('')||'<div class="rg"><div class="t2">Nenhum lançamento a pagar.</div></div>';
@@ -1394,7 +1413,7 @@ async function cxDesfazPago(id){
   const d={...r.d};delete d.pago;delete d.pagoEm;delete d.pagoForma;delete d.pagoPor;
   try{await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:r.id,p_tipo:'vale',p_func:r.func,p_dados:d});await carregar();cxAtualiza();renderCaixa();toast('Voltou para a lista a pagar');}
   catch(e){toast('Não salvou. Tente de novo.');}}
-function renderCaixa(){$('cxquem').textContent='Olá, '+CX.quem;$('cxsair').textContent=CX.admin?'‹ Voltar ao painel':'Sair';cxForm();cxLista();}
+function renderCaixa(){$('cxquem').textContent='Olá, '+CX.quem;$('cxsair').textContent=CX.admin?'‹ Voltar ao painel':'Sair';cxForm();cxResumo();cxLista();}
 const parcHTML=d=>(d.parcelas&&d.parcelas.length)?`<div class="parcl">${d.parcelas.map(p=>`<span>${esc(nomeMes(p.mes))}: ${F(valNum(p.valor))}${p.quando?' · '+(p.quando==='dia20'?'dia 20':'final do mês'):''}</span>`).join('')}</div>`:'';
 /* Fábio e Taine também lançam vales, na mesma tela da Cris */
 function cxAtualiza(){if(CX&&CX.admin)CX={admin:true,quem:QUEM,equipe:(D.EQUIPE||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao})),registros:REGS.filter(r=>r.tipo==='vale')};}
