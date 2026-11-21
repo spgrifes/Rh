@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="pt-BR"><head>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Central">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Boss Room">
 <style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head><body>
-<title>Central de Comando</title>
+<title>Boss Room</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
@@ -228,7 +228,7 @@ a.app:hover .ico, a.app:focus-visible .ico { background: linear-gradient(145deg,
   <div class="visao" aria-hidden="true"><b>Painel da visualização</b><span id="visao-frase"></span></div>
   <form class="lockbox" id="lockform" method="post" action="#">
     <span class="seal"><b class="fl">FL</b></span>
-    <h1>Central de <span>Comando</span></h1>
+    <h1>Boss <span>Room</span></h1>
     <p>Área particular do Fábio. Digite ou fale a senha.</p>
     <div class="pw">
       <input id="usuario" name="username" type="text" autocomplete="username" value="Fábio" aria-label="Usuário" tabindex="-1" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
@@ -244,7 +244,7 @@ a.app:hover .ico, a.app:focus-visible .ico { background: linear-gradient(145deg,
   <header class="topbar gutter">
     <div class="topin">
       <button class="burger" id="burger" type="button" aria-label="Abrir menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-      <button class="brand" type="button" id="brand"><i><b class="fl">FL</b></i>Central de Comando</button>
+      <button class="brand" type="button" id="brand"><i><b class="fl">FL</b></i>Boss Room</button>
       <nav class="dnav" id="dnav" aria-label="Menu principal"></nav>
       <span class="spacer"></span>
       <button class="iconbtn" id="sair" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bloquear</button>
@@ -272,7 +272,7 @@ a.app:hover .ico, a.app:focus-visible .ico { background: linear-gradient(145deg,
     <div class="chips" id="chips"></div>
     <div id="areas"></div>
     <p id="nada" class="empty" hidden>Nada encontrado com esse nome.</p>
-    <footer>Dica: no Claude você pode só falar "abre a Central de Comando".</footer>
+    <footer>Dica: no Claude você pode só falar "abre a Boss Room".</footer>
   </main>
 <div id="sec-fundo" hidden></div>
   <div id="sec" role="dialog" aria-modal="true" aria-labelledby="sec-t" hidden>
@@ -890,6 +890,79 @@ function render(q) {
 }
 render('');
 document.getElementById('busca').addEventListener('input', function (e) { render(e.target.value); });
+</script>
+
+<style id="boss-room-tech">
+/* Boss Room · visual de tecnologia */
+.topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,#00e0ff,#c8102e,#00e0ff,transparent);background-size:200% 100%;animation:fio 6s linear infinite}
+@keyframes fio{to{background-position:-200% 0}}
+.hero{background:radial-gradient(80% 120% at 100% 0%,rgba(200,16,46,.55),transparent 55%),radial-gradient(60% 100% at 0% 100%,rgba(0,224,255,.2),transparent 60%),#07090d!important;border:1px solid rgba(0,224,255,.28);box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 24px 60px -32px rgba(0,224,255,.55)}
+.hero::before{content:"";position:absolute;left:0;right:0;top:-140px;height:140px;background:linear-gradient(180deg,transparent,rgba(0,224,255,.12),transparent);animation:varre 7s linear infinite;pointer-events:none}
+@keyframes varre{to{transform:translateY(520px)}}
+.hero > .hud-grid{position:absolute;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,224,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(0,224,255,.08) 1px,transparent 1px);background-size:32px 32px;-webkit-mask-image:linear-gradient(180deg,#000,transparent 88%);mask-image:linear-gradient(180deg,#000,transparent 88%);animation:grade 16s linear infinite}
+@keyframes grade{to{background-position:0 32px}}
+.hero .clock{text-shadow:0 0 28px rgba(0,224,255,.6),0 0 2px rgba(255,255,255,.7)}
+.sys{display:flex;align-items:center;gap:8px;font:600 .74rem ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.04em;color:#7ff0ff;margin-bottom:10px}
+.sys i{width:8px;height:8px;border-radius:50%;background:#2dff9a;box-shadow:0 0 10px #2dff9a;animation:pulsa 2s ease-in-out infinite}
+@keyframes pulsa{50%{opacity:.35}}
+section.area h2 i{box-shadow:0 0 10px var(--c)}
+a.app:hover .ico,a.app:focus-visible .ico{box-shadow:0 0 0 1px rgba(0,224,255,.55),0 14px 34px -10px color-mix(in srgb,var(--c) 80%,transparent)!important}
+#voz{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(20px,env(safe-area-inset-bottom,0px));z-index:40;width:64px;height:64px;border-radius:50%;border:1px solid rgba(0,224,255,.6);background:radial-gradient(circle at 30% 25%,#14313a,#06090d);color:#7ff0ff;display:grid;place-items:center;cursor:pointer;box-shadow:0 0 24px rgba(0,224,255,.45),0 10px 30px -8px rgba(0,0,0,.6)}
+#voz svg{width:28px;height:28px}
+#voz:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#voz.on{border-color:#ff4d63;color:#ff4d63;box-shadow:0 0 0 0 rgba(255,77,99,.6),0 0 30px rgba(255,77,99,.6);animation:ouve 1.3s ease-out infinite}
+@keyframes ouve{to{box-shadow:0 0 0 22px rgba(255,77,99,0),0 0 30px rgba(255,77,99,.6)}}
+#voz-msg{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(max(20px,env(safe-area-inset-bottom,0px)) + 76px);z-index:40;max-width:min(22rem,calc(100vw - 32px));padding:10px 14px;border-radius:14px;background:rgba(6,9,13,.94);border:1px solid rgba(0,224,255,.35);color:#e9fbff;font:600 .9rem var(--body);opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s}
+#voz-msg.on{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){.topbar::after,.hero::before,.hero>.hud-grid,.sys i,#voz.on{animation:none}}
+</style>
+
+<script id="boss-room-voz">
+(function () {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var site = document.getElementById('site'), hero = document.querySelector('.hero');
+  if (hero) hero.insertAdjacentHTML('afterbegin', '<div class="hud-grid" aria-hidden="true"></div><div class="sys"><i></i><span>Sistema online · ' + (SR ? 'voz pronta' : 'voz indisponível neste navegador') + '</span></div>');
+  site.insertAdjacentHTML('beforeend', '<button id="voz" type="button" aria-label="Falar um comando"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><div id="voz-msg" role="status" aria-live="polite"></div>');
+  var btn = document.getElementById('voz'), box = document.getElementById('voz-msg'), rec = null, tm;
+  function dizer(t, falar) {
+    box.textContent = t; box.classList.add('on'); clearTimeout(tm); tm = setTimeout(function () { box.classList.remove('on'); }, 7000);
+    if (falar && window.speechSynthesis) { try { var u = new SpeechSynthesisUtterance(t); u.lang = 'pt-BR'; u.rate = 1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {} }
+  }
+  function acha(q) {
+    var toks = q.split(' ').filter(Boolean), out = [];
+    AREAS.forEach(function (a) { a.apps.forEach(function (x) { var n = norm(x[0]); if (toks.every(function (t) { return n.indexOf(t) > -1; })) out.push(x); }); });
+    return out;
+  }
+  function exec(frase) {
+    var f = norm(frase).replace(/[.,!?]/g, '').trim();
+    if (!f) return dizer('Não entendi. Toque no microfone e fale de novo.');
+    if (/^(bloquear|trancar|sair)/.test(f)) { dizer('Bloqueando.', true); document.getElementById('sair').click(); return; }
+    var q = f.replace(/^(por favor )?(abrir|abre|abra|ir para|vai para|va para|me leva (para|pra)|mostrar|mostra|procurar|procura|buscar|busca|acessar|acessa|entrar (em|no|na))( o| a| os| as| no| na| em| do| da| de)? /, '').trim();
+    var area = AREAS.filter(function (a) { return norm(a.t) === q; })[0];
+    if (area) { dizer('Mostrando ' + area.t + '.', true); irPara(area.id); return; }
+    var hits = acha(q), exato = hits.filter(function (x) { return norm(x[0]) === q; })[0], pick = exato || (hits.length === 1 ? hits[0] : null);
+    if (pick) {
+      var w = null; try { w = window.open(url(pick[1]), '_blank', 'noopener'); } catch (e) {}
+      if (w) dizer('Abrindo ' + pick[0] + '.', true);
+      else { document.getElementById('busca').value = q; render(q); dizer(pick[0] + ' está na tela. Toque nele para abrir.', true); }
+    } else if (hits.length > 1) {
+      document.getElementById('busca').value = q; render(q); dizer('Achei ' + hits.length + ' painéis. Toque no que você quer.', true);
+    } else dizer('Não achei "' + q + '". Fale o nome do painel.', true);
+  }
+  window.__vozExec = exec;
+  btn.addEventListener('click', function () {
+    if (!SR) return dizer('Este navegador não tem comando por voz. Use o Chrome ou o Safari atualizado.');
+    if (rec) { try { rec.stop(); } catch (e) {} return; }
+    try { rec = new SR(); } catch (e) { rec = null; return dizer('Não consegui ligar o microfone.'); }
+    rec.lang = 'pt-BR'; rec.interimResults = true; rec.continuous = false;
+    var final = '';
+    rec.onstart = function () { btn.classList.add('on'); dizer('Pode falar...'); };
+    rec.onresult = function (e) { var t = ''; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; final = t; box.textContent = t; box.classList.add('on'); };
+    rec.onerror = function (ev) { if (ev.error === 'not-allowed') dizer('O microfone está bloqueado. Libere nas configurações do navegador.'); else if (ev.error !== 'no-speech' && ev.error !== 'aborted') dizer('O microfone não respondeu.'); };
+    rec.onend = function () { btn.classList.remove('on'); rec = null; if (final) exec(final); };
+    try { rec.start(); } catch (e) { btn.classList.remove('on'); rec = null; dizer('Não consegui ligar o microfone.'); }
+  });
+})();
 </script>
 
 </body></html>
