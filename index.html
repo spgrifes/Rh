@@ -337,6 +337,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
 .rg .bt{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
 .rg .bt button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 11px;font-size:.78rem;font-weight:700;color:var(--ink)}
 .rg .bt .del{color:var(--red)}
+.rg .bt .pgok{background:var(--green);border-color:var(--green);color:#fff}
 .fx{display:grid;gap:10px}.fx h4{margin:4px 0 2px;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--soft)}
 .fx .ln{display:flex;justify-content:space-between;gap:10px;font-size:.9rem;border-bottom:1px dashed var(--line);padding:3px 0}.fx .ln span:first-child{color:var(--soft)}.fx .ln b{text-align:right;word-break:break-all}
 .fx .mk{font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em}
@@ -391,6 +392,8 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <div class="frm cxf" id="cxform"></div>
     <h2 style="margin:22px 0 2px">Seus lançamentos</h2><div class="sy2" style="margin-bottom:10px">Últimos 45 dias</div>
     <div class="grid" id="cxlist"></div>
+    <div id="cxhistw" hidden><h2 style="margin:26px 0 2px">Histórico de pagos</h2><div class="sy2" style="margin-bottom:10px">Vales que já foram pagos ao funcionário</div>
+    <div class="grid" id="cxhist"></div></div>
   </div></main>
 </div>
 
@@ -700,7 +703,7 @@ function render(){
 const valesDe=e=>REGS.filter(r=>r.tipo==='vale'&&r.func===e.id);
 const valesPend=e=>valesDe(e).filter(r=>(r.d.st||'A descontar')!=='Descontado').reduce((t,r)=>t+valNum(r.d.valor),0);
 function valesFicha(e){const vs=valesDe(e);
-  const it=vs.map(r=>`<div class="vf"><div class="vf1"><b>${F(valNum(r.d.valor))}</b> · ${esc(r.d.tipo||'Vale')}${r.d.st==='Descontado'?' <span class="tag t-green">descontado</span>':''}</div>
+  const it=vs.map(r=>`<div class="vf"><div class="vf1"><b>${F(valNum(r.d.valor))}</b> · ${esc(r.d.tipo||'Vale')}${r.d.pago?' <span class="tag t-green">pago'+(r.d.pagoEm?' em '+new Date(r.d.pagoEm).toLocaleDateString('pt-BR'):'')+'</span>':' <span class="tag t-amber">a pagar</span>'}${r.d.st==='Descontado'?' <span class="tag t-green">descontado</span>':''}</div>
     ${r.d.motivo?`<div class="vf2">${esc(r.d.motivo)}</div>`:''}${parcHTML(r.d)}
     <div class="vf3">${new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})} · lançado por ${esc(r.cp||'')}${(r.d.arqs||[]).map(a=>` · <button type="button" class="vfb" data-ver="${esc(a.path)}">ver foto</button>`).join('')}</div></div>`).join('');
   return `<div class="blk money3"><h3>Vales e compras${vs.length?` · falta descontar ${F(valesPend(e))}`:''}</h3>${it||'<div class="vf2" style="padding:6px 0">Nenhum vale lançado.</div>'}</div>`;}
@@ -947,7 +950,7 @@ const TIPOS={
    linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A descontar')+(r.d.data?' · pago em '+dBR(r.d.data):''),r.d.forma,r.d.ref?'ref. '+r.d.ref.split('-').reverse().join('/'):'']},
  vales:{grupo:'pagamentos',tipo:'vale',filtra:r=>r.tipo==='vale'&&r.d.tipo!=='Compra na loja',titulo:'Vale (fora da data)',intro:'Vale em dinheiro que o funcionário pede fora da data de pagamento, lançado pelo caixa (a Cris) ou por vocês, com a foto do papel assinado. Quando descontar na folha, edite e marque "Descontado".',law:'Desconto no salário só com autorização assinada pelo funcionário. Guarde a foto do papel.',
    campos:[{k:'func',l:'Funcionário',t:'func'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'data',l:'Data',t:'date'},{k:'motivo',l:'Motivo',t:'textarea'},{k:'st',l:'Situação',t:'select',o:['A descontar','Descontado']},{k:'arqs',l:'Foto do papel assinado',t:'file'}],
-   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A descontar')+(r.d.data?' · '+dBR(r.d.data):''),r.d.motivo,'Lançado em '+new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})]},
+   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.pago?'PAGO'+(r.d.pagoForma?' ('+r.d.pagoForma+')':''):'A pagar')+' · '+(r.d.st||'A descontar')+(r.d.data?' · '+dBR(r.d.data):''),r.d.motivo,'Lançado em '+new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})]},
  descmerc:{grupo:'pagamentos',tipo:'descmerc',filtra:r=>r.tipo==='descmerc'||(r.tipo==='vale'&&r.d.tipo==='Compra na loja'),titulo:'Desconto de mercadoria',intro:'Compras de roupa na loja feitas pelo funcionário para descontar na folha. Lance a peça, o valor e marque "Descontado" quando fechar o mês.',law:'Desconto de compra só com autorização assinada. Guarde a nota ou o papel.',
    campos:[{k:'func',l:'Funcionário',t:'func'},{k:'peca',l:'O que comprou',t:'text'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'data',l:'Data da compra',t:'date'},{k:'parc',l:'Como desconta',t:'select',o:['De uma vez','Em 2 meses','Em 3 meses']},{k:'st',l:'Situação',t:'select',o:['A descontar','Descontado']},{k:'arqs',l:'Nota / papel assinado',t:'file'}],
    linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A descontar')+(r.d.data?' · '+dBR(r.d.data):''),r.d.peca,r.d.parc&&r.d.parc!=='De uma vez'?'Desconto '+r.d.parc.toLowerCase():'']},
@@ -1331,16 +1334,35 @@ function resumoParc(){
   el.style.color=Math.abs(falta)<0.01?'var(--green)':'#c0262d';
   el.textContent=Math.abs(falta)<0.01?'Certo: as parcelas somam '+F(tot)+'.':falta>0?'Falta distribuir '+F(falta)+' nos meses.':'As parcelas passaram '+F(-falta)+' do valor total.';
 }
+let cxPagoSel=null;
+const PFORMAS=['Pix','Dinheiro','Outro'];
+const dtBR=iso=>new Date(iso).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+function cxCard(r){
+  const e=CX.equipe.find(x=>x.id===r.func);const desc=r.d.st==='Descontado';const pg=!!r.d.pago;
+  const bpago=!CX.admin?'':pg?`<button type="button" data-cxdespago="${r.id}">Desfazer pago</button>`:(cxPagoSel===r.id?`<span style="font-size:.78rem;font-weight:700;align-self:center">Pago como:</span>${PFORMAS.map(f=>`<button type="button" class="pgok" data-cxpago="${r.id}" data-forma="${f}">${f}</button>`).join('')}<button type="button" data-cxpagocancel="1">Cancelar</button>`:`<button type="button" class="pgok" data-cxpagoabre="${r.id}">Marcar como pago</button>`);
+  return `<div class="rg"><div class="h"><div class="t1">${esc(e?e.nome:'—')}</div><div style="font-weight:800">${F(valNum(r.d.valor))}</div></div>
+   <div style="font-weight:700">${esc(r.d.tipo||'Vale')}${pg?' · <span class="tag t-green">pago</span>':''}${desc?' · <span class="tag t-green">descontado</span>':''}</div>
+   ${pg?`<div class="t2">Pago em ${dtBR(r.d.pagoEm)}${r.d.pagoForma?' · '+esc(r.d.pagoForma):''}${r.d.pagoPor?' · por '+esc(r.d.pagoPor):''}</div>`:''}
+   ${r.d.motivo?`<div class="t2">${esc(r.d.motivo)}</div>`:''}
+   ${parcHTML(r.d)}
+   <div class="bt">${(r.d.arqs||[]).map(a=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}</button>`).join('')}${bpago}${(desc||pg)?'':`<button type="button" data-cxedit="${r.id}">Editar</button><button type="button" class="del" data-cxdel="${r.id}">Excluir</button>`}</div>
+   <div class="by">Lançado em ${dtBR(r.ce)}</div></div>`;}
 function cxLista(){
-  const L=CX.registros;
-  $('cxlist').innerHTML=L.map(r=>{const e=CX.equipe.find(x=>x.id===r.func);const desc=r.d.st==='Descontado';
-    return `<div class="rg"><div class="h"><div class="t1">${esc(e?e.nome:'—')}</div><div style="font-weight:800">${F(valNum(r.d.valor))}</div></div>
-     <div style="font-weight:700">${esc(r.d.tipo||'Vale')}${desc?' · <span class="tag t-green">descontado</span>':''}</div>
-     ${r.d.motivo?`<div class="t2">${esc(r.d.motivo)}</div>`:''}
-     ${parcHTML(r.d)}
-     <div class="bt">${(r.d.arqs||[]).map(a=>`<button type="button" data-ver="${esc(a.path)}">Ver ${a.pdf?'PDF':'foto'}</button>`).join('')}${desc?'':`<button type="button" data-cxedit="${r.id}">Editar</button><button type="button" class="del" data-cxdel="${r.id}">Excluir</button>`}</div>
-     <div class="by">${new Date(r.ce).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div>`;}).join('')||'<div class="rg"><div class="t2">Nenhum lançamento ainda.</div></div>';
+  const L=CX.registros, A=L.filter(r=>!r.d.pago), H=L.filter(r=>r.d.pago).sort((a,b)=>String(b.d.pagoEm).localeCompare(String(a.d.pagoEm)));
+  $('cxlist').innerHTML=A.map(cxCard).join('')||'<div class="rg"><div class="t2">Nenhum lançamento a pagar.</div></div>';
+  $('cxhistw').hidden=!H.length;
+  $('cxhist').innerHTML=H.map(cxCard).join('');
 }
+async function cxMarcaPago(id,forma){
+  const r=CX.registros.find(x=>x.id===id);if(!r)return;
+  const d={...r.d,pago:true,pagoEm:new Date().toISOString(),pagoForma:forma,pagoPor:QUEM};
+  try{await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:r.id,p_tipo:'vale',p_func:r.func,p_dados:d});cxPagoSel=null;await carregar();cxAtualiza();renderCaixa();toast('Marcado como pago · foi para o histórico');}
+  catch(e){toast('Não salvou. Tente de novo.');}}
+async function cxDesfazPago(id){
+  const r=CX.registros.find(x=>x.id===id);if(!r)return;if(!confirm('Desfazer o pago deste vale?'))return;
+  const d={...r.d};delete d.pago;delete d.pagoEm;delete d.pagoForma;delete d.pagoPor;
+  try{await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:r.id,p_tipo:'vale',p_func:r.func,p_dados:d});await carregar();cxAtualiza();renderCaixa();toast('Voltou para a lista a pagar');}
+  catch(e){toast('Não salvou. Tente de novo.');}}
 function renderCaixa(){$('cxquem').textContent='Olá, '+CX.quem;$('cxsair').textContent=CX.admin?'‹ Voltar ao painel':'Sair';cxForm();cxLista();}
 const parcHTML=d=>(d.parcelas&&d.parcelas.length)?`<div class="parcl">${d.parcelas.map(p=>`<span>${esc(nomeMes(p.mes))}: ${F(valNum(p.valor))}</span>`).join('')}</div>`:'';
 /* Fábio e Taine também lançam vales, na mesma tela da Cris */
@@ -1372,6 +1394,10 @@ document.addEventListener('click',async ev=>{
   if(ev.target.closest('#cxsave'))return cxSalvar();
   if(ev.target.closest('#cxpadd')){const L=mesesFut(),ult=cxParc[cxParc.length-1].mes,ix=L.findIndex(o=>o[0]===ult);cxParc.push({mes:(L[ix+1]||L[L.length-1])[0],valor:''});desenhaParc();return;}
   const pd=ev.target.closest('[data-pdel]');if(pd){cxParc.splice(+pd.dataset.pdel,1);desenhaParc();return;}
+  const pa=ev.target.closest('[data-cxpagoabre]');if(pa){cxPagoSel=pa.dataset.cxpagoabre;cxLista();return;}
+  if(ev.target.closest('[data-cxpagocancel]')){cxPagoSel=null;cxLista();return;}
+  const pk=ev.target.closest('[data-cxpago]');if(pk){return cxMarcaPago(pk.dataset.cxpago,pk.dataset.forma);}
+  const dp=ev.target.closest('[data-cxdespago]');if(dp){return cxDesfazPago(dp.dataset.cxdespago);}
   if(ev.target.closest('#cxcancel')){cxEdit=null;cxForm();return;}
   const ed=ev.target.closest('[data-cxedit]');if(ed){cxEdit=ed.dataset.cxedit;cxForm();window.scrollTo(0,0);return;}
   const dl=ev.target.closest('[data-cxdel]');if(dl){if(!confirm('Excluir este lançamento?'))return;try{await rpc('rh_reg_excluir',{p_senha:SENHA,p_id:dl.dataset.cxdel});await carregar();cxAtualiza();renderCaixa();toast('Excluído');}catch(e){toast('Não consegui excluir');}return;}
