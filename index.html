@@ -415,7 +415,7 @@ select.mes{appearance:none;-webkit-appearance:none;background:#232733 url("data:
     <button type="button" data-tab="ficha" aria-pressed="false">Ficha do Funcionário</button>
     <button type="button" data-tab="comissoes" aria-pressed="false">Comissões</button>
     <button type="button" data-tab="avaliacoes" aria-pressed="false">Avaliações do Google</button>
-    <button type="button" data-tab="pagamentos" data-grupo="salario bonus comissaopg vt adiant vales descmerc" aria-pressed="false">Pagamentos</button>
+    <button type="button" data-tab="pagamentos" data-grupo="salario bonus comissaopg vt adiant vales descmerc extra" aria-pressed="false">Pagamentos</button>
     <button type="button" id="abrevale" aria-pressed="false" style="border-color:#2563eb;color:#fff;background:#2563eb">+ Lançar vale</button>
     <button type="button" data-tab="impostos" aria-pressed="false">Impostos</button>
     <button type="button" data-tab="box" aria-pressed="false">Box da feira</button>
@@ -582,11 +582,11 @@ function valesNoMes(e,ym){const L=[];valesDe(e).filter(r=>r.d.st!=='Descontado')
   else if(mesDesconto(r)===ym)L.push({r,valor:valNum(r.d.valor),parc:''});});return L;}
 function contaMes(e){const ym=mesYM(); let itens=[];
   try{gerarAgenda().filter(d=>d.data.slice(0,7)===ym).forEach(d=>d.itens.filter(i=>i.quem===e.nome).forEach(i=>itens.push({bruto:i.bruto,abat:i.abat,id:i.id,data:d.dia,tit:d.titulo,desc:i.motivo,valor:i.valor,obs:i.obs,baixa:(REV[i.id]||{}).a,pago:PAGO.includes((REV[i.id]||{}).s),forma:FORMA[(REV[i.id]||{}).s]||''})));}catch(err){}
-  const vs=valesNoMes(e,ym);
+  const vs=valesNoMes(e,ym), ex=REGS.filter(r=>r.tipo==='extra'&&r.func===e.id&&(r.d.data||'').slice(0,7)===ym), extot=ex.reduce((t,r)=>t+valNum(r.d.valor),0);
   const ent=itens.reduce((t,i)=>t+(i.valor||0),0), sai=vs.reduce((t,v)=>t+v.valor,0), pago=itens.filter(i=>i.pago).reduce((t,i)=>t+(i.valor||0),0);
-  return {itens,vs,ent,sai,total:Math.round((ent-sai)*100)/100,pago,falta:Math.round((ent-sai-pago)*100)/100,semValor:itens.filter(i=>i.valor==null).length};}
+  return {ex,extot,itens,vs,ent,sai,total:Math.round((ent-sai)*100)/100,pago,falta:Math.round((ent-sai-pago)*100)/100,semValor:itens.filter(i=>i.valor==null).length};}
 function contaHTML(e){const c=contaMes(e), nm=(MESES.find(m=>m.id===MESATUAL)||{}).nome||'';
-  if(!c.itens.length&&!c.vs.length)return `<div class="blk conta"><h3>Conta do mês · ${esc(nm)}</h3><div class="vf2" style="padding:6px 0">Ainda não há pagamentos na agenda deste mês para ${esc(e.nome)}.</div></div>`;
+  if(!c.itens.length&&!c.vs.length&&!c.ex.length)return `<div class="blk conta"><h3>Conta do mês · ${esc(nm)}</h3><div class="vf2" style="padding:6px 0">Ainda não há pagamentos na agenda deste mês para ${esc(e.nome)}.</div></div>`;
   return `<div class="blk conta"><h3>Conta do mês · ${esc(nm)}</h3>
    <div class="ct-sub">Entradas (o que ela recebe)</div>
    ${c.itens.map(i=>`<div class="ct-l"><div><b>${esc(i.data)} · ${esc(i.tit)}</b><div class="ct-d">${esc(i.desc)}${i.obs?' · <i>'+esc(i.obs)+'</i>':''}</div>${i.abat?`<div class="ct-conta">Valor cheio ${F(i.bruto)}${i.abat.map(v=>` − ${esc(v.tipo)} ${F(v.valor)}${v.motivo?' ('+esc(v.motivo)+')':''} · lançado em ${new Date(v.ce).toLocaleDateString('pt-BR')}`).join('')} = <b>${F(i.valor)}</b> a receber</div>`:''}</div><div class="ct-v num">${i.valor==null?'<span style="color:var(--amber)">falta valor</span>':F(i.valor)}${i.pago?`<div class="ct-ok">✓ pago${i.forma&&i.forma!=='Pago'?' · '+esc(i.forma):''}${i.baixa?' · '+new Date(i.baixa).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}</div>`:''}
@@ -595,6 +595,7 @@ function contaHTML(e){const c=contaMes(e), nm=(MESES.find(m=>m.id===MESATUAL)||{
    <div class="ct-sub">Saídas (vales e compras a descontar)</div>
    <div class="ct-d" style="margin-bottom:4px">Os vales com data escolhida (dia 20 ou final do mês) já estão descontados nos pagamentos acima.</div>
    ${c.vs.map(v=>`<div class="ct-l"><div><b>${esc(v.r.d.tipo||'Vale')}${v.parc?' · parcela '+v.parc:''}</b><div class="ct-d">${esc(v.r.d.motivo||'')} · lançado em ${new Date(v.r.ce).toLocaleDateString('pt-BR')}</div></div><div class="ct-v num neg">− ${F(v.valor)}</div></div>`).join('')||'<div class="ct-d">Nenhum vale para descontar neste mês.</div>'}
+   ${c.ex.length?`<div class="ct-sub">Pagamentos extras já pagos (fora da conta acima)</div>${c.ex.map(r=>`<div class="ct-l"><div><b>${esc(r.d.motivo||'Extra')}</b><div class="ct-d">${r.d.data?dBR(r.d.data):''}${r.d.forma?' · '+esc(r.d.forma):''}</div></div><div class="ct-v num">${F(valNum(r.d.valor))}</div></div>`).join('')}<div class="ct-r"><span>Extras pagos no mês</span><b class="num">${F(c.extot)}</b></div>`:''}
    <div class="ct-tot"><div class="ct-r"><span>Entradas</span><b class="num">${F(c.ent)}</b></div><div class="ct-r"><span>Saídas (vales)</span><b class="num neg">− ${F(c.sai)}</b></div>
      <div class="ct-r big"><span>Total a pagar no mês</span><b class="num">${F(c.total)}</b></div>
      <div class="ct-r"><span>Já pago</span><b class="num" style="color:var(--green)">${F(c.pago)}</b></div>
@@ -969,6 +970,9 @@ const TIPOS={
  descmerc:{grupo:'pagamentos',tipo:'descmerc',filtra:r=>r.tipo==='descmerc'||(r.tipo==='vale'&&r.d.tipo==='Compra na loja'),titulo:'Desconto de mercadoria',intro:'Compras de roupa na loja feitas pelo funcionário para descontar na folha. Lance a peça, o valor e marque "Descontado" quando fechar o mês.',law:'Desconto de compra só com autorização assinada. Guarde a nota ou o papel.',
    campos:[{k:'func',l:'Funcionário',t:'func'},{k:'peca',l:'O que comprou',t:'text'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'data',l:'Data da compra',t:'date'},{k:'parc',l:'Como desconta',t:'select',o:['De uma vez','Em 2 meses','Em 3 meses']},{k:'st',l:'Situação',t:'select',o:['A descontar','Descontado']},{k:'arqs',l:'Nota / papel assinado',t:'file'}],
    linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A descontar')+(r.d.data?' · '+dBR(r.d.data):''),r.d.peca,r.d.parc&&r.d.parc!=='De uma vez'?'Desconto '+r.d.parc.toLowerCase():'']},
+ extra:{grupo:'pagamentos',tipo:'extra',titulo:'Pagamento extra',intro:'Dia extra, feriado trabalhado ou qualquer serviço fora da folha. Registre quanto você pagou, em que dia e por quê, para saber quanto dinheiro saiu para a pessoa no mês.',law:'Guarde o recibo ou a foto do papel assinado. Pagamento extra recorrente pode virar habitual: converse com o contador.',
+   campos:[{k:'func',l:'Funcionário',t:'func'},{k:'data',l:'Dia em que pagou',t:'date'},{k:'valor',l:'Valor pago (R$)',t:'money'},{k:'motivo',l:'Motivo (ex.: feriado, dia extra)',t:'text'},{k:'forma',l:'Forma',t:'select',o:['Dinheiro','Pix','Transferência']},{k:'st',l:'Situação',t:'select',o:['Pago']},{k:'arqs',l:'Recibo / foto',t:'file'}],
+   linha:r=>[(F(valNum(r.d.valor))||'R$ 0,00')+' · pago'+(r.d.data?' em '+dBR(r.d.data):''),r.d.motivo,r.d.forma]},
  impostos:{tipo:'imposto',titulo:'Impostos',intro:'Os impostos e guias que a empresa paga todo mês: qual é, quanto, para onde vai, para que serve e quando vence. Lance cada guia, marque "Pago" quando pagar e anexe a guia e o comprovante.',law:'Guia paga com atraso gera multa e juros. Guarde a guia e o comprovante por 5 anos.',
    campos:[{k:'imposto',l:'Imposto / guia',t:'select',o:['DAS (Simples Nacional)','FGTS','INSS / DARF previdenciário','IRRF','Contribuição sindical','ISS','IPTU','Outro']},{k:'nome',l:'Nome (se escolheu Outro)',t:'text'},{k:'ref',l:'Competência (mês)',t:'month'},{k:'valor',l:'Valor (R$)',t:'money'},{k:'venc',l:'Vencimento',t:'date'},{k:'destino',l:'Destino (quem recebe)',t:'text'},{k:'objetivo',l:'Objetivo (para que serve)',t:'textarea'},{k:'st',l:'Situação',t:'select',o:['A pagar','Pago']},{k:'data',l:'Data do pagamento',t:'date'},{k:'forma',l:'Forma',t:'select',o:['Pix','Boleto','Débito automático','Transferência']},{k:'linha',l:'Linha digitável / código da guia',t:'text'},{k:'obs',l:'Observação',t:'textarea'},{k:'arqs',l:'Guia e comprovante',t:'file'}],
    linha:r=>[(r.d.imposto==='Outro'&&r.d.nome?r.d.nome:(r.d.imposto||'Imposto'))+' · '+(F(valNum(r.d.valor))||'R$ 0,00')+' · '+(r.d.st||'A pagar')+(r.d.data?' · pago em '+dBR(r.d.data):r.d.venc?' · vence '+dBR(r.d.venc):''),r.d.destino?'Para: '+r.d.destino:'',r.d.objetivo||(r.d.ref?'ref. '+r.d.ref.split('-').reverse().join('/'):'')]},
