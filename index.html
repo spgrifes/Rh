@@ -245,7 +245,7 @@ tr.tot td{font-weight:800;background:var(--blue-bg);color:var(--blue)}
 .blk.conta{background:#f0f7ff;border:1px solid #cfe2ff;border-radius:14px;padding:6px 14px 14px}.blk.conta h3{color:#1d4ed8}
 .ct-sub{font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--soft);margin:12px 0 4px}
 .ct-l{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed #cfe2ff}
-.ct-d{font-size:.85rem;color:var(--soft);margin-top:2px}.ct-v{font-weight:800;white-space:nowrap;text-align:right}.ct-b{margin-top:4px;text-align:right}.ct-b .pg{border:1px solid var(--green);background:var(--card);color:var(--green);border-radius:999px;padding:5px 14px;font-size:.8rem;font-weight:800}.ct-b .pg.on{background:var(--green);color:#fff}.ct-ok{font-size:.75rem;color:var(--green);font-weight:700}
+.ct-d{font-size:.85rem;color:var(--soft);margin-top:2px}.ct-v{font-weight:800;white-space:nowrap;text-align:right}.ct-conta{font-size:.82rem;margin-top:4px;background:var(--amber-bg);border-radius:8px;padding:6px 8px;color:#6b4a06}.ct-b{margin-top:4px;text-align:right}.ct-b .pg{border:1px solid var(--green);background:var(--card);color:var(--green);border-radius:999px;padding:5px 14px;font-size:.8rem;font-weight:800}.ct-b .pg.on{background:var(--green);color:#fff}.ct-ok{font-size:.75rem;color:var(--green);font-weight:700}
 .neg{color:#c0262d}
 .ct-tot{margin-top:12px;background:#fff;border-radius:12px;padding:10px 12px;display:grid;gap:6px}
 .ct-r{display:flex;justify-content:space-between;gap:10px}.ct-r.big{font-size:1.15rem;border-top:1px solid var(--line);padding-top:8px}.ct-r.big2{font-size:1.25rem;color:#1d4ed8}
@@ -578,10 +578,10 @@ function fichaTopo(e){const falta=campos(e).filter(c=>c.v==null).length;
 /* ===== Conta do mês: tudo que entra e sai para o funcionário no mês ===== */
 function mesDesconto(r){if(r.d.mesdesc)return r.d.mesdesc;const d=new Date(r.ce);let a=d.getFullYear(),m=d.getMonth()+1;if(d.getDate()>20){m++;if(m>12){m=1;a++;}}return a+'-'+String(m).padStart(2,'0');}
 function valesNoMes(e,ym){const L=[];valesDe(e).filter(r=>r.d.st!=='Descontado').forEach(r=>{
-  if(r.d.parcelas&&r.d.parcelas.length)r.d.parcelas.forEach((p,i)=>{if(p.mes===ym)L.push({r,valor:valNum(p.valor),parc:r.d.parcelas.length>1?(i+1)+'ª de '+r.d.parcelas.length:''});});
+  if(r.d.parcelas&&r.d.parcelas.length)r.d.parcelas.forEach((p,i)=>{if(p.mes===ym&&!APLIC.has(r.id+'#'+i))L.push({r,valor:valNum(p.valor),parc:r.d.parcelas.length>1?(i+1)+'ª de '+r.d.parcelas.length:''});});
   else if(mesDesconto(r)===ym)L.push({r,valor:valNum(r.d.valor),parc:''});});return L;}
 function contaMes(e){const ym=mesYM(); let itens=[];
-  try{gerarAgenda().filter(d=>d.data.slice(0,7)===ym).forEach(d=>d.itens.filter(i=>i.quem===e.nome).forEach(i=>itens.push({id:i.id,data:d.dia,tit:d.titulo,desc:i.motivo,valor:i.valor,obs:i.obs,baixa:(REV[i.id]||{}).a,pago:PAGO.includes((REV[i.id]||{}).s),forma:FORMA[(REV[i.id]||{}).s]||''})));}catch(err){}
+  try{gerarAgenda().filter(d=>d.data.slice(0,7)===ym).forEach(d=>d.itens.filter(i=>i.quem===e.nome).forEach(i=>itens.push({bruto:i.bruto,abat:i.abat,id:i.id,data:d.dia,tit:d.titulo,desc:i.motivo,valor:i.valor,obs:i.obs,baixa:(REV[i.id]||{}).a,pago:PAGO.includes((REV[i.id]||{}).s),forma:FORMA[(REV[i.id]||{}).s]||''})));}catch(err){}
   const vs=valesNoMes(e,ym);
   const ent=itens.reduce((t,i)=>t+(i.valor||0),0), sai=vs.reduce((t,v)=>t+v.valor,0), pago=itens.filter(i=>i.pago).reduce((t,i)=>t+(i.valor||0),0);
   return {itens,vs,ent,sai,total:Math.round((ent-sai)*100)/100,pago,falta:Math.round((ent-sai-pago)*100)/100,semValor:itens.filter(i=>i.valor==null).length};}
@@ -589,10 +589,11 @@ function contaHTML(e){const c=contaMes(e), nm=(MESES.find(m=>m.id===MESATUAL)||{
   if(!c.itens.length&&!c.vs.length)return `<div class="blk conta"><h3>Conta do mês · ${esc(nm)}</h3><div class="vf2" style="padding:6px 0">Ainda não há pagamentos na agenda deste mês para ${esc(e.nome)}.</div></div>`;
   return `<div class="blk conta"><h3>Conta do mês · ${esc(nm)}</h3>
    <div class="ct-sub">Entradas (o que ela recebe)</div>
-   ${c.itens.map(i=>`<div class="ct-l"><div><b>${esc(i.data)} · ${esc(i.tit)}</b><div class="ct-d">${esc(i.desc)}${i.obs?' · <i>'+esc(i.obs)+'</i>':''}</div></div><div class="ct-v num">${i.valor==null?'<span style="color:var(--amber)">falta valor</span>':F(i.valor)}${i.pago?`<div class="ct-ok">✓ pago${i.forma&&i.forma!=='Pago'?' · '+esc(i.forma):''}${i.baixa?' · '+new Date(i.baixa).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}</div>`:''}
+   ${c.itens.map(i=>`<div class="ct-l"><div><b>${esc(i.data)} · ${esc(i.tit)}</b><div class="ct-d">${esc(i.desc)}${i.obs?' · <i>'+esc(i.obs)+'</i>':''}</div>${i.abat?`<div class="ct-conta">Valor cheio ${F(i.bruto)}${i.abat.map(v=>` − ${esc(v.tipo)} ${F(v.valor)}${v.motivo?' ('+esc(v.motivo)+')':''} · lançado em ${new Date(v.ce).toLocaleDateString('pt-BR')}`).join('')} = <b>${F(i.valor)}</b> a receber</div>`:''}</div><div class="ct-v num">${i.valor==null?'<span style="color:var(--amber)">falta valor</span>':F(i.valor)}${i.pago?`<div class="ct-ok">✓ pago${i.forma&&i.forma!=='Pago'?' · '+esc(i.forma):''}${i.baixa?' · '+new Date(i.baixa).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}</div>`:''}
      <div class="ct-b"><button type="button" class="pg ${i.pago?'on':''}" data-pg="${i.id}">${i.pago?'Pago ✓ (desfazer)':'Pago'}</button></div></div></div>
      ${pgEsc===i.id?`<div class="formas"><b>Como foi pago?</b>${['pix','dinheiro','cartao','transf'].map(f=>`<button type="button" data-forma="${f}" data-id="${i.id}">${FORMA[f]}</button>`).join('')}<button type="button" class="cx" data-forma="" data-id="${i.id}">Cancelar</button></div>`:''}`).join('')||'<div class="ct-d">Nada a receber neste mês.</div>'}
    <div class="ct-sub">Saídas (vales e compras a descontar)</div>
+   <div class="ct-d" style="margin-bottom:4px">Os vales com data escolhida (dia 20 ou final do mês) já estão descontados nos pagamentos acima.</div>
    ${c.vs.map(v=>`<div class="ct-l"><div><b>${esc(v.r.d.tipo||'Vale')}${v.parc?' · parcela '+v.parc:''}</b><div class="ct-d">${esc(v.r.d.motivo||'')} · lançado em ${new Date(v.r.ce).toLocaleDateString('pt-BR')}</div></div><div class="ct-v num neg">− ${F(v.valor)}</div></div>`).join('')||'<div class="ct-d">Nenhum vale para descontar neste mês.</div>'}
    <div class="ct-tot"><div class="ct-r"><span>Entradas</span><b class="num">${F(c.ent)}</b></div><div class="ct-r"><span>Saídas (vales)</span><b class="num neg">− ${F(c.sai)}</b></div>
      <div class="ct-r big"><span>Total a pagar no mês</span><b class="num">${F(c.total)}</b></div>
@@ -750,8 +751,13 @@ const FERIADOS=['2026-11-02','2026-11-15','2026-11-20','2026-12-25','2027-01-01'
 function diasTrabMes(ym,segSex){const [a,m]=ym.split('-').map(Number);let n=0;for(let d=new Date(a,m-1,1,12);d.getMonth()===m-1;d.setDate(d.getDate()+1)){const w=d.getDay(),iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(w===0||(segSex&&w===6)||FERIADOS.includes(iso))continue;n++;}return n;}
 function diasTrab(dataPg,segSex){const d0=new Date(dataPg+'T12:00:00');const a=d0.getMonth()===11?d0.getFullYear()+1:d0.getFullYear(),m=(d0.getMonth()+1)%12;let n=0;
   for(let d=new Date(a,m,1,12);d.getMonth()===m;d.setDate(d.getDate()+1)){const w=d.getDay(),iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(w===0||(segSex&&w===6)||FERIADOS.includes(iso))continue;n++;}return n;}
+let APLIC=new Set();
+const QLAB={dia20:'dia 20 (adiantamento)',fim:'final do mês (saldo)'};
+function valesQuando(e,ym,q){const L=[];REGS.filter(r=>r.tipo==='vale'&&r.func===e.id&&r.d.st!=='Descontado').forEach(r=>(r.d.parcelas||[]).forEach((p,ix)=>{if(p.mes===ym&&p.quando===q&&valNum(p.valor)>0)L.push({k:r.id+'#'+ix,valor:valNum(p.valor),tipo:r.d.tipo||'Vale',motivo:r.d.motivo||'',ce:r.ce});}));return L;}
+const mesAnt=ym=>{const [a,m]=ym.split('-').map(Number);const d=new Date(a,m-2,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');};
 function gerarAgenda(){
   const A=D.AGENDA; if(!A)return [];
+  APLIC=new Set();
   const eq=AGEQ, adih=A.adih||{}, xd=A.extraDesc||{};
   const ativo=(e,data)=>!DESL[e.id]||data<=DESL[e.id].d.ultimo;
   const extras=Object.values(DESL).map(r=>{const e=AGEQ.find(x=>x.id===r.func)||(D.EQUIPE_ALL||[]).find(x=>x.id===r.func);if(!e)return null;const a=acerto(e,r);
@@ -785,6 +791,12 @@ function gerarAgenda(){
         const v=Math.round(e.sal*meses/12/2*100)/100;
         itens.push({quem:e.nome,motivo:`13º salário, ${dd.parcela}ª parcela (metade de ${F(e.sal*meses/12)})`,valor:v,obs:[nota,e.reg?'Registrada: valor final pelo contador.':''].filter(Boolean).join(' · ')});});}
     itens=itens.concat(dd.itens||[]);
+    if(dd.tipo==='adiantamento'||dd.tipo==='salario'){
+      const ref=dd.tipo==='adiantamento'?dd.data.slice(0,7):mesAnt(dd.data.slice(0,7)), q=dd.tipo==='adiantamento'?'dia20':'fim';
+      itens.forEach(i=>{const e=eq.find(x=>x.nome===i.quem); if(!e||i.valor==null)return;
+        const vl=valesQuando(e,ref,q); if(!vl.length)return;
+        const t=Math.round(vl.reduce((a,v)=>a+v.valor,0)*100)/100; vl.forEach(v=>APLIC.add(v.k));
+        i.bruto=i.valor; i.abat=vl; i.valor=Math.round((i.valor-t)*100)/100;});}
     itens.forEach(i=>{i.id='pg_'+dd.data+'_'+dd.tipo+'_'+slug(i.quem);const o=REV['v_'+i.id];if(o&&String(o.n||'').trim()){i.valOrig=i.valor;i.valor=valNum(o.n);}});
     const total=itens.reduce((s,i)=>s+(i.valor||0),0);
     return {...dd,dia,titulo,itens,total};
@@ -865,7 +877,7 @@ function renderAgenda(){
       ${d.nota?`<div class="dnote">${esc(d.nota)}</div>`:''}
       ${d.itens.map(i=>{const r=REV[i.id]||{}, pg=PAGO.includes(r.s);
         return `<div class="pi ${pg?'paid':''}"><div class="q">${esc(i.quem)}</div><div class="val num ${i.valor==null?'miss':''}">${i.valor==null?'a definir':F(i.valor)}</div>
-        <div class="m">${esc(i.motivo)}</div>${i.valOrig!==undefined?`<div class="o blue">Valor corrigido à mão (a conta dava ${i.valOrig==null?'a definir':F(i.valOrig)})</div>`:''}${i.obs?`<div class="o">${esc(i.obs)}</div>`:''}${r.n?`<div class="o blue">Anotação: ${esc(r.n)}</div>`:''}
+        <div class="m">${esc(i.motivo)}</div>${i.valOrig!==undefined?`<div class="o blue">Valor corrigido à mão (a conta dava ${i.valOrig==null?'a definir':F(i.valOrig)})</div>`:''}${i.abat?`<div class="o" style="color:#6b4a06">Cheio ${F(i.bruto)}${i.abat.map(v=>' − '+esc(v.tipo)+' '+F(v.valor)).join('')} = ${F(i.valor)}</div>`:''}${i.obs?`<div class="o">${esc(i.obs)}</div>`:''}${r.n?`<div class="o blue">Anotação: ${esc(r.n)}</div>`:''}
         ${pg?`<div class="pd">Pago · ${FORMA[r.s]||'Pago'}${r.a?' · '+new Date(r.a).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}</div>`:''}
         <div class="act"><button type="button" class="pg" data-pg="${i.id}">${pg?'Pago ✓':'Pago'}</button><button type="button" data-pgval="${i.id}">Editar valor</button><button type="button" data-pged="${i.id}">${r.n?'Editar nota':'Anotar'}</button></div>
         ${agVal===i.id?`<div class="edit"><b style="font-size:.85rem">Valor certo (R$)</b><input class="vt-in" id="v_${i.id}" data-id="${i.id}" inputmode="decimal" placeholder="Ex.: 120,00" value="${esc((REV['v_'+i.id]||{}).n||'')}"><div class="act"><button type="button" class="pg" data-vsave="${i.id}">Salvar valor</button><button type="button" data-vclear="${i.id}">Voltar ao valor da conta</button></div></div>`:''}
@@ -1319,7 +1331,7 @@ function cxForm(){
    <label>Motivo<textarea id="cxmot" rows="2" placeholder="Ex.: vale pedido para o aluguel / camiseta e bermuda">${esc(d.motivo||'')}</textarea></label>
    <label class="foto" id="cxfotol"><input type="file" id="cxfoto" accept="image/*,application/pdf" hidden><span id="cxfotot">${(d.arqs||[]).length?'Foto já guardada · toque para trocar':'Tirar foto do papel assinado'}</span></label>
    <div class="acts"><button type="button" class="btn" id="cxsave">${r?'Salvar alteração':'Lançar no RH'}</button>${r?'<button type="button" class="btn sec2" id="cxcancel">Cancelar</button>':''}<span class="sy2" id="cxst"></span></div>`;
-  cxParc=(d.parcelas&&d.parcelas.length)?d.parcelas.map(x=>({mes:x.mes,valor:x.valor})):[{mes:mesesFut()[0][0],valor:''}];
+  cxParc=(d.parcelas&&d.parcelas.length)?d.parcelas.map(x=>({mes:x.mes,valor:x.valor,quando:x.quando||'fim'})):[{mes:mesesFut()[0][0],valor:'',quando:'fim'}];
   desenhaParc();
 }
 let cxParc=[];
@@ -1331,7 +1343,8 @@ function desenhaParc(){
   const so=cxParc.length===1;
   $('cxparc').innerHTML=cxParc.map((p,i)=>`<div class="prow"><select data-pm="${i}" aria-label="Mês do desconto">${op.map(o=>`<option value="${o[0]}" ${o[0]===p.mes?'selected':''}>${o[1]}</option>`).join('')}</select>
     <input data-pv="${i}" type="text" inputmode="decimal" placeholder="${so?'valor todo':'R$ 0,00'}" value="${esc(p.valor||'')}" aria-label="Valor neste mês">
-    ${so?'<span></span>':`<button type="button" class="px" data-pdel="${i}" aria-label="Tirar este mês">×</button>`}</div>`).join('');
+    ${so?'<span></span>':`<button type="button" class="px" data-pdel="${i}" aria-label="Tirar este mês">×</button>`}
+    <select data-pq="${i}" aria-label="Quando descontar" style="grid-column:1/-1"><option value="dia20" ${p.quando==='dia20'?'selected':''}>Descontar no dia 20 (adiantamento)</option><option value="fim" ${p.quando!=='dia20'?'selected':''}>Descontar no final do mês (saldo)</option></select></div>`).join('');
   resumoParc();
 }
 function resumoParc(){
@@ -1371,7 +1384,7 @@ async function cxDesfazPago(id){
   try{await rpc('rh_reg_salvar',{p_senha:SENHA,p_id:r.id,p_tipo:'vale',p_func:r.func,p_dados:d});await carregar();cxAtualiza();renderCaixa();toast('Voltou para a lista a pagar');}
   catch(e){toast('Não salvou. Tente de novo.');}}
 function renderCaixa(){$('cxquem').textContent='Olá, '+CX.quem;$('cxsair').textContent=CX.admin?'‹ Voltar ao painel':'Sair';cxForm();cxLista();}
-const parcHTML=d=>(d.parcelas&&d.parcelas.length)?`<div class="parcl">${d.parcelas.map(p=>`<span>${esc(nomeMes(p.mes))}: ${F(valNum(p.valor))}</span>`).join('')}</div>`:'';
+const parcHTML=d=>(d.parcelas&&d.parcelas.length)?`<div class="parcl">${d.parcelas.map(p=>`<span>${esc(nomeMes(p.mes))}: ${F(valNum(p.valor))}${p.quando?' · '+(p.quando==='dia20'?'dia 20':'final do mês'):''}</span>`).join('')}</div>`:'';
 /* Fábio e Taine também lançam vales, na mesma tela da Cris */
 function cxAtualiza(){if(CX&&CX.admin)CX={admin:true,quem:QUEM,equipe:(D.EQUIPE||[]).map(e=>({id:e.id,nome:e.nome,funcao:e.funcao})),registros:REGS.filter(r=>r.tipo==='vale')};}
 function abrirVales(){CX={admin:true};cxAtualiza();cxEdit=null;$('app').hidden=true;$('cx').hidden=false;renderCaixa();window.scrollTo(0,0);}
@@ -1384,7 +1397,7 @@ async function cxSalvar(){
   if(!mot){$('cxst').textContent='Escreva o motivo.';return;}
   if(!r&&!fi.files.length&&!confirm('Lançar sem a foto do papel assinado?'))return;
   const tot=valNum(v);
-  let parc=cxParc.map(p=>({mes:p.mes,valor:cxParc.length===1&&!(valNum(p.valor)>0)?v:p.valor}));
+  let parc=cxParc.map(p=>({mes:p.mes,quando:p.quando||'fim',valor:cxParc.length===1&&!(valNum(p.valor)>0)?v:p.valor}));
   if(parc.length>1){if(parc.some(p=>!(valNum(p.valor)>0))){$('cxst').textContent='Coloque o valor de cada mês.';return;}
     const soma=parc.reduce((t,p)=>t+valNum(p.valor),0);if(Math.abs(soma-tot)>0.01){$('cxst').textContent='As parcelas precisam somar '+F(tot)+'.';return;}}
   const d=r?{...r.d}:{}; d.tipo=cxTipo; d.valor=v; d.motivo=mot; d.parcelas=parc;
@@ -1399,7 +1412,7 @@ document.addEventListener('click',async ev=>{
   if($('cx').hidden)return;
   const t=ev.target.closest('[data-cxt]');if(t){cxTipo=t.dataset.cxt;document.querySelectorAll('[data-cxt]').forEach(b=>b.setAttribute('aria-pressed',b===t));return;}
   if(ev.target.closest('#cxsave'))return cxSalvar();
-  if(ev.target.closest('#cxpadd')){const L=mesesFut(),ult=cxParc[cxParc.length-1].mes,ix=L.findIndex(o=>o[0]===ult);cxParc.push({mes:(L[ix+1]||L[L.length-1])[0],valor:''});desenhaParc();return;}
+  if(ev.target.closest('#cxpadd')){const L=mesesFut(),ult=cxParc[cxParc.length-1].mes,ix=L.findIndex(o=>o[0]===ult);cxParc.push({mes:(L[ix+1]||L[L.length-1])[0],valor:'',quando:'fim'});desenhaParc();return;}
   const pd=ev.target.closest('[data-pdel]');if(pd){cxParc.splice(+pd.dataset.pdel,1);desenhaParc();return;}
   const pa=ev.target.closest('[data-cxpagoabre]');if(pa){cxPagoSel=pa.dataset.cxpagoabre;cxLista();return;}
   if(ev.target.closest('[data-cxpagocancel]')){cxPagoSel=null;cxLista();return;}
@@ -1411,7 +1424,7 @@ document.addEventListener('click',async ev=>{
   if(ev.target.closest('#cxsair')){if(CX&&CX.admin){fecharVales();return;}try{sessionStorage.removeItem('rh_pw')}catch(e){}location.reload();}
 });
 document.addEventListener('input',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pv!=null){cxParc[+t.dataset.pv].valor=t.value;resumoParc();}else if(t.id==='cxval')resumoParc();});
-document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pm!=null){cxParc[+t.dataset.pm].mes=t.value;resumoParc();}});
+document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pm!=null){cxParc[+t.dataset.pm].mes=t.value;resumoParc();}else if(t.dataset&&t.dataset.pq!=null){cxParc[+t.dataset.pq].quando=t.value;}});
 document.addEventListener('change',ev=>{if(ev.target.id==='nf_cargo'){const o=ev.target.value==='Outro';$('nf_outrol').hidden=!o;$('nf_setorl').hidden=!o;}});
 document.addEventListener('change',ev=>{if(ev.target.id==='obsarq'){const n=ev.target.files.length;$('obsarqt').textContent=n?n+' arquivo(s) pronto(s) ✓':'+ Anexar foto ou PDF (atestado, recibo, documento)';}});
 document.addEventListener('change',ev=>{if(ev.target.id==='cxfoto'){const n=ev.target.files.length;$('cxfotot').textContent=n?'Foto pronta ✓ (toque para trocar)':'Tirar foto do papel assinado';$('cxfotol').classList.toggle('ok',!!n);}});
