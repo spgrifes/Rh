@@ -1,0 +1,36 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Alertas de reposição · SP Grifes</title>
+<style>
+body{margin:0;background:#f4f1ea;font-family:system-ui,sans-serif;color:#111}
+.gsbar{background:#111;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;position:sticky;top:0;z-index:5}
+.gsbar img{height:44px}.gsbar a{background:#d4af37;color:#111;font-weight:800;text-decoration:none;padding:12px 16px;border-radius:12px;font-size:16px}
+main{max-width:680px;margin:0 auto;padding:12px}h1{font-size:20px;margin:8px 0}
+h2{font-size:16px;margin:18px 0 8px}.c{background:#fff;border-radius:14px;padding:6px 14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.r{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid #eee;font-size:15px}.r:last-child{border:0}
+.r b{text-transform:uppercase}.red{color:#d92d20;font-weight:800}.grn{color:#1a8f3c;font-weight:800}.sub{font-size:12px;opacity:.7}
+button{width:100%;padding:16px;border:0;border-radius:14px;background:#1fa34a;color:#fff;font:800 17px system-ui;margin-top:8px}
+pre{white-space:pre-wrap;background:#fff;border-radius:12px;padding:12px;font:14px system-ui;display:none}
+</style></head><body>
+<div class="gsbar"><img src="../../gs/img/logo-sp-grifes-branco-fornecedor-bras.png" alt="SP Grifes"><a href="../checklist/">← VOLTAR</a></div>
+<main><h1>Alertas de reposição</h1><div class="sub" id="q">Carregando…</div>
+<h2>⚠ Precisa trazer ou comprar</h2><div class="c" id="al"></div>
+<h2>Variação desde a contagem anterior</h2><div class="c" id="va"></div>
+<h2>Lista para o fabricante</h2><button id="cp">Copiar lista para WhatsApp</button><pre id="tx"></pre></main>
+<script>
+var U='https://cuiqmczhtcrrxafmzmhh.supabase.co/rest/v1/checklist_contagens?select=menu,titulo,criado_em,itens&order=criado_em.desc&limit=300',K='sb_publishable_2A36EPYGbgAXMOPj0Up6yg_IxSsYmak';
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]});}
+fetch(U,{headers:{apikey:K,Authorization:'Bearer '+K}}).then(function(r){return r.json()}).then(function(rows){
+ var m={};rows.forEach(function(r){r.itens.forEach(function(x){var k=r.menu+'|'+x.n;(m[k]=m[k]||{t:r.titulo,n:x.n,h:[]}).h.push({d:r.criado_em,s:x.s,g:x.g||0});});});
+ var al=[],va=[];Object.keys(m).forEach(function(k){var o=m[k],a=o.h[0],b=o.h[1];
+  if(a.s==='no'||a.g<=2)al.push({t:o.t,n:o.n,s:a.s,g:a.g});
+  if(a.s==='ok'&&b&&b.s==='ok'&&a.g!==b.g)va.push({t:o.t,n:o.n,a:b.g,b:a.g});});
+ document.getElementById('q').textContent=rows.length+' contagem(ns) registrada(s)';
+ var h='';al.sort(function(x,y){return x.t<y.t?-1:1}).forEach(function(x){h+='<div class="r"><span><b>'+esc(x.n)+'</b><div class="sub">'+esc(x.t)+'</div></span><span class="red">'+(x.s==='no'?'NÃO TEM':x.g+' grade(s)')+'</span></div>';});
+ document.getElementById('al').innerHTML=h||'<div class="r">Nenhum item em alerta.</div>';
+ h='';va.forEach(function(x){h+='<div class="r"><span><b>'+esc(x.n)+'</b><div class="sub">'+esc(x.t)+'</div></span><span class="'+(x.b<x.a?'red':'grn')+'">'+x.a+' → '+x.b+' grades</span></div>';});
+ document.getElementById('va').innerHTML=h||'<div class="r">Ainda sem duas contagens do mesmo item para comparar.</div>';
+ var tx='*Reposição SP Grifes*\n\n',n=0;al.forEach(function(x){n++;tx+=n+'. '+x.n+' ('+x.t+') — '+(x.s==='no'?'não tem':x.g+' grade(s)')+'\n\n';});
+ if(!n)tx+='Nada para pedir agora.';
+ var p=document.getElementById('tx');p.textContent=tx;
+ document.getElementById('cp').onclick=function(){p.style.display='block';try{navigator.clipboard.writeText(tx);this.textContent='Copiado! Cole no WhatsApp';}catch(e){}};
+}).catch(function(){document.getElementById('q').textContent='Não consegui carregar agora.';});
+</script></body></html>
