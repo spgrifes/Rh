@@ -1326,25 +1326,36 @@ function cxForm(){
    <label>Funcionário<select id="cxfunc"><option value="">Escolha o funcionário</option>${CX.equipe.map(e=>`<option value="${esc(e.id)}" ${r&&r.func===e.id?'selected':''}>${esc(e.nome)}${e.funcao?' · '+esc(e.funcao):''}</option>`).join('')}</select></label>
    <div class="tps">${VTIPOS.map(t=>`<button type="button" data-cxt="${esc(t)}" aria-pressed="${t===cxTipo}">${esc(t)}</button>`).join('')}</div>
    <label>Valor (R$)<input id="cxval" class="valor" type="text" inputmode="decimal" placeholder="0,00" value="${esc(d.valor||'')}"></label>
-   <div class="parc"><b>Descontar em qual mês?</b><div id="cxparc"></div>
-     <button type="button" class="padd" id="cxpadd">+ Dividir em mais um mês (parcelado)</button><div class="pres" id="cxpres"></div></div>
+   <div class="parc"><b>Parcelas (descontadas todo dia 20 e dia 30)</b>
+     <label style="margin:6px 0">Quantas parcelas?<input id="cxnp" type="text" inputmode="numeric" placeholder="1" value="${(d.parcelas||[]).length||1}"></label>
+     <div id="cxparc"></div>
+     <button type="button" class="padd" id="cxpadd">+ Mais uma parcela</button><div class="pres" id="cxpres"></div></div>
    <label>Motivo<textarea id="cxmot" rows="2" placeholder="Ex.: vale pedido para o aluguel / camiseta e bermuda">${esc(d.motivo||'')}</textarea></label>
    <label class="foto" id="cxfotol"><input type="file" id="cxfoto" accept="image/*,application/pdf" hidden><span id="cxfotot">${(d.arqs||[]).length?'Foto já guardada · toque para trocar':'Tirar foto do papel assinado'}</span></label>
    <div class="acts"><button type="button" class="btn" id="cxsave">${r?'Salvar alteração':'Lançar no RH'}</button>${r?'<button type="button" class="btn sec2" id="cxcancel">Cancelar</button>':''}<span class="sy2" id="cxst"></span></div>`;
-  cxParc=(d.parcelas&&d.parcelas.length)?d.parcelas.map(x=>({mes:x.mes,valor:x.valor,quando:x.quando||'fim'})):[{mes:mesesFut()[0][0],valor:'',quando:'fim'}];
+  cxParc=(d.parcelas&&d.parcelas.length)?d.parcelas.map(x=>({mes:x.mes,valor:x.valor,quando:x.quando||'fim'})):(()=>{const x=slotsDesc()[0][0].split('|');return [{mes:x[0],valor:'',quando:x[1]}];})();
   desenhaParc();
 }
 let cxParc=[];
 const MESN=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 function mesesFut(){const h=new Date(),L=[];for(let i=0;i<13;i++){const d=new Date(h.getFullYear(),h.getMonth()+i,1);L.push([d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),MESN[d.getMonth()].slice(0,3)+'/'+d.getFullYear()]);}return L;}
 const nomeMes=m=>{const [a,mm]=String(m).split('-');return MESN[Number(mm)-1]?MESN[Number(mm)-1]+' '+a:m;};
+function slotsDesc(){const h=new Date(),hoje=h.getFullYear()+'-'+String(h.getMonth()+1).padStart(2,'0')+'-'+String(h.getDate()).padStart(2,'0'),L=[];
+  for(let i=0;i<14;i++){const d=new Date(h.getFullYear(),h.getMonth()+i,1),ym=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),nm=MESN[d.getMonth()].slice(0,3).toLowerCase()+'/'+d.getFullYear();
+    if(ym+'-20'>=hoje)L.push([ym+'|dia20','Dia 20 de '+nm]);
+    if(ym+'-28'>=hoje)L.push([ym+'|fim','Dia 30 de '+nm+(d.getMonth()===1?' (fim do mês)':'')]);}return L;}
+function sugereParc(n){const tot=valNum($('cxval')?$('cxval').value:0)||0;n=Math.max(1,Math.min(24,parseInt(n)||1));const sl=slotsDesc();
+  const base=Math.floor(tot/n*100)/100;let ac=0;
+  cxParc=Array.from({length:n},(_,k)=>{const sp=(sl[k]||sl[sl.length-1])[0].split('|');let v=k===n-1?Math.round((tot-ac)*100)/100:base;ac+=v;
+    return{mes:sp[0],quando:sp[1],valor:tot?String(v.toFixed(2)).replace('.',','):''};});
+  if($('cxnp'))$('cxnp').value=n;desenhaParc();}
 function desenhaParc(){
-  const op=mesesFut(); cxParc.forEach(p=>{if(!op.some(o=>o[0]===p.mes))op.unshift([p.mes,nomeMes(p.mes)]);});
+  const op=slotsDesc();cxParc.forEach(p=>{const v=p.mes+'|'+(p.quando||'fim');if(!op.some(o=>o[0]===v))op.unshift([v,(p.quando==='dia20'?'Dia 20 de ':'Dia 30 de ')+nomeMes(p.mes)]);});
   const so=cxParc.length===1;
-  $('cxparc').innerHTML=cxParc.map((p,i)=>`<div class="prow"><select data-pm="${i}" aria-label="Mês do desconto">${op.map(o=>`<option value="${o[0]}" ${o[0]===p.mes?'selected':''}>${o[1]}</option>`).join('')}</select>
-    <input data-pv="${i}" type="text" inputmode="decimal" placeholder="${so?'valor todo':'R$ 0,00'}" value="${esc(p.valor||'')}" aria-label="Valor neste mês">
-    ${so?'<span></span>':`<button type="button" class="px" data-pdel="${i}" aria-label="Tirar este mês">×</button>`}
-    <select data-pq="${i}" aria-label="Quando descontar" style="grid-column:1/-1"><option value="dia20" ${p.quando==='dia20'?'selected':''}>Descontar no dia 20 (adiantamento)</option><option value="fim" ${p.quando!=='dia20'?'selected':''}>Descontar no final do mês (saldo)</option></select></div>`).join('');
+  $('cxparc').innerHTML=cxParc.map((p,i)=>{const cur=p.mes+'|'+(p.quando||'fim');return `<div class="prow"><select data-ps="${i}" aria-label="Dia do desconto">${op.map(o=>`<option value="${o[0]}" ${o[0]===cur?'selected':''}>${o[1]}</option>`).join('')}</select>
+    <input data-pv="${i}" type="text" inputmode="decimal" placeholder="${so?'valor todo':'R$ 0,00'}" value="${esc(p.valor||'')}" aria-label="Valor desta parcela">
+    ${so?'<span></span>':`<button type="button" class="px" data-pdel="${i}" aria-label="Tirar esta parcela">×</button>`}</div>`;}).join('');
+  if($('cxnp'))$('cxnp').value=cxParc.length;
   resumoParc();
 }
 function resumoParc(){
@@ -1412,7 +1423,7 @@ document.addEventListener('click',async ev=>{
   if($('cx').hidden)return;
   const t=ev.target.closest('[data-cxt]');if(t){cxTipo=t.dataset.cxt;document.querySelectorAll('[data-cxt]').forEach(b=>b.setAttribute('aria-pressed',b===t));return;}
   if(ev.target.closest('#cxsave'))return cxSalvar();
-  if(ev.target.closest('#cxpadd')){const L=mesesFut(),ult=cxParc[cxParc.length-1].mes,ix=L.findIndex(o=>o[0]===ult);cxParc.push({mes:(L[ix+1]||L[L.length-1])[0],valor:'',quando:'fim'});desenhaParc();return;}
+  if(ev.target.closest('#cxpadd')){const L=slotsDesc(),u=cxParc[cxParc.length-1],ix=L.findIndex(o=>o[0]===u.mes+'|'+u.quando),x=(L[ix+1]||L[L.length-1])[0].split('|');cxParc.push({mes:x[0],valor:'',quando:x[1]});desenhaParc();return;}
   const pd=ev.target.closest('[data-pdel]');if(pd){cxParc.splice(+pd.dataset.pdel,1);desenhaParc();return;}
   const pa=ev.target.closest('[data-cxpagoabre]');if(pa){cxPagoSel=pa.dataset.cxpagoabre;cxLista();return;}
   if(ev.target.closest('[data-cxpagocancel]')){cxPagoSel=null;cxLista();return;}
@@ -1423,8 +1434,8 @@ document.addEventListener('click',async ev=>{
   const dl=ev.target.closest('[data-cxdel]');if(dl){if(!confirm('Excluir este lançamento?'))return;try{await rpc('rh_reg_excluir',{p_senha:SENHA,p_id:dl.dataset.cxdel});await carregar();cxAtualiza();renderCaixa();toast('Excluído');}catch(e){toast('Não consegui excluir');}return;}
   if(ev.target.closest('#cxsair')){if(CX&&CX.admin){fecharVales();return;}try{sessionStorage.removeItem('rh_pw')}catch(e){}location.reload();}
 });
-document.addEventListener('input',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pv!=null){cxParc[+t.dataset.pv].valor=t.value;resumoParc();}else if(t.id==='cxval')resumoParc();});
-document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pm!=null){cxParc[+t.dataset.pm].mes=t.value;resumoParc();}else if(t.dataset&&t.dataset.pq!=null){cxParc[+t.dataset.pq].quando=t.value;}});
+document.addEventListener('input',ev=>{const t=ev.target;if(t.dataset&&t.dataset.pv!=null){cxParc[+t.dataset.pv].valor=t.value;resumoParc();}else if(t.id==='cxval'){if(cxParc.length>1)sugereParc(cxParc.length);else resumoParc();}});
+document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset&&t.dataset.ps!=null){const x=t.value.split('|');cxParc[+t.dataset.ps].mes=x[0];cxParc[+t.dataset.ps].quando=x[1];resumoParc();}else if(t.id==='cxnp'){sugereParc(t.value);}});
 document.addEventListener('change',ev=>{if(ev.target.id==='nf_cargo'){const o=ev.target.value==='Outro';$('nf_outrol').hidden=!o;$('nf_setorl').hidden=!o;}});
 document.addEventListener('change',ev=>{if(ev.target.id==='obsarq'){const n=ev.target.files.length;$('obsarqt').textContent=n?n+' arquivo(s) pronto(s) ✓':'+ Anexar foto ou PDF (atestado, recibo, documento)';}});
 document.addEventListener('change',ev=>{if(ev.target.id==='cxfoto'){const n=ev.target.files.length;$('cxfotot').textContent=n?'Foto pronta ✓ (toque para trocar)':'Tirar foto do papel assinado';$('cxfotol').classList.toggle('ok',!!n);}});
