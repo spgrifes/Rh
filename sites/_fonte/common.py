@@ -17,3 +17,16 @@ def store_ld(url, name):
 def wa_share(text):
     from urllib.parse import quote
     return 'https://wa.me/?text=' + quote(text)
+
+def motion(page, site):
+    """Movimento (CSS + GSAP + Three.js): copia motion.css/motion.js para a pasta do site e liga na página. Idempotente."""
+    import os, shutil
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'motion', site)
+    dst = '/home/claude/rh/sites/' + site
+    for f in ('motion.css', 'motion.js'):
+        shutil.copy(os.path.join(src, f), os.path.join(dst, f))
+    if 'motion.css' not in page:
+        page = page.replace('</head>', '<link rel="stylesheet" href="motion.css"></head>', 1)
+    if 'motion.js' not in page:
+        page = page.replace('</body>', '<script src="motion.js" defer></script></body>', 1)
+    return page

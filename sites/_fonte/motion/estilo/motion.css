@@ -1,0 +1,9 @@
+/* Movimento: CSS + GSAP + Three.js (melhoria progressiva; sem JS o site continua igual) */
+.prog{position:fixed;left:0;top:0;height:3px;width:100%;background:var(--gold);transform:scaleX(0);transform-origin:0 50%;z-index:60;pointer-events:none}
+.dust{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.6s ease}
+.dust.on{opacity:1}
+.dust canvas{width:100%!important;height:100%!important;display:block}
+.hero .tx{position:relative;z-index:2}
+section h2{will-change:transform,opacity}
+@media(hover:hover){section a[class]{transition:transform .35s cubic-bezier(.2,.7,.2,1),filter .35s}section a[class]:hover{filter:brightness(1.08)}}
+@media(prefers-reduced-motion:reduce){.dust,.prog{display:none}}

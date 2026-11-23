@@ -1,0 +1,12 @@
+/* Movimento: CSS + GSAP + Three.js (melhoria progressiva; sem JS o site continua igual) */
+.prog{position:fixed;left:0;top:0;height:3px;width:100%;background:var(--t);transform:scaleX(0);transform-origin:0 50%;z-index:60;pointer-events:none}
+.hero .mt-in{will-change:transform,opacity}
+.boll3d{position:absolute;right:-90px;top:30px;width:480px;height:480px;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
+.boll3d.on{opacity:1}
+.boll3d canvas{width:100%!important;height:100%!important;display:block}
+.hero.has3d .boll{opacity:0;transition:opacity .6s}
+@media(max-width:700px){.boll3d{width:300px;height:300px;right:-70px;top:auto;bottom:-30px;opacity:0}.boll3d.on{opacity:.45}}
+section h2{will-change:transform,opacity}
+.fb,.card,.mal,.tile{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease}
+@media(hover:hover){.fb:hover,.card:hover,.mal:hover,.tile:hover{transform:translateY(-4px);box-shadow:0 14px 30px -14px rgba(31,42,68,.35)}}
+@media(prefers-reduced-motion:reduce){.boll3d,.prog{display:none}.hero.has3d .boll{opacity:.9}}

@@ -175,5 +175,5 @@ document.querySelectorAll('.day input').forEach(function(b){{b.checked=!!st[b.da
 </script>{VID_JS}</body></html>'''
 import os
 os.makedirs('/home/claude/rh/sites/revenda', exist_ok=True)
-open('/home/claude/rh/sites/revenda/index.html', 'w').write(page)
+open('/home/claude/rh/sites/revenda/index.html', 'w').write(motion(page, 'revenda'))
 print(len(page), len(KIT), VIDS)

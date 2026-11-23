@@ -144,5 +144,5 @@ var im=document.getElementById(g==='t'?'lt':'lb');im.style.opacity=.2;im.onload=
 </script>{VID_JS}</body></html>'''
 import os
 os.makedirs('/home/claude/rh/sites/estilo', exist_ok=True)
-open('/home/claude/rh/sites/estilo/index.html', 'w').write(page)
+open('/home/claude/rh/sites/estilo/index.html', 'w').write(motion(page, 'estilo'))
 print(len(page), brands, len(LOOK_T), len(LOOK_B), HERO[0]['n'])

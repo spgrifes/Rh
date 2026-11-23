@@ -175,5 +175,5 @@ document.getElementById('gq').addEventListener('input',function(e){{var q=e.targ
 </script>{VID_JS}</body></html>'''
 import os
 os.makedirs('/home/claude/rh/sites/algodao', exist_ok=True)
-open('/home/claude/rh/sites/algodao/index.html', 'w').write(page)
+open('/home/claude/rh/sites/algodao/index.html', 'w').write(motion(page, 'algodao'))
 print(len(page), len(pima), len(egip))
