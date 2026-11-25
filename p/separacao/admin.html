@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadastro de funcionárias — Separação</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button,input{font-family:inherit}
+body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f6f5f2;color:#111}
+header{background:#111;color:#fff;padding:14px 16px}
+header h1{margin:0;font-size:18px}header small{color:#d9b24c;font-size:12px}
+main{max-width:560px;margin:0 auto;padding:14px}
+.card{background:#fff;border-radius:16px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:16px;margin-bottom:12px}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
+input{width:100%;font-size:18px;padding:14px;border:2px solid #d8d5cd;border-radius:12px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:18px;font-weight:800;background:#111;color:#fff;margin-top:14px}
+.btn.gold{background:#d9b24c;color:#111}
+.err{color:#b3261e;font-weight:600;margin-top:10px}.okm{color:#12783a;font-weight:700;margin-top:10px}
+h2{font-size:15px;margin:18px 2px 8px;color:#444;text-transform:uppercase;letter-spacing:.6px}
+.f{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 0;border-bottom:1px solid #eee;font-size:18px}
+.f:last-child{border:0}
+.f button{border:2px solid #111;background:#fff;border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px}
+.f.off b{color:#999;text-decoration:line-through}
+.dica{font-size:14px;color:#555;line-height:1.45}
+.at{padding:10px 0;border-bottom:1px solid #eee;font-size:15px}
+</style>
+</head>
+<body>
+<header><h1>Funcionárias da separação</h1><small>Página só do Fábio</small></header>
+<main id="app"></main>
+<script>
+var API = "https://cuiqmczhtcrrxafmzmhh.supabase.co/functions/v1/separacao-site";
+var app = document.getElementById("app"), ADM = "";
+function esc(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function chamar(acao, corpo){
+  corpo = corpo || {}; corpo.admin = ADM;
+  return fetch(API + "?a=" + acao, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(corpo) })
+    .then(function(r){ return r.json(); }).catch(function(){ return { ok:false, erro:"Sem internet." }; });
+}
+function entrar(){
+  app.innerHTML = '<div class="card"><label for="a">Senha de sempre</label><input id="a" type="password" autocomplete="current-password"><div class="err" id="e"></div><button class="btn" id="go">Entrar</button></div>';
+  var go = function(){ ADM = document.getElementById("a").value; chamar("admin_listar").then(function(j){ if (!j.ok) { document.getElementById("e").textContent = j.erro || "Erro"; ADM = ""; return; } tela(j); }); };
+  document.getElementById("go").onclick = go;
+  document.getElementById("a").onkeydown = function(e){ if (e.key === "Enter") go(); };
+}
+function tela(j, msg){
+  var h = '<div class="card"><h2 style="margin-top:0">Cadastrar ou trocar senha</h2><div class="dica">Digite o nome da funcionária e a senha dela. Se o nome já existe, a senha é trocada. Use uma senha curta e fácil.</div>' +
+    '<label for="n">Nome</label><input id="n" type="text" autocapitalize="words">' +
+    '<label for="s">Senha</label><input id="s" type="text" autocomplete="off">' +
+    '<button class="btn gold" id="salvar">Salvar</button>' + (msg ? '<div class="' + (msg.ok ? 'okm' : 'err') + '">' + esc(msg.t) + '</div>' : '') + '</div>';
+  h += '<h2>Funcionárias (' + j.funcionarias.length + ')</h2><div class="card">';
+  if (!j.funcionarias.length) h += '<div class="dica">Ninguém cadastrado ainda.</div>';
+  j.funcionarias.forEach(function(f){ h += '<div class="f' + (f.ativa ? '' : ' off') + '"><b>' + esc(f.nome) + '</b><button data-id="' + f.id + '" data-a="' + (f.ativa ? 0 : 1) + '">' + (f.ativa ? 'Desativar' : 'Reativar') + '</button></div>'; });
+  h += '</div>';
+  if (j.atencao.length) { h += '<h2>Pedidos que precisam de atenção</h2><div class="card">'; j.atencao.forEach(function(p){ h += '<div class="at"><b>#' + esc(p.pedido) + '</b> ' + esc(p.cliente_nome || "") + '<br>' + esc(p.status) + (p.funcionaria ? ' · ' + esc(p.funcionaria) : '') + (p.aviso_erro ? '<br><span style="color:#b3261e">' + esc(p.aviso_erro) + '</span>' : '') + '</div>'; }); h += '</div>'; }
+  app.innerHTML = h;
+  document.getElementById("salvar").onclick = function(){
+    var nome = document.getElementById("n").value, senha = document.getElementById("s").value;
+    chamar("admin_salvar", { nome: nome, senha: senha }).then(function(r){
+      chamar("admin_listar").then(function(l){ tela(l, r.ok ? { ok:true, t:"Salvo! " + nome + " já pode entrar." } : { ok:false, t:r.erro || "Erro" }); });
+    });
+  };
+  Array.prototype.forEach.call(app.querySelectorAll("[data-id]"), function(b){
+    b.onclick = function(){ chamar("admin_ativar", { id: Number(b.getAttribute("data-id")), ativa: b.getAttribute("data-a") === "1" }).then(function(){ chamar("admin_listar").then(function(l){ tela(l); }); }); };
+  });
+}
+entrar();
+</script>
+</body>
+</html>
