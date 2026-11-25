@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Black 2026 · Boss Room</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
+<meta name="robots" content="noindex">
+<style>
+:root{color-scheme:dark;--bg:#0b0b0b;--card:#141414;--line:#262626;--fg:#f2efe9;--muted:#9c978f;--gold:#e0b45a;--gold2:#f5d58a;
+--s1:#338ced;--s2:#e76624;--s3:#00a888;--s4:#d28e05;--s5:#e24d8b;--ref:#5c5c5c;--bad:#eb6263}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 600px at 50% -200px,#2a2110 0%,var(--bg) 60%);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+a{color:var(--gold2)}
+.wrap{max-width:1100px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.voltar{color:var(--muted);text-decoration:none;font-size:.9rem}
+h1{margin:4px 0 0;font-size:2rem;letter-spacing:.04em;background:linear-gradient(180deg,#fff3cf,#e0b45a 55%,#a77b26);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);font-size:.9rem}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 18px}
+.tabs button{background:var(--card);border:1px solid var(--line);color:var(--fg);padding:8px 14px;border-radius:999px;font:inherit;font-size:.9rem;cursor:pointer}
+.tabs button.on{border-color:var(--gold);color:var(--gold2)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.kpi small{color:var(--muted);display:block;font-size:.8rem}
+.kpi b{display:block;font-size:1.6rem;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi em{font-style:normal;font-size:.82rem;color:var(--muted)}
+.kpi em.up{color:#4cc38a}.kpi em.down{color:var(--bad)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+@media(max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;position:relative}
+.card h2{margin:0 0 2px;font-size:1.05rem}
+.card p.d{margin:0 0 10px;color:var(--muted);font-size:.85rem}
+.full{grid-column:1/-1}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin:4px 0 8px}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{fill:var(--muted);font-size:11px;font-family:inherit}
+svg.hist text{font-size:20px}
+svg text.v{fill:var(--fg);font-weight:600}
+.hit{fill:transparent;cursor:pointer}
+#tip{position:fixed;z-index:50;pointer-events:none;background:#000;border:1px solid var(--gold);border-radius:10px;padding:8px 10px;font-size:.82rem;max-width:240px;opacity:0;transition:opacity .12s}
+#tip b{color:var(--gold2)}
+.dec h3{margin:14px 0 6px;font-size:.95rem;color:var(--gold2)}
+.dec ol{margin:0;padding-left:20px}.dec li{margin:0 0 10px}
+main,.wrap{overflow-x:hidden}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+td:not(:first-child),th:not(:first-child){white-space:nowrap}
+td:first-child{word-break:break-word}
+table{width:100%;border-collapse:collapse;font-size:.85rem;font-variant-numeric:tabular-nums}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:500}
+.nota{color:var(--muted);font-size:.8rem;margin-top:18px}
+.tag{display:inline-block;font-size:.7rem;border:1px solid var(--gold);color:var(--gold2);border-radius:999px;padding:1px 7px;margin-left:6px}
+#lock[hidden]{display:none}
+#lock{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:60}
+#lock form{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;width:min(90vw,340px);text-align:center}
+#lock input{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:#000;color:var(--fg);font:inherit;margin:12px 0}
+#lock button{width:100%;padding:12px;border-radius:12px;border:0;background:linear-gradient(180deg,#f5d58a,#b8892b);color:#111;font-weight:700;font:inherit}
+#erro{color:var(--bad);font-size:.85rem;min-height:1.2em}
+.carregando{color:var(--muted);padding:40px 0;text-align:center}
+</style>
+</head>
+<body>
+<div id="lock" hidden><form id="f"><div style="font-size:2rem">🏆</div><b>Black 2026</b><input id="pw" type="password" placeholder="Senha" autocomplete="current-password" autocapitalize="none"><div id="erro"></div><button>Entrar</button></form></div>
+<div class="wrap">
+<header>
+  <div><a class="voltar" href="../../central/">← Boss Room</a><h1>BLACK 2026</h1><div class="sub" id="sub">Site spgrifes.com.br · 24 a 30/11</div></div>
+</header>
+<div id="app" class="carregando">Carregando os pedidos…</div>
+</div>
+<div id="tip"></div>
+<script>
+const SB='https://cuiqmczhtcrrxafmzmhh.supabase.co/rest/v1/rpc/black_painel';
+const KEY='sb_publishable_2A36EPYGbgAXMOPj0Up6yg_IxSsYmak';
+const $=s=>document.querySelector(s);
+const R=n=>'R$ '+Math.round(n||0).toLocaleString('pt-BR');
+const N=n=>Math.round(n||0).toLocaleString('pt-BR');
+const tip=$('#tip');
+function showTip(e,h){tip.innerHTML=h;tip.style.opacity=1;const x=(e.touches?e.touches[0]:e).clientX,y=(e.touches?e.touches[0]:e).clientY;tip.style.left=Math.min(x+12,innerWidth-250)+'px';tip.style.top=(y+14)+'px'}
+function hideTip(){tip.style.opacity=0}
+document.addEventListener('scroll',hideTip,{passive:true});
+function bindTips(root){root.querySelectorAll('[data-t]').forEach(el=>{el.addEventListener('mousemove',e=>showTip(e,el.dataset.t));el.addEventListener('mouseleave',hideTip);el.addEventListener('click',e=>{e.stopPropagation();showTip(e,el.dataset.t)})})}
+document.addEventListener('click',hideTip);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* barras agrupadas: cats=[rótulo], series=[{nome,cor,vals,fmt}] */
+function barras(cats,series,o={}){
+  const W=520,H=o.h||220,L=42,B=26,T=14,pw=W-L-8,ph=H-B-T;
+  const max=Math.max(1,...series.flatMap(s=>s.vals.map(v=>v||0)))*1.12;
+  const g=pw/cats.length,bw=Math.min(34,(g-10)/series.length-2);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  for(let i=0;i<=3;i++){const y=T+ph-ph*i/3,v=max*i/3;s+=`<line x1="${L}" x2="${W-8}" y1="${y}" y2="${y}" stroke="#262626"/><text x="${L-6}" y="${y+4}" text-anchor="end">${o.money?(v>=1000?Math.round(v/1000)+' mil':Math.round(v)):Math.round(v)}</text>`}
+  cats.forEach((c,i)=>{const x0=L+g*i+(g-(bw+2)*series.length)/2;
+    series.forEach((se,j)=>{const v=se.vals[i]||0,h=ph*v/max,x=x0+j*(bw+2),y=T+ph-h;
+      if(h>0)s+=`<path d="M${x},${T+ph}V${y+Math.min(4,h)}q0,-4 4,-4h${bw-8}q4,0 4,4V${T+ph}Z" fill="${se.cor}"/>`;
+      if(o.rot&&j===o.rot-1&&v)s+=`<text class="v" x="${x+bw/2}" y="${y-4}" text-anchor="middle">${o.money?Math.round(v/1000*10)/10+'k':N(v)}</text>`;
+      s+=`<rect class="hit" x="${x-1}" y="${T}" width="${bw+2}" height="${ph}" data-t="<b>${esc(c)}</b><br>${esc(se.nome)}: ${se.fmt?se.fmt(v):N(v)}"/>`});
+    s+=`<text x="${L+g*i+g/2}" y="${H-8}" text-anchor="middle">${esc(c)}</text>`});
+  return s+'</svg>'}
+
+/* rosca */
+function rosca(parts,centro){
+  const tot=parts.reduce((a,p)=>a+p.v,0)||1,cx=110,cy=110,r=90,ri=58;let a=-Math.PI/2,s=`<svg viewBox="0 0 220 220" style="max-width:240px;margin:0 auto">`;
+  parts.forEach(p=>{if(!p.v)return;const da=2*Math.PI*p.v/tot,gap=parts.filter(x=>x.v).length>1?.03:0,a1=a+gap/2,a2=a+da-gap/2,la=da>Math.PI?1:0;
+    const P=(rr,aa)=>`${cx+rr*Math.cos(aa)},${cy+rr*Math.sin(aa)}`;
+    s+=`<path d="M${P(r,a1)}A${r},${r} 0 ${la} 1 ${P(r,a2)}L${P(ri,a2)}A${ri},${ri} 0 ${la} 0 ${P(ri,a1)}Z" fill="${p.cor}" data-t="<b>${esc(p.n)}</b><br>${p.v} pedidos · ${Math.round(100*p.v/tot)}%" style="cursor:pointer"/>`;a+=da});
+  return s+`<text x="110" y="106" text-anchor="middle" class="v" style="font-size:22px">${centro[0]}</text><text x="110" y="126" text-anchor="middle">${centro[1]}</text></svg>`}
+
+/* colunas empilhadas 100% por dia (faixas) */
+function pilha(cats,rows,cores,nomes){
+  const W=520,H=210,L=8,B=26,T=8,pw=W-L-8,ph=H-B-T,g=pw/cats.length,bw=Math.min(46,g-14);let s=`<svg viewBox="0 0 ${W} ${H}">`;
+  cats.forEach((c,i)=>{const tot=rows[i].reduce((a,b)=>a+b,0)||1;let y=T+ph;const x=L+g*i+(g-bw)/2;
+    rows[i].forEach((v,j)=>{if(!v)return;const h=ph*v/tot;s+=`<rect x="${x}" y="${y-h+1}" width="${bw}" height="${Math.max(0,h-2)}" rx="3" fill="${cores[j]}" data-t="<b>${esc(c)}</b><br>${nomes[j]}: ${v} pedidos (${Math.round(100*v/tot)}%)" style="cursor:pointer"/>`;
+      if(h>16)s+=`<text x="${x+bw/2}" y="${y-h/2+4}" text-anchor="middle" style="fill:#0b0b0b;font-weight:700;pointer-events:none">${Math.round(100*v/tot)}%</text>`;y-=h});
+    s+=`<text x="${L+g*i+g/2}" y="${H-8}" text-anchor="middle">${esc(c)}</text>`});
+  return s+'</svg>'}
+
+/* histórico diário: colunas finas, Black destacada */
+function historico(h){
+  const W=1000,H=300,L=80,B=34,T=12,pw=W-L-8,ph=H-B-T,max=Math.max(1,...h.map(d=>d.fat))*1.1,g=pw/h.length,bw=Math.max(3,g-3);let s=`<svg viewBox="0 0 ${W} ${H}" style="font-size:20px" class="hist">`;
+  for(let i=0;i<=3;i++){const y=T+ph-ph*i/3;s+=`<line x1="${L}" x2="${W-8}" y1="${y}" y2="${y}" stroke="#262626"/><text x="${L-6}" y="${y+4}" text-anchor="end">${Math.round(max*i/3/1000)} mil</text>`}
+  h.forEach((d,i)=>{const x=L+g*i,hf=ph*d.fat/max,hl=ph*Math.max(0,d.lucro)/max;
+    s+=`<rect x="${x}" y="${T+ph-hf}" width="${bw}" height="${hf}" rx="2" fill="${d.black?'var(--gold)':'var(--ref)'}"/>`;
+    s+=`<rect x="${x}" y="${T+ph-hl}" width="${bw}" height="${hl}" rx="2" fill="${d.black?'var(--s1)':'#8a8a8a'}" opacity=".9"/>`;
+    s+=`<rect class="hit" x="${x}" y="${T}" width="${g}" height="${ph}" data-t="<b>${d.dia}${d.black?' · Black':''}</b><br>${d.pedidos} pedidos<br>Faturamento ${R(d.fat)}<br>Lucro estimado ${R(d.lucro)}"/>`;
+    if(i%7===0||i===h.length-1)s+=`<text x="${x+bw/2}" y="${H-6}" text-anchor="middle">${d.dia}</text>`});
+  return s+'</svg>'}
+
+function variacao(a,b){if(!b)return '';const p=Math.round(100*(a-b)/b);return `<em class="${p>=0?'up':'down'}">${p>=0?'▲':'▼'} ${Math.abs(p)}% vs antes</em>`}
+
+let D=null,aba='black';
+function render(){
+  const r=D.resumo,dias=D.dias||[],fx=D.faixas||[],dec=D.decisoes||{};
+  $('#sub').textContent=`Site spgrifes.com.br · 24 a 30/11 · atualizado ${D.atualizado}`;
+  const bd=Math.max(1,r.black_dias),ad=Math.max(1,r.antes_dias);
+  const cats=dias.map(d=>d.dia);
+  const nomesF=['1 peça','2 peças','3 peças','4 a 5','6 ou mais'],coresF=['var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)'];
+  const somaF=k=>dias.reduce((a,d)=>a+(d[k]||0),0);
+  const fBlack=[somaF('f1'),somaF('f2'),somaF('f3'),somaF('f45'),somaF('f6')];
+  let h=`<div class="tabs"><button data-a="black" class="${aba==='black'?'on':''}">Black</button><button data-a="lucro" class="${aba==='lucro'?'on':''}">O que dá mais lucro</button><button data-a="dec" class="${aba==='dec'?'on':''}">Decisões</button></div>`;
+  if(aba==='black'){
+    h+=`<div class="kpis">
+      <div class="kpi"><small>Pedidos pagos na Black</small><b>${N(r.black_ped)}</b>${variacao(r.black_ped/bd,r.antes_ped/ad)}<em> · por dia</em></div>
+      <div class="kpi"><small>Faturamento</small><b>${R(r.black_fat)}</b>${variacao(r.black_fat/bd,r.antes_fat/ad)}</div>
+      <div class="kpi"><small>Lucro estimado nas peças</small><b>${R(r.black_lucro)}</b><em>margem ${r.black_margem}% (antes ${r.antes_margem}%)</em></div>
+      <div class="kpi"><small>Ticket médio</small><b>${R(r.black_ticket)}</b>${variacao(r.black_ticket,r.antes_ticket)}</div>
+      <div class="kpi"><small>Pagamentos recusados</small><b>${N(r.negados_black)}</b><em>aviso vai no grupo Análise</em></div>
+    </div><div class="grid">
+    <div class="card"><h2>Pedidos por dia</h2><p class="d">Black contra o mesmo dia da semana anterior</p>
+      <div class="leg"><span><i style="background:var(--s1)"></i>Black</span><span><i style="background:var(--ref)"></i>Semana anterior</span></div>
+      ${barras(cats,[{nome:'Black',cor:'var(--s1)',vals:dias.map(d=>d.pedidos)},{nome:'Semana anterior',cor:'var(--ref)',vals:dias.map(d=>d.semana_antes?.pedidos||0)}],{rot:1})}</div>
+    <div class="card"><h2>Faturamento por dia</h2><p class="d">Black contra o mesmo dia da semana anterior</p>
+      <div class="leg"><span><i style="background:var(--s1)"></i>Black</span><span><i style="background:var(--ref)"></i>Semana anterior</span></div>
+      ${barras(cats,[{nome:'Black',cor:'var(--s1)',vals:dias.map(d=>d.fat),fmt:R},{nome:'Semana anterior',cor:'var(--ref)',vals:dias.map(d=>d.semana_antes?.fat||0),fmt:R}],{money:1,rot:1})}</div>
+    <div class="card"><h2>Quantas peças por pedido</h2><p class="d">Toda a Black até agora</p>
+      ${rosca(fBlack.map((v,i)=>({n:nomesF[i],v,cor:coresF[i]})),[N(r.black_ped),'pedidos'])}
+      <div class="leg" style="justify-content:center">${nomesF.map((n,i)=>`<span><i style="background:${coresF[i]}"></i>${n}: ${Math.round(100*fBlack[i]/Math.max(1,r.black_ped))}%</span>`).join('')}</div></div>
+    <div class="card"><h2>Peças por pedido, dia a dia</h2><p class="d">Antes da Black o mínimo era 3 peças</p>
+      <div class="leg">${nomesF.map((n,i)=>`<span><i style="background:${coresF[i]}"></i>${n}</span>`).join('')}</div>
+      ${pilha(cats,dias.map(d=>[d.f1,d.f2,d.f3,d.f45,d.f6]),coresF,nomesF)}</div>
+    <div class="card"><h2>Produto do dia e promoção</h2><p class="d">Peças vendidas: produto do dia, todas em promoção e total</p>
+      <div class="leg"><span><i style="background:var(--gold)"></i>Produto do dia</span><span><i style="background:var(--s3)"></i>Em promoção</span><span><i style="background:var(--ref)"></i>Total de peças</span></div>
+      ${barras(cats,[{nome:'Produto do dia',cor:'var(--gold)',vals:dias.map(d=>d.dodia)},{nome:'Em promoção',cor:'var(--s3)',vals:dias.map(d=>d.promo)},{nome:'Total de peças',cor:'var(--ref)',vals:dias.map(d=>d.pecas)}],{rot:1})}
+      <p class="d" style="margin-top:8px">24 jaqueta · 25 kit 2 polos Lacoste · 26 shorts · 27 conjunto Prada · 28 a 30 kit cuecas e conjunto linho</p></div>
+    <div class="card"><h2>Mais vendidos na Black</h2><p class="d">Peças e lucro estimado</p>
+      <div class="tw"><table><tr><th>Produto</th><th>Peças</th><th>Lucro</th></tr>${(D.top||[]).map(t=>`<tr><td>${esc(t.n)}${t.promo?'<span class="tag">promo</span>':''}</td><td>${t.q}</td><td>${R(t.lucro)}</td></tr>`).join('')}</table></div></div>
+    <div class="card full"><h2>Números de cada dia</h2>
+      <div class="tw"><table><tr><th>Dia</th><th>Pedidos</th><th>Faturamento</th><th>Lucro</th><th>Ticket</th><th>Peças</th><th>Recus.</th></tr>${dias.map(d=>`<tr><td>${d.dia}</td><td>${d.pedidos}</td><td>${R(d.fat)}</td><td>${R(d.lucro)}</td><td>${R(d.ticket)}</td><td>${d.pecas}</td><td>${d.negados}</td></tr>`).join('')}</table></div></div>
+    </div>`;
+  } else if(aba==='lucro'){
+    const fc=fx.map(f=>f.faixa==='1'?'1 peça':f.faixa==='2'?'2 peças':f.faixa==='3'?'3 peças':f.faixa==='4-5'?'4 a 5':'6 ou mais');
+    h+=`<div class="grid">
+    <div class="card full"><h2>Lucro por pedido, pelo tamanho do pedido</h2><p class="d">Quanto cada pedido deixa de lucro nas peças (venda menos custo), Black contra o histórico desde ${D.inicio_hist}</p>
+      <div class="leg"><span><i style="background:var(--s1)"></i>Na Black</span><span><i style="background:var(--ref)"></i>Antes da Black</span></div>
+      ${barras(fc,[{nome:'Na Black',cor:'var(--s1)',vals:fx.map(f=>f.black_lucro_ped||0),fmt:R},{nome:'Antes da Black',cor:'var(--ref)',vals:fx.map(f=>f.antes_lucro_ped||0),fmt:R}],{rot:1})}</div>
+    <div class="card"><h2>Ticket médio pelo tamanho do pedido</h2>
+      <div class="leg"><span><i style="background:var(--s1)"></i>Na Black</span><span><i style="background:var(--ref)"></i>Antes</span></div>
+      ${barras(fc,[{nome:'Na Black',cor:'var(--s1)',vals:fx.map(f=>f.black_ticket||0),fmt:R},{nome:'Antes',cor:'var(--ref)',vals:fx.map(f=>f.antes_ticket||0),fmt:R}],{rot:1})}</div>
+    <div class="card"><h2>De onde vem o lucro da Black</h2><p class="d">Lucro total por tamanho de pedido</p>
+      ${rosca(fx.map((f,i)=>({n:fc[i],v:Math.max(0,f.black_lucro||0),cor:coresF[i]})),[R(r.black_lucro),'lucro est.'])}
+      <div class="leg" style="justify-content:center">${fx.map((f,i)=>`<span><i style="background:${coresF[i]}"></i>${fc[i]}: ${Math.round(100*(f.black_lucro||0)/Math.max(1,r.black_lucro))}%</span>`).join('')}</div></div>
+    <div class="card full"><h2>Histórico do site, dia a dia</h2><p class="d">Desde ${D.inicio_hist} (o mais antigo que a wBuy entrega). Dourado = faturamento na Black · azul = lucro estimado na Black · cinza = antes</p>
+      ${historico(D.hist||[])}</div>
+    <div class="card full"><h2>Tabela por tamanho de pedido</h2>
+      <div class="tw"><table><tr><th>Peças</th><th>Pedidos<br>antes</th><th>Lucro por<br>pedido antes</th><th>Pedidos<br>Black</th><th>Lucro por<br>pedido Black</th><th>Margem</th></tr>${fx.map((f,i)=>`<tr><td>${fc[i]}</td><td>${f.antes_ped}</td><td>${f.antes_ped?R(f.antes_lucro_ped):'—'}</td><td>${f.black_ped}</td><td>${f.black_ped?R(f.black_lucro_ped):'—'}</td><td>${f.margem}%</td></tr>`).join('')}</table></div></div>
+    </div>`;
+  } else {
+    const L=a=>(a||[]).map(x=>`<li>${esc(x)}</li>`).join('');
+    h+=`<div class="card dec"><h2>Decisões <span class="tag">${esc(dec.data||'')}</span></h2>
+      <h3>Para amanhã</h3><ol>${L(dec.amanha)}</ol>
+      <h3>Na Black inteira</h3><ol>${L(dec.black)}</ol>
+      <h3>Para o resto do ano</h3><ol>${L(dec.ano)}</ol></div>`;
+  }
+  h+=`<p class="nota">Lucro estimado = valor das peças menos o custo que você informou (camiseta R$ 45, polo R$ 67, polo Lacoste R$ 61, poliamida R$ 45, short R$ 53, jaqueta R$ 130, kit cueca R$ 39, linho e conjuntos pela tabela). Ainda não desconta taxa do cartão, embalagem, frete grátis nem custo fixo. Peça sem custo conhecido entra com 50% do preço. Atualiza sozinha toda hora.</p>`;
+  const app=$('#app');app.className='';app.innerHTML=h;bindTips(app);
+  app.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{aba=b.dataset.a;render();scrollTo(0,0)});
+}
+function norm(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+async function carregar(senha){
+  const r=await fetch(SB,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({p_senha:senha})});
+  if(!r.ok){const t=await r.text();if(t.includes('senha_invalida'))throw new Error('senha');throw new Error(t)}
+  D=await r.json();try{localStorage.setItem('black-pw',senha)}catch(e){}
+  $('#lock').hidden=true;render();
+}
+function pedir(msg){$('#lock').hidden=false;$('#erro').textContent=msg||'';$('#pw').focus()}
+$('#f').onsubmit=e=>{e.preventDefault();carregar(norm($('#pw').value)).catch(x=>pedir(x.message==='senha'?'Senha errada':'Erro ao carregar, tente de novo'))};
+let salva='';try{salva=localStorage.getItem('black-pw')||localStorage.getItem('cc-pw')||''}catch(e){}
+if(salva)carregar(salva).catch(()=>pedir());else pedir();
+</script>
+</body>
+</html>
