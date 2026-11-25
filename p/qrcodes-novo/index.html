@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#05060d">
+<meta name="robots" content="noindex,nofollow">
+<title>SP Grifes — QR Codes</title>
+<style>
+    @property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+  :root{--vermelho:#e11d26;--ease:cubic-bezier(.2,.8,.2,1);--raio:clamp(22px,3.4vw,44px)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+  html,body{height:100%;margin:0;overflow:hidden;background:#05060d;color:#fff;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    touch-action:manipulation;overscroll-behavior:none}
+  .nebulosa{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(55vmax 38vmax at 12% 8%, rgba(225,29,38,.20), transparent 62%),
+      radial-gradient(60vmax 42vmax at 92% 92%, rgba(60,80,200,.20), transparent 62%),
+      radial-gradient(40vmax 30vmax at 60% 40%, rgba(120,60,180,.10), transparent 65%),
+      linear-gradient(180deg,#04050b 0%, #090b17 55%, #05060d 100%);
+    animation:respira 14s ease-in-out infinite alternate}
+  @keyframes respira{from{filter:brightness(.92)}to{filter:brightness(1.12)}}
+  #fundo,#fx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  #fx{z-index:2}
+  main{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;
+    padding:calc(env(safe-area-inset-top) + 1.6vh) 3vw calc(env(safe-area-inset-bottom) + 2vh)}
+  header{display:flex;align-items:center;justify-content:center;height:17vh}
+  .logo{height:15vh;width:auto;display:block;filter:drop-shadow(0 0 2.2vh rgba(225,29,38,.55));opacity:0}
+  .grade{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2.6vw;align-items:center;justify-items:center}
+  .botao{appearance:none;border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;
+    width:100%;display:flex;flex-direction:column;align-items:center;gap:2.2vh;opacity:0;transform:translateY(40px) scale(.96)}
+  .cena{perspective:1600px;width:min(27vw,54vh);aspect-ratio:1/1;position:relative}
+  .cena::before{content:"";position:absolute;inset:-6px;border-radius:calc(var(--raio) + 6px);z-index:0;
+    background:conic-gradient(from var(--ang),rgba(225,29,38,0) 0 55%,rgba(225,29,38,.55) 72%,#ff3b44 88%,#fff 97%,rgba(225,29,38,0) 100%);
+    filter:drop-shadow(0 0 12px rgba(225,29,38,.85));animation:luz 3.6s linear infinite}
+  .cena::after{content:"";position:absolute;inset:-2px;border-radius:calc(var(--raio) + 2px);z-index:0;
+    box-shadow:0 0 3.4vh rgba(225,29,38,.28);animation:pulsa 5s ease-in-out infinite alternate}
+  .botao:nth-child(2) .cena::before{animation-delay:-1.2s}
+  .botao:nth-child(3) .cena::before{animation-delay:-2.4s}
+  @keyframes luz{to{--ang:360deg}}
+  @keyframes pulsa{from{opacity:.45}to{opacity:1}}
+  .virador{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform;z-index:1}
+  .face{position:absolute;inset:0;border-radius:var(--raio);backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .frente{background:#fff;box-shadow:0 2.4vh 6vh rgba(0,0,0,.55);padding:6%;transform:rotateY(180deg)}
+  .frente svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
+  .costas{box-shadow:0 2.4vh 6vh rgba(0,0,0,.55)}
+  .costas svg{width:52%;height:52%;display:block}
+  .wa .costas{background:linear-gradient(145deg,#2be077,#128c4a)}
+  .go .costas{background:#fff}
+  .ig .costas{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
+  .costas::after,.frente::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(115deg,rgba(255,255,255,0) 35%,rgba(255,255,255,.45) 50%,rgba(255,255,255,0) 65%);transform:translateX(-120%)}
+  .brilha .frente::after,.brilha .costas::after{animation:passa 1.1s var(--ease)}
+  @keyframes passa{to{transform:translateX(120%)}}
+  .rotulo{font-weight:900;text-align:center;line-height:1.05;font-size:clamp(20px,4.4vh,46px);letter-spacing:.01em;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+  .rotulo small{display:block;margin-top:.6vh;font-weight:600;font-size:.52em;color:#b9bfd6;letter-spacing:.04em}
+  .wa .rotulo{color:#46e88a}.go .rotulo{color:#9bbcff}.ig .rotulo{color:#ff7ccb}
+  .botao:active .cena{transform:scale(.985);transition:transform .08s}
+  @media (prefers-reduced-motion:reduce){.brilha .frente::after,.brilha .costas::after,.cena::before{animation:none}}
+  @media (max-aspect-ratio:1/1){.grade{grid-template-columns:1fr;gap:3vh}.cena{width:min(70vw,24vh)}}
+</style>
+</head>
+<body>
+<div class="nebulosa"></div>
+<canvas id="fundo"></canvas>
+
+<main>
+  <header>
+    <img class="logo" src="logo.png" alt="SP Grifes — Onde a moda acontece">
+  </header>
+
+  <section class="grade">
+    <button class="botao wa" data-nome="grupo" aria-label="QR Code do grupo de WhatsApp. Toque para girar.">
+      <div class="cena"><div class="virador">
+        <div class="face frente"><svg xmlns="http://www.w3.org/2000/svg" class="segno" viewBox="0 0 35 35" preserveAspectRatio="xMidYMid meet"><path fill="#fff" d="M0 0h35v35h-35z"/><path class="qrline" stroke="#111" d="M1 1.5h7m2 0h3m4 0h1m9 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h3m1 0h2m1 0h1m1 0h2m1 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h6m1 0h2m4 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m3 0h3m3 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h2m4 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h1m2 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m1 0h4m2 0h2m1 0h3m-24 1h1m1 0h4m1 0h1m1 0h1m1 0h2m2 0h2m1 0h1m2 0h1m1 0h3m1 0h2m1 0h1m-32 1h2m1 0h3m2 0h1m1 0h1m2 0h1m1 0h1m3 0h2m1 0h2m4 0h3m-30 1h3m1 0h3m2 0h1m2 0h2m1 0h3m3 0h5m1 0h5m-32 1h4m7 0h1m2 0h3m4 0h1m2 0h3m2 0h1m1 0h1m-32 1h2m3 0h3m1 0h4m1 0h1m1 0h2m1 0h1m2 0h1m2 0h2m3 0h2m-33 1h3m6 0h1m1 0h4m2 0h1m1 0h3m1 0h1m3 0h1m-27 1h1m4 0h1m1 0h1m2 0h1m1 0h3m1 0h3m6 0h1m1 0h3m-31 1h2m2 0h2m2 0h1m8 0h2m3 0h2m1 0h1m1 0h1m1 0h2m1 0h1m-32 1h1m3 0h2m3 0h1m4 0h2m2 0h2m1 0h1m1 0h6m-29 1h5m3 0h1m1 0h1m4 0h2m1 0h4m2 0h2m1 0h1m1 0h3m-32 1h2m1 0h7m1 0h1m1 0h2m1 0h3m1 0h7m1 0h2m1 0h1m-30 1h3m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m3 0h1m2 0h1m2 0h3m-31 1h2m1 0h1m2 0h1m1 0h4m1 0h1m2 0h1m1 0h1m5 0h1m2 0h1m1 0h1m-30 1h3m5 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h2m1 0h1m2 0h3m-31 1h1m4 0h4m1 0h3m1 0h2m1 0h2m4 0h2m1 0h1m1 0h2m1 0h2m-33 1h1m3 0h2m1 0h1m2 0h1m1 0h1m3 0h1m1 0h1m4 0h4m1 0h1m1 0h3m-33 1h2m1 0h2m1 0h4m1 0h5m3 0h2m2 0h7m1 0h1m-24 1h1m2 0h2m1 0h1m3 0h1m1 0h1m3 0h1m3 0h1m1 0h2m-32 1h7m6 0h1m1 0h1m2 0h3m1 0h3m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m2 0h1m2 0h5m4 0h2m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h2m1 0h3m1 0h7m3 0h1m-33 1h1m1 0h3m1 0h1m1 0h5m1 0h1m1 0h8m1 0h1m1 0h1m2 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h2m1 0h1m1 0h4m5 0h1m1 0h2m1 0h3m-33 1h1m5 0h1m1 0h1m3 0h1m1 0h7m1 0h2m2 0h7m-33 1h7m2 0h1m1 0h2m1 0h2m1 0h2m4 0h2m2 0h3"/></svg></div>
+        <div class="face costas"><svg viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></div>
+      </div></div>
+      <div class="rotulo">Entre no grupo<small>Lançamentos e ofertas</small></div>
+    </button>
+
+    <button class="botao go" data-nome="google" aria-label="QR Code da avaliação do Google. Toque para girar.">
+      <div class="cena"><div class="virador">
+        <div class="face frente"><svg xmlns="http://www.w3.org/2000/svg" class="segno" viewBox="0 0 31 31" preserveAspectRatio="xMidYMid meet"><path fill="#fff" d="M0 0h31v31h-31z"/><path class="qrline" stroke="#111" d="M1 1.5h7m3 0h3m1 0h1m2 0h1m1 0h1m2 0h7m-29 1h1m5 0h1m1 0h1m11 0h1m1 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h1m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h4m5 0h2m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m5 0h1m3 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m5 0h1m1 0h1m1 0h2m2 0h1m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h2m1 0h2m1 0h1m1 0h1m1 0h1m-19 1h1m5 0h1m1 0h2m3 0h3m1 0h1m1 0h4m2 0h3m-28 1h1m3 0h2m4 0h3m2 0h1m1 0h3m3 0h2m1 0h2m-28 1h1m2 0h1m1 0h3m4 0h4m1 0h2m4 0h2m-25 1h1m2 0h1m3 0h2m1 0h1m3 0h2m2 0h2m1 0h2m1 0h2m-26 1h1m2 0h1m1 0h2m3 0h1m2 0h3m3 0h1m2 0h2m4 0h1m-28 1h2m2 0h1m4 0h1m1 0h1m2 0h2m3 0h1m1 0h3m2 0h2m-29 1h4m2 0h1m1 0h1m1 0h2m3 0h2m3 0h1m3 0h3m-25 1h1m1 0h2m3 0h1m1 0h1m2 0h2m2 0h5m1 0h1m1 0h1m1 0h1m-29 1h2m2 0h1m1 0h2m2 0h1m1 0h1m4 0h2m2 0h1m1 0h1m1 0h2m-27 1h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h2m1 0h1m1 0h4m1 0h3m1 0h3m-29 1h3m1 0h1m1 0h2m1 0h2m4 0h1m1 0h1m1 0h1m3 0h1m1 0h1m2 0h1m-29 1h1m1 0h2m3 0h1m1 0h1m3 0h1m2 0h1m2 0h1m1 0h3m-24 1h1m5 0h1m2 0h4m1 0h2m4 0h5m1 0h3m-21 1h1m2 0h1m2 0h1m2 0h2m1 0h1m3 0h2m-26 1h7m2 0h1m1 0h2m2 0h2m3 0h1m1 0h1m1 0h3m-27 1h1m5 0h1m3 0h2m2 0h1m3 0h3m3 0h1m2 0h2m-29 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h4m2 0h7m2 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m4 0h1m1 0h1m2 0h3m3 0h2m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m1 0h6m2 0h2m1 0h1m1 0h4m-28 1h1m5 0h1m2 0h2m3 0h1m7 0h2m1 0h2m1 0h1m-29 1h7m1 0h2m2 0h4m5 0h4m1 0h1"/></svg></div>
+        <div class="face costas"><svg viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg></div>
+      </div></div>
+      <div class="rotulo">Avalie no Google<small>Leva 10 segundos</small></div>
+    </button>
+
+    <button class="botao ig" data-nome="insta" aria-label="QR Code do Instagram. Toque para girar.">
+      <div class="cena"><div class="virador">
+        <div class="face frente"><svg xmlns="http://www.w3.org/2000/svg" class="segno" viewBox="0 0 31 31" preserveAspectRatio="xMidYMid meet"><path fill="#fff" d="M0 0h31v31h-31z"/><path class="qrline" stroke="#111" d="M1 1.5h7m2 0h1m1 0h2m1 0h2m2 0h2m2 0h7m-29 1h1m5 0h1m7 0h3m5 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m3 0h3m1 0h1m2 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m4 0h1m3 0h2m1 0h1m3 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h5m1 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m1 0h4m3 0h5m2 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h4m1 0h5m1 0h1m-21 1h1m2 0h1m1 0h2m1 0h2m2 0h1m2 0h2m2 0h1m1 0h1m1 0h1m-24 1h2m8 0h2m1 0h1m2 0h1m3 0h3m2 0h1m2 0h1m-26 1h2m1 0h5m2 0h2m1 0h1m2 0h1m2 0h1m2 0h3m-27 1h1m1 0h1m3 0h1m1 0h1m1 0h1m1 0h3m2 0h3m2 0h2m1 0h2m-28 1h1m2 0h1m1 0h3m4 0h1m1 0h5m1 0h3m2 0h1m1 0h2m-29 1h1m1 0h2m3 0h3m3 0h1m5 0h3m1 0h1m-23 1h2m3 0h2m1 0h6m6 0h1m3 0h4m-28 1h1m1 0h2m2 0h3m1 0h1m3 0h4m2 0h2m2 0h1m1 0h1m-28 1h2m1 0h1m1 0h2m1 0h3m1 0h2m3 0h1m1 0h1m1 0h1m1 0h1m3 0h1m-25 1h3m2 0h1m1 0h1m2 0h2m1 0h1m5 0h2m1 0h1m2 0h1m-29 1h1m4 0h2m7 0h1m1 0h2m4 0h2m3 0h2m-27 1h3m3 0h2m1 0h2m1 0h2m1 0h1m1 0h2m6 0h2m-29 1h1m2 0h1m1 0h2m1 0h1m1 0h3m2 0h2m3 0h5m1 0h1m-19 1h1m3 0h1m1 0h1m1 0h2m1 0h2m3 0h1m1 0h3m-29 1h7m3 0h1m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-28 1h1m5 0h1m1 0h5m1 0h1m1 0h1m1 0h1m1 0h1m3 0h5m-29 1h1m1 0h3m1 0h1m8 0h3m2 0h5m2 0h2m-29 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m3 0h1m1 0h1m2 0h1m1 0h4m-28 1h1m1 0h3m1 0h1m2 0h2m1 0h3m3 0h1m2 0h1m2 0h3m1 0h1m-29 1h1m5 0h1m3 0h1m1 0h1m2 0h1m1 0h1m1 0h2m3 0h1m2 0h1m-28 1h7m1 0h1m4 0h3m1 0h1m2 0h1m2 0h2m2 0h1"/></svg></div>
+        <div class="face costas"><svg viewBox="0 0 24 24" fill="#fff"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg></div>
+      </div></div>
+      <div class="rotulo">Siga no Instagram<small>@fabioleiite</small></div>
+    </button>
+  </section>
+</main>
+<canvas id="fx"></canvas>
+
+<script src="gsap.min.js"></script>
+<script src="bg.min.js"></script>
+<script src="fx.min.js"></script>
+<script>
+(function(){
+  try { Fundo.iniciarFundo(document.getElementById('fundo')); } catch(e) {}
+  try { Fx.iniciarFx(document.getElementById('fx')); } catch(e) {}
+
+  var BOTOES = Array.prototype.slice.call(document.querySelectorAll('.botao'));
+  var QR_FICA_MS   = 2 * 60 * 1000;      // depois do toque, o QR Code fica 2 minutos antes de voltar ao símbolo
+  var GIRADINHA_MS = 2.5 * 60 * 1000;    // de 2min30 em 2min30 os símbolos dão uma giradinha sozinhos
+
+  gsap.to('.logo', {opacity:1, duration:1.2, ease:'power2.out'});
+  gsap.to(BOTOES, {opacity:1, y:0, scale:1, duration:.9, ease:'back.out(1.4)', stagger:.14, delay:.2});
+
+  var cartoes = BOTOES.map(function(b, i){
+    var c = { b:b, v:b.querySelector('.virador'), mostraQR:false, rot:0, girando:false, timer:null };
+    gsap.to(b.querySelector('.cena'), {y:-6, duration:2.4+i*.3, ease:'sine.inOut', yoyo:true, repeat:-1, delay:1+i*.2});
+    return c;
+  });
+
+  function brilho(c){ c.b.classList.remove('brilha'); void c.b.offsetWidth; c.b.classList.add('brilha'); }
+
+  // Gira meia-volta: símbolo <-> QR Code
+  function virar(c){
+    if (c.girando) return;
+    c.girando = true; clearTimeout(c.timer);
+    c.mostraQR = !c.mostraQR; c.rot += 180;
+    brilho(c);
+    var tl = gsap.timeline({onComplete:function(){ c.girando = false; }});
+    tl.to(c.v, {z:120, scale:1.05, duration:.22, ease:'power2.out'}, 0);
+    tl.to(c.v, {rotationY:c.rot, duration:.95, ease:'elastic.out(1,0.7)'}, 0);
+    tl.to(c.v, {z:0, scale:1, duration:.5, ease:'power3.inOut'}, .3);
+    if (c.mostraQR) c.timer = setTimeout(function(){ if (c.mostraQR) virar(c); }, QR_FICA_MS);
+  }
+
+  // Giradinha de chamar atenção: volta inteira e termina no mesmo símbolo
+  function giradinha(c){
+    if (c.girando || c.mostraQR) return;
+    c.girando = true; c.rot += 360; brilho(c);
+    gsap.timeline({onComplete:function(){ c.girando = false; }})
+      .to(c.v, {z:90, duration:.3, ease:'power2.out'}, 0)
+      .to(c.v, {rotationY:c.rot, duration:1.3, ease:'power3.inOut'}, 0)
+      .to(c.v, {z:0, duration:.5, ease:'power3.inOut'}, .8);
+  }
+  function giradinhaEmOnda(){
+    cartoes.forEach(function(c, i){ setTimeout(function(){ giradinha(c); }, i * 280); });
+  }
+  setTimeout(giradinhaEmOnda, 12000);
+  setInterval(giradinhaEmOnda, GIRADINHA_MS);
+
+  cartoes.forEach(function(c){ c.b.addEventListener('click', function(){ virar(c); }); });
+
+  // Mantém a tela acesa
+  function acordar(){ try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function(){}); } catch(e){} }
+  acordar();
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) acordar(); });
+  document.addEventListener('click', function once(){ acordar(); document.removeEventListener('click', once); });
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){ document.addEventListener(n, function(e){ e.preventDefault(); }); });
+})();
+</script>
+</body>
+</html>
