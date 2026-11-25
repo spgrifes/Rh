@@ -9,7 +9,8 @@
 <meta name="robots" content="noindex,nofollow">
 <title>SP Grifes — QR Codes</title>
 <style>
-    :root{--vermelho:#e11d26;--ease:cubic-bezier(.2,.8,.2,1);--raio:clamp(22px,3.4vw,44px)}
+    @property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+  :root{--vermelho:#e11d26;--ease:cubic-bezier(.2,.8,.2,1);--raio:clamp(22px,3.4vw,44px)}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
   html,body{height:100%;margin:0;overflow:hidden;background:#05060d;color:#fff;
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -32,10 +33,14 @@
   .botao{appearance:none;border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;
     width:100%;display:flex;flex-direction:column;align-items:center;gap:2.2vh;opacity:0;transform:translateY(40px) scale(.96)}
   .cena{perspective:1600px;width:min(27vw,54vh);aspect-ratio:1/1;position:relative}
-  .cena::before{content:"";position:absolute;inset:-2px;border-radius:calc(var(--raio) + 2px);z-index:0;
-    box-shadow:0 0 3.2vh rgba(225,29,38,.30);animation:pulsa 5s ease-in-out infinite alternate}
-  .botao:nth-child(2) .cena::before{animation-delay:-1.6s}
-  .botao:nth-child(3) .cena::before{animation-delay:-3.2s}
+  .cena::before{content:"";position:absolute;inset:-6px;border-radius:calc(var(--raio) + 6px);z-index:0;
+    background:conic-gradient(from var(--ang),rgba(225,29,38,0) 0 55%,rgba(225,29,38,.55) 72%,#ff3b44 88%,#fff 97%,rgba(225,29,38,0) 100%);
+    filter:drop-shadow(0 0 12px rgba(225,29,38,.85));animation:luz 3.6s linear infinite}
+  .cena::after{content:"";position:absolute;inset:-2px;border-radius:calc(var(--raio) + 2px);z-index:0;
+    box-shadow:0 0 3.4vh rgba(225,29,38,.28);animation:pulsa 5s ease-in-out infinite alternate}
+  .botao:nth-child(2) .cena::before{animation-delay:-1.2s}
+  .botao:nth-child(3) .cena::before{animation-delay:-2.4s}
+  @keyframes luz{to{--ang:360deg}}
   @keyframes pulsa{from{opacity:.45}to{opacity:1}}
   .virador{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform;z-index:1}
   .face{position:absolute;inset:0;border-radius:var(--raio);backface-visibility:hidden;-webkit-backface-visibility:hidden;
