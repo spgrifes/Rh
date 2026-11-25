@@ -45,6 +45,9 @@ h2{font-size:15px;margin:18px 2px 8px;color:#444;text-transform:uppercase;letter
 .aviso.bom{background:#e3f6ea;color:#0d5c2b}
 .aviso.info{background:#e0ecff;color:#1a3a8a}
 .dica{font-size:14px;color:#555;line-height:1.45}
+.bolinha{display:inline-block;width:10px;height:10px;border-radius:50%;background:#16a34a;margin-right:6px;vertical-align:middle;animation:pisca 1s infinite}
+@keyframes pisca{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(22,163,74,.6)}50%{opacity:.35;box-shadow:0 0 0 5px rgba(22,163,74,0)}}
+.sep-oc{display:block;font-size:13px;font-weight:700;color:#16a34a;margin-top:3px}
 .voltar{background:none;border:0;font-size:16px;font-weight:700;color:#111;padding:6px 0 12px}
 .vazio{text-align:center;color:#777;padding:30px 10px}
 .link{display:block;text-align:center;text-decoration:none;color:#111;font-weight:800;font-size:17px;border:2px solid #111;border-radius:14px;padding:14px;margin-top:10px;background:#fff}
@@ -75,7 +78,7 @@ function chamar(acao, corpo, form){
   if (TOKEN) opts.headers["Authorization"] = "Bearer " + TOKEN;
   if (form) { opts.body = form; }
   else { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(corpo || {}); }
-  var base = (acao==="lista"||acao==="detalhe"||acao==="faltou") ? API2 : API;
+  var base = (acao==="lista"||acao==="detalhe"||acao==="faltou"||acao==="presenca"||acao==="sair") ? API2 : API;
   return fetch(base + "?a=" + acao, opts).then(function(r){
     return r.json().catch(function(){ return { ok:false, erro:"Resposta inesperada" }; }).then(function(j){
       if (r.status === 401 && j.erro === "sessao") { sairLogin(); }
@@ -113,15 +116,39 @@ function telaLogin(){
 /* ---------- lista ---------- */
 var ROTULO = { novo:"Novo", separando:"Separando", divergente:"Ajustar", duvida:"Ajustar", conferindo:"Conferindo", ok:"Conferido", liberado:"Conferido", enviado:"Concluído", faltou:"Faltou peça" };
 function telaLista(){
-  PEDIDO = ""; cabecalho();
+  sairPedido(); PEDIDO = ""; cabecalho(); iniciarAuto();
   var c = ler("sep_lista");
   if (c) { try { pintarLista(JSON.parse(c)); } catch(e){ c = ""; } }
   if (!c) app.innerHTML = '<div class="vazio">Carregando pedidos...</div>';
   chamar("lista").then(function(j){
     if (!j.ok) { if (!c) { app.innerHTML = '<div class="card err">' + esc(j.erro || "Erro") + '</div><button class="btn" id="t">Tentar de novo</button>'; document.getElementById("t").onclick = telaLista; } return; }
     guardar("sep_lista", JSON.stringify(j));
-    if (!PEDIDO) pintarLista(j);
+    if (!PEDIDO) { ULT = JSON.stringify(j); pintarLista(j); }
   });
+}
+var ULT = "", AUTO = null, PRES = null, OCUP = null;
+function iniciarAuto(){
+  if (AUTO) clearInterval(AUTO);
+  AUTO = setInterval(function(){
+    if (PEDIDO || !TOKEN || document.hidden) return;
+    chamar("lista").then(function(j){
+      if (!j.ok || PEDIDO) return;
+      var t = JSON.stringify(j); if (t === ULT) return;
+      ULT = t; guardar("sep_lista", t); pintarLista(j);
+    });
+  }, 6000);
+}
+function sairPedido(){
+  if (PRES) { clearInterval(PRES); PRES = null; }
+  if (PEDIDO && TOKEN) { chamar("sair", { pedido: PEDIDO }); }
+  OCUP = null;
+}
+window.addEventListener("pagehide", function(){
+  if (PEDIDO && TOKEN) { try { navigator.sendBeacon(API2 + "?a=sair", new Blob([JSON.stringify({ pedido: PEDIDO, t: TOKEN })], { type: "text/plain" })); } catch(e){} }
+});
+function mostrarOcup(){
+  var el = document.getElementById("ocup"); if (!el) return;
+  el.innerHTML = OCUP ? '<div class="aviso info"><span class="bolinha"></span><b>' + esc(OCUP.nome) + '</b> está separando este pedido desde ' + esc(OCUP.desde || "") + '.</div>' : "";
 }
 function pintarLista(j){
   var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>';
@@ -135,13 +162,19 @@ function pintarLista(j){
   Array.prototype.forEach.call(app.querySelectorAll("[data-p]"), function(el){ el.onclick = function(){ telaPedido(el.getAttribute("data-p")); }; });
 }
 function linha(p){
-  return '<button class="pedido" data-p="' + esc(p.pedido) + '"><div><b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + (p.fotos ? ' · ' + p.fotos + ' foto(s)' : '') + '</span></div><span class="tag ' + esc(p.status) + '">' + esc(ROTULO[p.status] || p.status) + '</span></button>';
+  var oc = p.ocupado ? '<span class="sep-oc"><span class="bolinha"></span>' + (p.ocupado.eu ? 'Você está separando' : esc(p.ocupado.nome) + ' separando') + '</span>' : '';
+  return '<button class="pedido" data-p="' + esc(p.pedido) + '"><div><b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + (p.fotos ? ' · ' + p.fotos + ' foto(s)' : '') + '</span>' + oc + '</div><span class="tag ' + esc(p.status) + '">' + esc(ROTULO[p.status] || p.status) + '</span></button>';
 }
 
 /* ---------- pedido ---------- */
 var ITENS = null;
+function bater(pedido){
+  chamar("presenca", { pedido: pedido }).then(function(r){ if (PEDIDO !== pedido) return; OCUP = r && r.ocupado ? r.ocupado : null; mostrarOcup(); });
+}
 function telaPedido(pedido){
-  PEDIDO = pedido; cabecalho();
+  if (PRES) { clearInterval(PRES); PRES = null; }
+  PEDIDO = pedido; cabecalho(); OCUP = null;
+  bater(pedido); PRES = setInterval(function(){ if (PEDIDO === pedido) bater(pedido); }, 20000);
   app.innerHTML = '<button class="voltar" id="v">← Voltar</button><div class="vazio">Abrindo o pedido #' + esc(pedido) + '...</div>';
   document.getElementById("v").onclick = telaLista;
   ITENS = fetch(API.replace("separacao-site","separacao-itens") + "?p=" + encodeURIComponent(pedido) + "&t=" + encodeURIComponent(TOKEN)).then(function(r){ return r.json(); }).catch(function(){ return {}; });
@@ -153,7 +186,7 @@ function telaPedido(pedido){
 }
 function desenhar(j){
   var fechado = (j.status === "enviado");
-  var h = '<button class="voltar" id="v">← Voltar</button>';
+  var h = '<button class="voltar" id="v">← Voltar</button><div id="ocup"></div>';
   h += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b style="font-size:22px">#' + esc(j.pedido) + '</b><div style="color:#555">' + esc(j.cliente) + '</div></div><span class="tag ' + esc(j.status) + '">' + esc(ROTULO[j.status] || j.status) + '</span></div>';
   if (j.retirada) h += '<div class="aviso info" style="margin-top:10px">Retirada na loja. Não tem etiqueta dos Correios.</div>';
   if (!j.retirada) {
@@ -186,7 +219,7 @@ function desenhar(j){
   if (!fechado && j.status === "faltou") h += '<div class="aviso info"><b>Marcado: faltou peça.</b> Quando a peça chegar, tire as fotos e aperte Terminei.</div>';
   else if (!fechado && j.status !== "conferindo") h += '<button class="btn ghost" id="falta" style="border-color:#9a4b00;color:#9a4b00">Faltou peça</button>';
   app.innerHTML = h;
-  document.getElementById("v").onclick = telaLista;
+  document.getElementById("v").onclick = telaLista; mostrarOcup();
   ITENS.then(function(x){ (x.itens || []).forEach(function(it, n){ var el = app.querySelector('.ft[data-n="' + n + '"]'); if (el && it.foto) el.innerHTML = '<img src="' + esc(it.foto) + '" alt="" style="width:100%;height:100%;object-fit:contain">'; }); }).catch(function(){});
   Array.prototype.forEach.call(app.querySelectorAll("[data-d]"), function(b){ b.onclick = function(){ if (!confirm("Apagar esta foto?")) return; chamar("apagar_foto", { id: Number(b.getAttribute("data-d")) }).then(function(){ telaPedido(j.pedido); }); }; });
   if (!fechado) {
