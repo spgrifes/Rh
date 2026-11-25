@@ -129,10 +129,12 @@ function linha(p){
 }
 
 /* ---------- pedido ---------- */
+var ITENS = null;
 function telaPedido(pedido){
   PEDIDO = pedido; cabecalho();
   app.innerHTML = '<button class="voltar" id="v">← Voltar</button><div class="vazio">Abrindo o pedido #' + esc(pedido) + '...</div>';
   document.getElementById("v").onclick = telaLista;
+  ITENS = fetch(API.replace("separacao-site","separacao-itens") + "?p=" + encodeURIComponent(pedido) + "&t=" + encodeURIComponent(TOKEN)).then(function(r){ return r.json(); }).catch(function(){ return {}; });
   chamar("detalhe", { pedido: pedido }).then(function(j){
     if (!j.ok) { app.innerHTML = '<button class="voltar" id="v">← Voltar</button><div class="card err">' + esc(j.erro || "Erro") + '</div>'; document.getElementById("v").onclick = telaLista; return; }
     desenhar(j);
@@ -172,7 +174,7 @@ function desenhar(j){
   if (!fechado && j.status !== "conferindo") h += '<button class="btn green" id="fim"' + ((j.fotos || []).length ? '' : ' disabled') + '>Terminei de separar</button>';
   app.innerHTML = h;
   document.getElementById("v").onclick = telaLista;
-  fetch(API.replace("separacao-site","separacao-itens") + "?p=" + encodeURIComponent(j.pedido) + "&t=" + encodeURIComponent(TOKEN)).then(function(r){ return r.json(); }).then(function(x){ (x.itens || []).forEach(function(it, n){ var el = app.querySelector('.ft[data-n="' + n + '"]'); if (el && it.foto) el.innerHTML = '<img src="' + esc(it.foto) + '" alt="" style="width:100%;height:100%;object-fit:contain">'; }); }).catch(function(){});
+  ITENS.then(function(x){ (x.itens || []).forEach(function(it, n){ var el = app.querySelector('.ft[data-n="' + n + '"]'); if (el && it.foto) el.innerHTML = '<img src="' + esc(it.foto) + '" alt="" style="width:100%;height:100%;object-fit:contain">'; }); }).catch(function(){});
   Array.prototype.forEach.call(app.querySelectorAll("[data-d]"), function(b){ b.onclick = function(){ if (!confirm("Apagar esta foto?")) return; chamar("apagar_foto", { id: Number(b.getAttribute("data-d")) }).then(function(){ telaPedido(j.pedido); }); }; });
   if (!fechado) {
     document.getElementById("add").onclick = function(){ document.getElementById("arq").click(); };
