@@ -49,6 +49,10 @@ h2{font-size:15px;margin:18px 2px 8px;color:#444;text-transform:uppercase;letter
 @keyframes pisca{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(22,163,74,.6)}50%{opacity:.35;box-shadow:0 0 0 5px rgba(22,163,74,0)}}
 .sep-oc{display:block;font-size:13px;font-weight:700;color:#16a34a;margin-top:3px}
 .voltar{background:none;border:0;font-size:16px;font-weight:700;color:#111;padding:6px 0 12px}
+.pedido.prio{border:3px solid #e10600;background:#fff1f0}
+.pedido.prio.exc{border-color:#6d28d9;background:#f3eeff}
+.prio-tag{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.5px;color:#fff;background:#e10600;border-radius:6px;padding:3px 8px;margin-bottom:5px}
+.prio-tag.exc{background:#6d28d9}
 .vazio{text-align:center;color:#777;padding:30px 10px}
 .link{display:block;text-align:center;text-decoration:none;color:#111;font-weight:800;font-size:17px;border:2px solid #111;border-radius:14px;padding:14px;margin-top:10px;background:#fff}
 .spin{display:inline-block;width:18px;height:18px;border:3px solid #fff;border-top-color:transparent;border-radius:50%;animation:g 0.8s linear infinite;vertical-align:-3px;margin-right:8px}
@@ -163,7 +167,9 @@ function pintarLista(j){
 }
 function linha(p){
   var oc = p.ocupado ? '<span class="sep-oc"><span class="bolinha"></span>' + (p.ocupado.eu ? 'Você está separando' : esc(p.ocupado.nome) + ' separando') + '</span>' : '';
-  return '<button class="pedido" data-p="' + esc(p.pedido) + '"><div><b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + (p.fotos ? ' · ' + p.fotos + ' foto(s)' : '') + '</span>' + oc + '</div><span class="tag ' + esc(p.status) + '">' + esc(ROTULO[p.status] || p.status) + '</span></button>';
+  var pr = p.prioridade, ex = pr === "excursao" ? " exc" : "";
+  var tg = pr ? '<span class="prio-tag' + ex + '">' + (pr === "retirada" ? "RETIRADA EM MÃOS · SEPARAR PRIMEIRO" : "EXCURSÃO · SEPARAR PRIMEIRO") + '</span><br>' : '';
+  return '<button class="pedido' + (pr ? " prio" + ex : "") + '" data-p="' + esc(p.pedido) + '"><div>' + tg + '<b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + (p.fotos ? ' · ' + p.fotos + ' foto(s)' : '') + '</span>' + oc + '</div><span class="tag ' + esc(p.status) + '">' + esc(ROTULO[p.status] || p.status) + '</span></button>';
 }
 
 /* ---------- pedido ---------- */
