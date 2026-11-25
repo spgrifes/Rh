@@ -74,7 +74,7 @@ function chamar(acao, corpo, form){
   if (TOKEN) opts.headers["Authorization"] = "Bearer " + TOKEN;
   if (form) { opts.body = form; }
   else { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(corpo || {}); }
-  var base = (acao==="lista"||acao==="detalhe"||acao==="historico"||acao==="faltou") ? API2 : API;
+  var base = (acao==="lista"||acao==="detalhe"||acao==="faltou") ? API2 : API;
   return fetch(base + "?a=" + acao, opts).then(function(r){
     return r.json().catch(function(){ return { ok:false, erro:"Resposta inesperada" }; }).then(function(j){
       if (r.status === 401 && j.erro === "sessao") { sairLogin(); }
@@ -123,7 +123,7 @@ function telaLista(){
   });
 }
 function pintarLista(j){
-  var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button><button class="btn ghost" id="hi" style="margin:0">Histórico</button></div>';
+  var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>';
   if (j.faltando && j.faltando.length) { h += '<h2>Faltou peça (' + j.faltando.length + ')</h2>'; j.faltando.forEach(function(p){ h += linha(p); }); }
   h += '<h2>Para separar (' + j.pendentes.length + ')</h2>';
   if (!j.pendentes.length) h += '<div class="vazio">Nenhum pedido esperando. Bom trabalho!</div>';
@@ -131,28 +131,7 @@ function pintarLista(j){
   if (j.concluidos.length) { h += '<h2>Separados recentes</h2>'; j.concluidos.forEach(function(p){ h += linha(p); }); }
   app.innerHTML = h;
   document.getElementById("at").onclick = function(){ this.textContent = "Atualizando..."; telaLista(); };
-  document.getElementById("hi").onclick = telaHistorico;
   Array.prototype.forEach.call(app.querySelectorAll("[data-p]"), function(el){ el.onclick = function(){ telaPedido(el.getAttribute("data-p")); }; });
-}
-/* ---------- histórico: dia por dia ---------- */
-function telaHistorico(){
-  PEDIDO = "x"; cabecalho();
-  app.innerHTML = '<button class="voltar" id="v">← Voltar</button><div class="vazio">Carregando histórico...</div>';
-  document.getElementById("v").onclick = telaLista;
-  chamar("historico").then(function(j){
-    var h = '<button class="voltar" id="v">← Voltar</button><h2 style="margin-top:0">Histórico</h2>';
-    if (!j.ok || !(j.itens||[]).length) h += '<div class="vazio">Ainda não tem nada no histórico.</div>';
-    var dia = "";
-    (j.itens || []).forEach(function(x){
-      var d = new Date(x.quando), dd = d.toLocaleDateString("pt-BR", { timeZone:"America/Sao_Paulo", weekday:"long", day:"2-digit", month:"2-digit" });
-      if (dd !== dia) { dia = dd; h += '<h2>' + esc(dd) + '</h2>'; }
-      var hr = d.toLocaleTimeString("pt-BR", { timeZone:"America/Sao_Paulo", hour:"2-digit", minute:"2-digit" });
-      h += '<button class="pedido" data-p="' + esc(x.pedido) + '"><div><b>#' + esc(x.pedido) + '</b><span class="c">' + esc(x.cliente || "") + ' · ' + esc(x.funcionaria || "") + ' · ' + hr + '</span></div><span class="tag ' + esc(x.status) + '">' + esc(ROTULO[x.status] || x.status) + '</span></button>';
-    });
-    app.innerHTML = h;
-    document.getElementById("v").onclick = telaLista;
-    Array.prototype.forEach.call(app.querySelectorAll("[data-p]"), function(el){ el.onclick = function(){ telaPedido(el.getAttribute("data-p")); }; });
-  });
 }
 function linha(p){
   return '<button class="pedido" data-p="' + esc(p.pedido) + '"><div><b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + (p.fotos ? ' · ' + p.fotos + ' foto(s)' : '') + '</span></div><span class="tag ' + esc(p.status) + '">' + esc(ROTULO[p.status] || p.status) + '</span></button>';

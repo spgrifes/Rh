@@ -23,7 +23,7 @@ h2{font-size:15px;margin:18px 2px 8px;color:#444;text-transform:uppercase;letter
 .f button{border:2px solid #111;background:#fff;border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px}
 .f.off b{color:#999;text-decoration:line-through}
 .dica{font-size:14px;color:#555;line-height:1.45}
-.at{padding:10px 0;border-bottom:1px solid #eee;font-size:15px}
+.dia{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:#fff;border-radius:14px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:14px 16px;margin-bottom:8px;font-size:17px;text-align:left}.dia b{text-transform:capitalize}.dia small{color:#555;display:block;font-size:13px;margin-top:2px}.pd{background:#fff;border-radius:12px;padding:12px 14px;margin:0 0 8px 8px;font-size:15px;line-height:1.5;border-left:4px solid #d9b24c}.pd.f{border-left-color:#9a4b00}.pd em{color:#555;font-style:normal}.at{padding:10px 0;border-bottom:1px solid #eee;font-size:15px}
 </style>
 </head>
 <body>
@@ -31,11 +31,12 @@ h2{font-size:15px;margin:18px 2px 8px;color:#444;text-transform:uppercase;letter
 <main id="app"></main>
 <script>
 var API = "https://cuiqmczhtcrrxafmzmhh.supabase.co/functions/v1/separacao-site";
+var API2 = API.replace("separacao-site","separacao-lista");
 var app = document.getElementById("app"), ADM = "";
 function esc(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
 function chamar(acao, corpo){
   corpo = corpo || {}; corpo.admin = ADM;
-  return fetch(API + "?a=" + acao, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(corpo) })
+  return fetch((acao === "admin_dias" || acao === "admin_dia" ? API2 : API) + "?a=" + acao, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(corpo) })
     .then(function(r){ return r.json(); }).catch(function(){ return { ok:false, erro:"Sem internet." }; });
 }
 function entrar(){
@@ -54,7 +55,9 @@ function tela(j, msg){
   j.funcionarias.forEach(function(f){ h += '<div class="f' + (f.ativa ? '' : ' off') + '"><b>' + esc(f.nome) + '</b><button data-id="' + f.id + '" data-a="' + (f.ativa ? 0 : 1) + '">' + (f.ativa ? 'Desativar' : 'Reativar') + '</button></div>'; });
   h += '</div>';
   if (j.atencao.length) { h += '<h2>Pedidos que precisam de atenção</h2><div class="card">'; j.atencao.forEach(function(p){ h += '<div class="at"><b>#' + esc(p.pedido) + '</b> ' + esc(p.cliente_nome || "") + '<br>' + esc(p.status) + (p.funcionaria ? ' · ' + esc(p.funcionaria) : '') + (p.aviso_erro ? '<br><span style="color:#b3261e">' + esc(p.aviso_erro) + '</span>' : '') + '</div>'; }); h += '</div>'; }
+  h += '<button class="btn" id="hist">Histórico dos pedidos separados</button>';
   app.innerHTML = h;
+  document.getElementById("hist").onclick = historico;
   document.getElementById("salvar").onclick = function(){
     var nome = document.getElementById("n").value, senha = document.getElementById("s").value;
     chamar("admin_salvar", { nome: nome, senha: senha }).then(function(r){
@@ -63,6 +66,40 @@ function tela(j, msg){
   };
   Array.prototype.forEach.call(app.querySelectorAll("[data-id]"), function(b){
     b.onclick = function(){ chamar("admin_ativar", { id: Number(b.getAttribute("data-id")), ativa: b.getAttribute("data-a") === "1" }).then(function(){ chamar("admin_listar").then(function(l){ tela(l); }); }); };
+  });
+}
+var ROT = { enviado:"Separado", ok:"Separado", liberado:"Separado", faltou:"Faltou peça", separando:"Separando", conferindo:"Conferindo", divergente:"Ajustar", duvida:"Ajustar" };
+function nomeDia(d){ var x = new Date(d + "T12:00:00"); return x.toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"2-digit" }); }
+function historico(){
+  app.innerHTML = '<button class="btn" id="vt" style="margin:0 0 12px;background:#fff;color:#111;border:2px solid #111">← Voltar</button><h2 style="margin-top:0">Histórico (toque no dia)</h2><div id="dias" class="dica">Carregando...</div>';
+  document.getElementById("vt").onclick = function(){ chamar("admin_listar").then(tela); };
+  chamar("admin_dias").then(function(j){
+    var el = document.getElementById("dias");
+    if (!j.ok || !j.dias.length) { el.textContent = "Ainda não tem nada no histórico."; return; }
+    var h = "";
+    j.dias.forEach(function(d){ h += '<div data-d="' + d.dia + '"><button class="dia"><span><b>' + esc(nomeDia(d.dia)) + '</b><small>' + d.separados + ' separados' + (d.faltou ? ' · ' + d.faltou + ' faltou peça' : '') + (d.andando ? ' · ' + d.andando + ' em andamento' : '') + '</small></span><span>▾</span></button><div class="lista"></div></div>'; });
+    el.className = ""; el.innerHTML = h;
+    Array.prototype.forEach.call(el.querySelectorAll("[data-d]"), function(box){
+      var lista = box.querySelector(".lista"), btn = box.querySelector("button"), aberto = false, carregado = false;
+      btn.onclick = function(){
+        aberto = !aberto; lista.style.display = aberto ? "" : "none";
+        if (!aberto || carregado) return;
+        lista.innerHTML = '<div class="dica" style="margin:0 0 8px 8px">Carregando...</div>';
+        chamar("admin_dia", { dia: box.getAttribute("data-d") }).then(function(r){
+          carregado = true;
+          if (!r.ok) { lista.innerHTML = '<div class="err">' + esc(r.erro || "Erro") + '</div>'; return; }
+          var t = "";
+          r.pedidos.forEach(function(p){
+            t += '<div class="pd' + (p.status === "faltou" ? ' f' : '') + '"><b>#' + esc(p.pedido) + '</b> ' + esc(p.cliente || "") + ' — <b>' + esc(ROT[p.status] || p.status) + '</b><br>' +
+              '<em>Pegou:</em> ' + esc(p.pegou || "—") + (p.pegou_hora ? ' às ' + esc(p.pegou_hora) : '') + '<br>' +
+              '<em>Terminou:</em> ' + (p.terminou ? esc(p.terminou) + ' às ' + esc(p.terminou_hora) : 'ainda não') + '<br>' +
+              '<em>Fotos:</em> ' + p.fotos + (p.tentativas > 1 ? ' · ' + p.tentativas + ' conferências' : '') +
+              (p.eva ? '<br><em>Eva:</em> ' + esc(p.eva) : '') + '</div>';
+          });
+          lista.innerHTML = t || '<div class="dica" style="margin:0 0 8px 8px">Nada neste dia.</div>';
+        });
+      };
+    });
   });
 }
 entrar();
