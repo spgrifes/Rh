@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="robots" content="noindex,nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="icone.png"><link rel="apple-touch-icon" href="icone.png">
 <title>Play no pedido</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -24,10 +24,11 @@ h2{font-size:15px;margin:18px 2px 8px;color:#444;text-transform:uppercase;letter
 .f.off b{color:#999;text-decoration:line-through}
 .dica{font-size:14px;color:#555;line-height:1.45}
 .dia{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:#fff;border-radius:14px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:14px 16px;margin-bottom:8px;font-size:17px;text-align:left}.dia b{text-transform:capitalize}.dia small{color:#555;display:block;font-size:13px;margin-top:2px}.pd{background:#fff;border-radius:12px;padding:12px 14px;margin:0 0 8px 8px;font-size:15px;line-height:1.5;border-left:4px solid #d9b24c}.pd.f{border-left-color:#9a4b00}.pd em{color:#555;font-style:normal}.at{padding:10px 0;border-bottom:1px solid #eee;font-size:15px}
+header .lg{height:42px;width:auto;display:block}header .tt{display:flex;align-items:center;gap:12px}header h1{font-size:17px}.hero{text-align:center;padding:6px 0 2px}.hero img{width:150px;height:auto;background:#111;border-radius:16px;padding:12px 16px}.hero p{margin:8px 0 0;color:#8a6500;font-weight:700;letter-spacing:.4px;font-size:13px}
 </style>
 </head>
 <body>
-<header><h1>Play no pedido</h1><small>Página só do Fábio</small></header>
+<header class="tt"><img class="lg" src="logo.png" alt="SP Grifes" width="68" height="42"><div><h1>Play no pedido</h1><small>Página só do Fábio · SP Grifes</small></div></header>
 <main id="app"></main>
 <script>
 var API = "https://cuiqmczhtcrrxafmzmhh.supabase.co/functions/v1/separacao-site";
