@@ -30,6 +30,17 @@ input[type=text],input[type=password]{width:100%;font-size:18px;padding:14px;bor
 .tag.novo{background:#111;color:#fff}.tag.separando{background:#fff3cd;color:#8a6500}
 .tag.divergente,.tag.duvida{background:#fde8e6;color:#b3261e}.tag.conferindo{background:#e0ecff;color:#1d4ed8}
 .tag.faltou{background:#ffe9c7;color:#9a4b00}.tag.ok,.tag.liberado,.tag.enviado{background:#e3f6ea;color:#12783a}
+.atr{border:3px solid #e10600;border-radius:16px;background:#fff1f0;margin:0 0 16px;overflow:hidden}
+.atr summary{list-style:none;cursor:pointer;padding:14px 16px;background:#e10600;color:#fff;font-weight:800;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+.atr summary::-webkit-details-marker{display:none}
+.atr summary .seta{transition:transform .2s}
+.atr[open] summary .seta{transform:rotate(180deg)}
+.atr .aviso-atr{padding:12px 16px;font-size:14px;color:#7a0000;font-weight:700;line-height:1.35}
+.atr-item{background:#fff;border-left:6px solid #e10600;border-radius:12px;margin:0 12px 10px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.atr-item b{font-size:18px}
+.atr-item .c{display:block;font-size:14px;color:#555;margin-top:2px}
+.atr-item .d{display:inline-block;margin-top:6px;background:#e10600;color:#fff;border-radius:8px;padding:3px 8px;font-size:13px;font-weight:800}
+.atr-item .s{display:block;margin-top:6px;font-size:13px;color:#333}
 h2{font-size:15px;margin:18px 2px 8px;color:#444;text-transform:uppercase;letter-spacing:.6px}
 .item{padding:10px 0;border-bottom:1px solid #eee;font-size:16px}
 .item:last-child{border:0}
@@ -156,14 +167,28 @@ function mostrarOcup(){
 }
 function pintarLista(j){
   var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>';
+  if (Array.isArray(j.atrasados) && j.atrasados.length) h += blocoAtrasados(j.atrasados);
   if (j.faltando && j.faltando.length) { h += '<h2>Faltou peça (' + j.faltando.length + ')</h2>'; j.faltando.forEach(function(p){ h += linha(p); }); }
   h += '<h2>Para separar (' + j.pendentes.length + ')</h2>';
   if (!j.pendentes.length) h += '<div class="vazio">Nenhum pedido esperando. Bom trabalho!</div>';
   j.pendentes.forEach(function(p){ h += linha(p); });
   if (j.concluidos.length) { h += '<h2>Separados recentes</h2>'; j.concluidos.forEach(function(p){ h += linha(p); }); }
   app.innerHTML = h;
+  var dt = app.querySelector("details.atr"); if (dt) dt.addEventListener("toggle", function(){ window.ATR_AB = dt.open; });
   document.getElementById("at").onclick = function(){ this.textContent = "Atualizando..."; telaLista(); };
   Array.prototype.forEach.call(app.querySelectorAll("[data-p]"), function(el){ el.onclick = function(){ telaPedido(el.getAttribute("data-p")); }; });
+}
+function blocoAtrasados(l){
+  var h = '<details class="atr"' + (window.ATR_AB ? ' open' : '') + '><summary><span>🚨 ATRASADOS DE DIAS ATRÁS (' + l.length + ')</span><span class="seta">▼</span></summary>';
+  h += '<div class="aviso-atr">NÃO SEPARAR DE NOVO! Estes pedidos são de dias atrás: a etiqueta já foi feita, mas o pacote ainda não foi postado nos Correios. Procure o pacote já separado e leve aos Correios hoje. Se não achar o pacote, avise a Nara.</div>';
+  l.forEach(function(p){
+    var a = p.alerta || {};
+    h += '<div class="atr-item"><b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + '</span>';
+    h += '<span class="d">Etiqueta de ' + esc(a.etiqueta || "") + ' · há ' + esc(a.dias) + ' dias sem postar</span>';
+    if (a.codigo) h += '<span class="s">Rastreio: <b style="font-size:14px">' + esc(a.codigo) + '</b></span>';
+    h += '<span class="s">' + (a.separado ? 'Já separado' + (a.separou ? ' por ' + esc(a.separou) : '') + (a.separou_em ? ' em ' + esc(a.separou_em) : '') + ': é só achar o pacote.' : 'Sem registro de separação no Play: conferir na prateleira antes de separar.') + '</span></div>';
+  });
+  return h + '<div style="height:4px"></div></details>';
 }
 function linha(p){
   var oc = p.ocupado ? '<span class="sep-oc"><span class="bolinha"></span>' + (p.ocupado.eu ? 'Você está separando' : esc(p.ocupado.nome) + ' separando') + '</span>' : '';
