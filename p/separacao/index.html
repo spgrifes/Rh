@@ -228,6 +228,7 @@ function desenhar(j){
 
   h += '<h2>O que separar</h2><div class="card">';
   (j.itens || []).forEach(function(i, n){ h += '<div class="item" style="display:flex;gap:12px;align-items:center"><div class="ft" data-n="' + n + '" style="width:96px;height:120px;flex:none;background:#f0eee9;border-radius:10px;overflow:hidden"></div><div><b>' + esc(i.produto) + '</b><br>' + esc(i.cor) + '<br><span class="t" style="font-size:22px;margin-top:6px">' + esc(i.tamanho) + '</span> Qtd: <b style="font-size:22px">' + i.qtd + '</b></div></div>'; });
+  (function(){ var tot = 0; (j.itens || []).forEach(function(i){ tot += Number(i.qtd) || 0; }); if (tot) h += '<div class="item" style="text-align:center;font-size:20px;background:#fff7d6;border-radius:10px;padding:12px"><b>Total do pedido: ' + tot + (tot === 1 ? ' peça' : ' peças') + '</b></div>'; })();
   h += '</div>';
 
   if ((j.status === "divergente" || j.status === "duvida") && j.mensagem) h += '<div class="aviso ruim"><b>A Eva pede um ajuste:</b><br>' + esc(j.mensagem) + '<br><br>Corrija, tire as fotos novas (se precisar) e aperte Terminei de novo.</div>';
