@@ -102,7 +102,7 @@ function chamar(acao, corpo, form){
   }).catch(function(){ return { ok:false, erro:"Sem internet. Tente de novo." }; });
 }
 
-function sairLogin(){ limpar(); TOKEN = ""; NOME = ""; telaLogin(); }
+function sairLogin(){ limpar(); try{ localStorage.removeItem("ret_lista"); }catch(e){} if (RET_AUTO) { clearInterval(RET_AUTO); RET_AUTO = null; } TOKEN = ""; NOME = ""; telaLogin(); }
 document.getElementById("sair").onclick = function(){ if (confirm("Sair?")) sairLogin(); };
 
 function cabecalho(){
@@ -121,7 +121,7 @@ function telaLogin(){
     var b = document.getElementById("go"); b.disabled = true; b.textContent = "Entrando...";
     chamar("login", { nome: document.getElementById("n").value, senha: document.getElementById("s").value }).then(function(j){
       if (!j.ok) { document.getElementById("e").textContent = j.erro || "Não foi possível entrar."; b.disabled = false; b.textContent = "Entrar"; return; }
-      TOKEN = j.token; NOME = j.nome; guardar("sep_token", TOKEN); guardar("sep_nome", NOME); telaLista();
+      TOKEN = j.token; NOME = j.nome; guardar("sep_token", TOKEN); guardar("sep_nome", NOME); iniciar();
     });
   };
   document.getElementById("go").onclick = go;
@@ -310,9 +310,70 @@ function terminar(pedido){
   });
 }
 
+/* ---------- acesso da LOJA: só pedidos de retirada (qualquer status) ---------- */
+var API3 = API.replace("separacao-site","retirada-play");
+function chamarR(acao, corpo){
+  return fetch(API3 + "?a=" + acao, { method: "POST", headers: { "Authorization": "Bearer " + TOKEN, "Content-Type": "application/json" }, body: JSON.stringify(corpo || {}) })
+    .then(function(r){ return r.json().catch(function(){ return { ok:false, erro:"Resposta inesperada" }; }).then(function(j){ if (r.status === 401 && j.erro === "sessao") { sairLogin(); } return j; }); })
+    .catch(function(){ return { ok:false, erro:"Sem internet. Tente de novo." }; });
+}
+function iniciar(){
+  cabecalho();
+  chamarR("eu").then(function(j){
+    if (j && j.ok && j.perfil === "retirada") telaRetirada(); else if (j && j.erro === "sessao") return; else telaLista();
+  });
+}
+var RET_AUTO = null;
+function telaRetirada(){
+  cabecalho();
+  if (RET_AUTO) clearInterval(RET_AUTO);
+  RET_AUTO = setInterval(function(){ if (!document.hidden && TOKEN && !document.querySelector("button[disabled]")) carregarRet(true); }, 8000);
+  var c = ler("ret_lista");
+  if (c) { try { pintarRet(JSON.parse(c)); } catch(e){ c = ""; } }
+  if (!c) app.innerHTML = '<div class="vazio">Carregando pedidos de retirada...</div>';
+  carregarRet(false);
+}
+function carregarRet(silencio){
+  chamarR("lista").then(function(j){
+    if (!j.ok) { if (!silencio) app.innerHTML = '<div class="card err">' + esc(j.erro || "Erro") + '</div><button class="btn" id="t">Tentar de novo</button>'; var t = document.getElementById("t"); if (t) t.onclick = telaRetirada; return; }
+    guardar("ret_lista", JSON.stringify(j)); pintarRet(j);
+  });
+}
+function linhaRet(p, tipo){
+  var st = p.status_site ? '<span class="c">Status no site: ' + esc(p.status_site) + '</span>' : '';
+  var info = tipo === "pronto" && p.pronto_em ? '<span class="c">Pronto em ' + esc(p.pronto_em) + (p.pronto_por ? ' · ' + esc(p.pronto_por) : '') + '</span>' : (tipo === "entregue" && p.entregue_em ? '<span class="c">Entregue em ' + esc(p.entregue_em) + (p.entregue_por ? ' · ' + esc(p.entregue_por) : '') + '</span>' : '');
+  var bt = '';
+  if (tipo === "aguardando") bt = '<button class="btn gold" data-r="pronto" data-p="' + esc(p.pedido) + '">Pronto para retirar</button>';
+  if (tipo === "pronto") bt = '<button class="btn green" data-r="entregue" data-p="' + esc(p.pedido) + '">Entregue ao cliente</button>';
+  if (tipo === "entregue") bt = '<button class="btn ghost" style="font-size:14px;padding:10px" data-r="desfazer" data-p="' + esc(p.pedido) + '">Desfazer (voltar para pronto)</button>';
+  var er = p.erro ? '<div class="err">' + esc(p.erro) + '</div>' : '';
+  return '<div class="card" style="margin-bottom:10px"><b style="font-size:20px">#' + esc(p.pedido) + '</b>' + (p.pecas ? ' <span class="tag">' + esc(p.pecas) + ' peça(s)</span>' : '') + '<span class="c" style="display:block;font-size:16px;margin-top:4px">' + esc(p.cliente || "") + '</span>' + (p.compra ? '<span class="c">Compra em ' + esc(p.compra) + '</span>' : '') + st + info + er + bt + '</div>';
+}
+function pintarRet(j){
+  var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>';
+  h += '<h2>Separando / ainda não está pronto (' + j.aguardando.length + ')</h2>';
+  if (!j.aguardando.length) h += '<div class="vazio">Nenhum.</div>';
+  j.aguardando.forEach(function(p){ h += linhaRet(p, "aguardando"); });
+  h += '<h2>Prontos para o cliente retirar (' + j.prontos.length + ')</h2>';
+  if (!j.prontos.length) h += '<div class="vazio">Nenhum.</div>';
+  j.prontos.forEach(function(p){ h += linhaRet(p, "pronto"); });
+  if (j.entregues.length) { h += '<h2>Entregues hoje (' + j.entregues.length + ')</h2>'; j.entregues.forEach(function(p){ h += linhaRet(p, "entregue"); }); }
+  app.innerHTML = h;
+  document.getElementById("at").onclick = function(){ this.textContent = "Atualizando..."; carregarRet(false); };
+  Array.prototype.forEach.call(app.querySelectorAll("button[data-r]"), function(b){
+    b.onclick = function(){
+      var acao = b.getAttribute("data-r"), ped = b.getAttribute("data-p");
+      var msg = acao === "pronto" ? "Marcar o pedido " + ped + " como PRONTO para retirar?" : acao === "entregue" ? "Confirmar que o pedido " + ped + " foi ENTREGUE ao cliente?" : "Voltar o pedido " + ped + " para pronto?";
+      if (!confirm(msg)) return;
+      b.disabled = true; b.innerHTML = '<span class="spin"></span>Atualizando no site...';
+      chamarR(acao, { pedido: ped }).then(function(r){ if (!r.ok) alert(r.erro || "Não deu certo. Tente de novo."); carregarRet(false); });
+    };
+  });
+}
+
 /* ---------- início ---------- */
 TOKEN = ler("sep_token"); NOME = ler("sep_nome");
-if (TOKEN) telaLista(); else telaLogin();
+if (TOKEN) iniciar(); else telaLogin();
 </script>
 </body>
 </html>
