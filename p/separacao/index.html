@@ -341,10 +341,10 @@ function carregarRet(silencio){
 }
 function linhaRet(p, tipo){
   var st = p.status_site ? '<span class="c">Status no site: ' + esc(p.status_site) + '</span>' : '';
-  var info = tipo === "pronto" && p.pronto_em ? '<span class="c">Pronto em ' + esc(p.pronto_em) + (p.pronto_por ? ' · ' + esc(p.pronto_por) : '') + '</span>' : (tipo === "entregue" && p.entregue_em ? '<span class="c">Entregue em ' + esc(p.entregue_em) + (p.entregue_por ? ' · ' + esc(p.entregue_por) : '') + '</span>' : '');
+  var info = tipo === "pronto" && p.pronto_em ? '<span class="c">Pronto em ' + esc(p.pronto_em) + (p.pronto_por ? ' · ' + esc(p.pronto_por) : '') + '</span>' : (tipo === "entregue" && p.entregue_em ? '<span class="c">Entregue em ' + esc(p.entregue_em) + (p.entregue_por ? ' · ' + esc(p.entregue_por) : '') + '</span>' + (p.foto ? '<a class="c" style="display:block" target="_blank" href="' + esc(p.foto) + '">Ver foto da entrega</a>' : '') : '');
   var bt = '';
   if (tipo === "aguardando") bt = '<button class="btn gold" data-r="pronto" data-p="' + esc(p.pedido) + '">Pronto para retirar</button>';
-  if (tipo === "pronto") bt = '<button class="btn green" data-r="entregue" data-p="' + esc(p.pedido) + '">Entregue ao cliente</button>';
+  if (tipo === "pronto") bt = '<button class="btn green" data-r="entregue" data-p="' + esc(p.pedido) + '">Entregue ao cliente (tirar foto)</button>';
   if (tipo === "entregue") bt = '<button class="btn ghost" style="font-size:14px;padding:10px" data-r="desfazer" data-p="' + esc(p.pedido) + '">Desfazer (voltar para pronto)</button>';
   var er = p.erro ? '<div class="err">' + esc(p.erro) + '</div>' : '';
   return '<div class="card" style="margin-bottom:10px"><b style="font-size:20px">#' + esc(p.pedido) + '</b>' + (p.pecas ? ' <span class="tag">' + esc(p.pecas) + ' peça(s)</span>' : '') + '<span class="c" style="display:block;font-size:16px;margin-top:4px">' + esc(p.cliente || "") + '</span>' + (p.compra ? '<span class="c">Compra em ' + esc(p.compra) + '</span>' : '') + st + info + er + bt + '</div>';
@@ -363,12 +363,32 @@ function pintarRet(j){
   Array.prototype.forEach.call(app.querySelectorAll("button[data-r]"), function(b){
     b.onclick = function(){
       var acao = b.getAttribute("data-r"), ped = b.getAttribute("data-p");
-      var msg = acao === "pronto" ? "Marcar o pedido " + ped + " como PRONTO para retirar?" : acao === "entregue" ? "Confirmar que o pedido " + ped + " foi ENTREGUE ao cliente?" : "Voltar o pedido " + ped + " para pronto?";
+      if (acao === "entregue") { tirarFoto(ped, b); return; }
+      var msg = acao === "pronto" ? "Marcar o pedido " + ped + " como PRONTO para retirar?" : "Voltar o pedido " + ped + " para pronto?";
       if (!confirm(msg)) return;
       b.disabled = true; b.innerHTML = '<span class="spin"></span>Atualizando no site...';
       chamarR(acao, { pedido: ped }).then(function(r){ if (!r.ok) alert(r.erro || "Não deu certo. Tente de novo."); carregarRet(false); });
     };
   });
+}
+
+/* foto da entrega: obrigatória para marcar "Entregue ao cliente" */
+function tirarFoto(ped, b){
+  var inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.setAttribute("capture", "environment");
+  inp.onchange = function(){
+    var f = inp.files && inp.files[0]; if (!f) return;
+    b.disabled = true; b.innerHTML = '<span class="spin"></span>Enviando foto...';
+    var img = new Image(), url = URL.createObjectURL(f);
+    img.onload = function(){
+      var m = 1280, w = img.width, h = img.height, k = Math.min(1, m / Math.max(w, h));
+      var c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      chamarR("entregue", { pedido: ped, foto: c.toDataURL("image/jpeg", 0.7) }).then(function(r){ if (!r.ok) alert(r.erro || "Não deu certo. Tente de novo."); carregarRet(false); });
+    };
+    img.onerror = function(){ alert("Não consegui ler a foto. Tente de novo."); carregarRet(false); };
+    img.src = url;
+  };
+  inp.click();
 }
 
 /* ---------- início ---------- */
