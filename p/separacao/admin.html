@@ -33,22 +33,26 @@ header .lg{height:42px;width:auto;display:block}header .tt{display:flex;align-it
 <script>
 var API = "https://cuiqmczhtcrrxafmzmhh.supabase.co/functions/v1/separacao-site";
 var API2 = API.replace("separacao-site","separacao-lista");
+var API4 = API.replace("separacao-site","sep-setor"), PERFIS = {};
 var app = document.getElementById("app"), ADM = "";
 function esc(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
 function chamar(acao, corpo){
   corpo = corpo || {}; corpo.admin = ADM;
-  return fetch((acao === "admin_dias" || acao === "admin_dia" ? API2 : API) + "?a=" + acao, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(corpo) })
+  return fetch((acao === "admin_dias" || acao === "admin_dia" ? API2 : (acao === "admin_perfis" || acao === "admin_setor") ? API4 : API) + "?a=" + acao, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(corpo) })
     .then(function(r){ return r.json(); }).catch(function(){ return { ok:false, erro:"Sem internet." }; });
 }
 function entrar(){
   app.innerHTML = '<div class="card"><label for="a">Senha de sempre</label><input id="a" type="password" autocomplete="current-password"><div class="err" id="e"></div><button class="btn" id="go">Entrar</button></div>';
-  var go = function(){ ADM = document.getElementById("a").value; chamar("admin_listar").then(function(j){ if (!j.ok) { document.getElementById("e").textContent = j.erro || "Erro"; ADM = ""; return; } tela(j); }); };
+  var go = function(){ ADM = document.getElementById("a").value; chamar("admin_listar").then(function(j){ if (!j.ok) { document.getElementById("e").textContent = j.erro || "Erro"; ADM = ""; return; } recarregar(); }); };
   document.getElementById("go").onclick = go;
   document.getElementById("a").onkeydown = function(e){ if (e.key === "Enter") go(); };
 }
+function recarregar(msg){ Promise.all([chamar("admin_listar"), chamar("admin_perfis")]).then(function(r){ PERFIS = (r[1] && r[1].perfis) || {}; tela(r[0], msg); }); }
+var SETOR = { separacao:"Separação", retirada:"Loja (retirada)" };
 function tela(j, msg){
   var h = '<div class="card"><h2 style="margin-top:0">Cadastrar ou trocar senha</h2><div class="dica">Digite o nome da funcionária e a senha dela. Se o nome já existe, a senha é trocada. Use uma senha curta e fácil.</div>' +
     '<label for="n">Nome</label><input id="n" type="text" autocapitalize="words">' +
+    '<label for="st">Setor</label><select id="st" style="width:100%;font-size:18px;padding:14px;border:2px solid #d8d5cd;border-radius:12px;background:#fff"><option value="separacao">Separação (vê todos os pedidos)</option><option value="retirada">Loja (só pedidos de retirada)</option></select>' +
     '<label for="s">Senha</label><input id="s" type="text" autocomplete="off">' +
     '<button class="btn gold" id="salvar">Salvar</button>' + (msg ? '<div class="' + (msg.ok ? 'okm' : 'err') + '">' + esc(msg.t) + '</div>' : '') + '</div>';
   h += '<h2>Funcionárias (' + j.funcionarias.length + ')</h2><div class="card">';
@@ -60,20 +64,21 @@ function tela(j, msg){
   app.innerHTML = h;
   document.getElementById("hist").onclick = historico;
   document.getElementById("salvar").onclick = function(){
-    var nome = document.getElementById("n").value, senha = document.getElementById("s").value;
+    var nome = document.getElementById("n").value, senha = document.getElementById("s").value, setor = document.getElementById("st").value;
     chamar("admin_salvar", { nome: nome, senha: senha }).then(function(r){
-      chamar("admin_listar").then(function(l){ tela(l, r.ok ? { ok:true, t:"Salvo! " + nome + " já pode entrar." } : { ok:false, t:r.erro || "Erro" }); });
+      if (!r.ok) { recarregar({ ok:false, t:r.erro || "Erro" }); return; }
+      chamar("admin_setor", { nome: nome, perfil: setor }).then(function(q){ recarregar(q.ok ? { ok:true, t:"Salvo! " + nome + " já pode entrar (setor: " + SETOR[setor] + ")." } : { ok:false, t:q.erro || "Erro ao gravar o setor" }); });
     });
   };
   Array.prototype.forEach.call(app.querySelectorAll("[data-id]"), function(b){
-    b.onclick = function(){ chamar("admin_ativar", { id: Number(b.getAttribute("data-id")), ativa: b.getAttribute("data-a") === "1" }).then(function(){ chamar("admin_listar").then(function(l){ tela(l); }); }); };
+    b.onclick = function(){ chamar("admin_ativar", { id: Number(b.getAttribute("data-id")), ativa: b.getAttribute("data-a") === "1" }).then(function(){ recarregar(); }); };
   });
 }
 var ROT = { enviado:"Separado", ok:"Separado", liberado:"Separado", faltou:"Faltou peça", separando:"Separando", conferindo:"Conferindo", divergente:"Ajustar", duvida:"Ajustar" };
 function nomeDia(d){ var x = new Date(d + "T12:00:00"); return x.toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"2-digit" }); }
 function historico(){
   app.innerHTML = '<button class="btn" id="vt" style="margin:0 0 12px;background:#fff;color:#111;border:2px solid #111">← Voltar</button><h2 style="margin-top:0">Histórico (toque no dia)</h2><div id="dias" class="dica">Carregando...</div>';
-  document.getElementById("vt").onclick = function(){ chamar("admin_listar").then(tela); };
+  document.getElementById("vt").onclick = function(){ recarregar(); };
   chamar("admin_dias").then(function(j){
     var el = document.getElementById("dias");
     if (!j.ok || !j.dias.length) { el.textContent = "Ainda não tem nada no histórico."; return; }
