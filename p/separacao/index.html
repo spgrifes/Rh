@@ -166,7 +166,7 @@ function mostrarOcup(){
   el.innerHTML = OCUP ? '<div class="aviso info"><span class="bolinha"></span><b>' + esc(OCUP.nome) + '</b> está separando este pedido desde ' + esc(OCUP.desde || "") + '.</div>' : "";
 }
 function pintarLista(j){
-  var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button></div><button class="btn green" id="rt" style="margin:0 0 12px">Motoboy chegou? Marcar pacotes prontos para a loja</button>';
+  var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button></div><button class="btn green" id="rt" style="margin:0 0 12px">Envia pra loja</button>';
   if (Array.isArray(j.atrasados) && j.atrasados.length) h += blocoAtrasados(j.atrasados);
   if (j.faltando && j.faltando.length) { h += '<h2>Faltou peça (' + j.faltando.length + ')</h2>'; j.faltando.forEach(function(p){ h += linha(p); }); }
   h += '<h2>Para separar (' + j.pendentes.length + ')</h2>';
@@ -355,7 +355,7 @@ function pintarRet(j){
   var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>';
   if (PERFIL !== "retirada") {
     h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" id="vt" style="margin:0">Voltar</button><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>';
-    h += '<h2>Pacotes guardados: marcar pronto para retirar (' + j.aguardando.length + ')</h2>';
+    h += '<h2>Envia pra loja: marcar pronto para retirar (' + j.aguardando.length + ')</h2>';
     if (!j.aguardando.length) h += '<div class="vazio">Nenhum.</div>';
     j.aguardando.forEach(function(p){ h += linhaRet(p, "aguardando"); });
   }
