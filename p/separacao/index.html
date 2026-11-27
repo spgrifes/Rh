@@ -186,6 +186,7 @@ function blocoAtrasados(l){
     h += '<div class="atr-item"><b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + '</span>';
     h += '<span class="d">Etiqueta de ' + esc(a.etiqueta || "") + ' · há ' + esc(a.dias) + ' dias sem postar</span>';
     if (a.codigo) h += '<span class="s">Rastreio: <b style="font-size:14px">' + esc(a.codigo) + '</b></span>';
+    if (!p.retirada) { var eu = API.replace("separacao-site","separacao-etiqueta") + '?p=' + encodeURIComponent(p.pedido) + '&t=' + encodeURIComponent(TOKEN); h += '<a class="btn gold" style="display:block;text-align:center;text-decoration:none;margin:8px 0" target="_blank" rel="noopener" href="' + eu + '">Imprimir etiqueta dos Correios</a>'; }
     h += '<span class="s">' + (a.separado ? 'Já separado' + (a.separou ? ' por ' + esc(a.separou) : '') + (a.separou_em ? ' em ' + esc(a.separou_em) : '') + ': é só achar o pacote.' : 'Sem registro de separação no Play: conferir na prateleira antes de separar.') + '</span></div>';
   });
   return h + '<div style="height:4px"></div></details>';
