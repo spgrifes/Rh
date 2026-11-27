@@ -184,7 +184,7 @@ function blocoAtrasados(l){
   l.forEach(function(p){
     var a = p.alerta || {};
     h += '<div class="atr-item"><b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + '</span>';
-    h += '<span class="d">Etiqueta de ' + esc(a.etiqueta || "") + ' · há ' + esc(a.dias) + ' dias sem postar</span>';
+    h += '<span class="d">' + (p.compra ? 'Compra em <b>' + esc(p.compra) + '</b> · ' : '') + 'Etiqueta de ' + esc(a.etiqueta || "") + ' · há ' + esc(a.dias) + ' dias sem postar</span>';
     if (a.codigo) h += '<span class="s">Rastreio: <b style="font-size:14px">' + esc(a.codigo) + '</b></span>';
     if (!p.retirada) { var eu = API.replace("separacao-site","separacao-etiqueta") + '?p=' + encodeURIComponent(p.pedido) + '&t=' + encodeURIComponent(TOKEN); h += '<a class="btn gold" style="display:block;text-align:center;text-decoration:none;margin:8px 0" target="_blank" rel="noopener" href="' + eu + '">Imprimir etiqueta dos Correios</a>'; }
     h += '<span class="s">' + (a.separado ? 'Já separado' + (a.separou ? ' por ' + esc(a.separou) : '') + (a.separou_em ? ' em ' + esc(a.separou_em) : '') + ': é só achar o pacote.' : 'Sem registro de separação no Play: conferir na prateleira antes de separar.') + '</span></div>';
@@ -195,7 +195,7 @@ function linha(p){
   var oc = p.ocupado ? '<span class="sep-oc"><span class="bolinha"></span>' + (p.ocupado.eu ? 'Você está separando' : esc(p.ocupado.nome) + ' separando') + '</span>' : '';
   var pr = p.prioridade, ex = pr === "excursao" ? " exc" : "";
   var tg = pr ? '<span class="prio-tag' + ex + '">' + (pr === "retirada" ? "RETIRADA EM MÃOS · SEPARAR PRIMEIRO" : "EXCURSÃO · SEPARAR PRIMEIRO") + '</span><br>' : '';
-  return '<button class="pedido' + (pr ? " prio" + ex : "") + '" data-p="' + esc(p.pedido) + '"><div>' + tg + '<b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + (p.fotos ? ' · ' + p.fotos + ' foto(s)' : '') + '</span>' + oc + '</div><span class="tag ' + esc(p.status) + '">' + esc(ROTULO[p.status] || p.status) + '</span></button>';
+  return '<button class="pedido' + (pr ? " prio" + ex : "") + '" data-p="' + esc(p.pedido) + '"><div>' + tg + '<b>#' + esc(p.pedido) + '</b><span class="c">' + esc(p.cliente || "") + (p.fotos ? ' · ' + p.fotos + ' foto(s)' : '') + '</span>' + (p.compra ? '<span class="c">Compra em ' + esc(p.compra) + '</span>' : '') + oc + '</div><span class="tag ' + esc(p.status) + '">' + esc(ROTULO[p.status] || p.status) + '</span></button>';
 }
 
 /* ---------- pedido ---------- */
