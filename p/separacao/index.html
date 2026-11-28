@@ -349,23 +349,36 @@ function linhaRet(p, tipo){
   if (tipo === "pronto" && PERFIL === "retirada") bt = '<button class="btn green" data-r="entregue" data-p="' + esc(p.pedido) + '">Entregue ao cliente (tirar foto)</button>';
   if (tipo === "entregue" && PERFIL === "retirada") bt = '<button class="btn ghost" style="font-size:14px;padding:10px" data-r="desfazer" data-p="' + esc(p.pedido) + '">Desfazer (voltar para disponível)</button>';
   var er = p.erro ? '<div class="err">' + esc(p.erro) + '</div>' : '';
-  return '<div class="card" style="margin-bottom:10px"><b style="font-size:20px">#' + esc(p.pedido) + '</b>' + (p.pecas ? ' <span class="tag">' + esc(p.pecas) + ' peça(s)</span>' : '') + (tipo === "aguardando" ? (p.separado ? ' <span class="tag" style="background:#d6f0dc;color:#1b6b34">Já separado</span>' : ' <span class="tag" style="background:#fff3cd;color:#8a6500">Ainda separando</span>') : '') + '<span class="c" style="display:block;font-size:16px;margin-top:4px">' + esc(p.cliente || "") + '</span>' + (p.compra ? '<span class="c" style="display:block">Compra em ' + esc(p.compra) + '</span>' : '') + st + info + er + bt + '</div>';
+  return '<div class="card" style="margin-bottom:10px"><b style="font-size:20px">#' + esc(p.pedido) + '</b>' + (p.pecas ? ' <span class="tag">' + esc(p.pecas) + ' peça(s)</span>' : '') + (tipo === "aguardando" ? (p.separado ? ' <span class="tag" style="background:#d6f0dc;color:#1b6b34">Já separado</span>' : ' <span class="tag" style="background:#fff3cd;color:#8a6500">Ainda separando</span>') : '') + '<b style="display:block;font-size:18px;margin-top:4px;color:#111">' + esc(p.cliente || "") + '</b>' + (p.compra ? '<span class="c" style="display:block">Compra em ' + esc(p.compra) + '</span>' : '') + st + info + er + bt + '</div>';
+}
+var RET_Q = "", RET_J = null;
+function semAcento(t){ return String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+function filtraRet(lista){
+  var q = semAcento(RET_Q).trim(); if (!q) return lista;
+  return lista.filter(function(p){ return semAcento(p.pedido + " " + (p.cliente || "")).indexOf(q) >= 0; });
 }
 function pintarRet(j){
-  var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>';
+  RET_J = j;
+  var foco = document.activeElement && document.activeElement.id === "bq", pos = foco ? document.activeElement.selectionStart : 0;
+  var aguard = filtraRet(j.aguardando || []), prontos = filtraRet(j.prontos || []), entr = filtraRet(j.entregues || []);
+  var busca = '<input id="bq" type="search" inputmode="search" autocomplete="off" placeholder="Buscar pelo número do pedido ou nome" value="' + esc(RET_Q) + '" style="width:100%;box-sizing:border-box;font-size:18px;padding:14px;border:2px solid #d9b44a;border-radius:12px;margin-bottom:12px">';
+  var h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>' + busca;
   if (PERFIL !== "retirada") {
-    h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" id="vt" style="margin:0">Voltar</button><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>';
-    h += '<h2>Envia pra loja: marcar disponível para retirar (' + j.aguardando.length + ')</h2>';
-    if (!j.aguardando.length) h += '<div class="vazio">Nenhum.</div>';
-    j.aguardando.forEach(function(p){ h += linhaRet(p, "aguardando"); });
+    h = '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" id="vt" style="margin:0">Voltar</button><button class="btn gold" id="at" style="margin:0">Atualizar</button></div>' + busca;
+    h += '<h2>Envia pra loja: marcar disponível para retirar (' + aguard.length + ')</h2>';
+    if (!aguard.length) h += '<div class="vazio">Nenhum.</div>';
+    aguard.forEach(function(p){ h += linhaRet(p, "aguardando"); });
   }
-  h += '<h2>Disponíveis para o cliente retirar (' + j.prontos.length + ')</h2>';
-  if (!j.prontos.length) h += '<div class="vazio">Nenhum.</div>';
-  j.prontos.forEach(function(p){ h += linhaRet(p, "pronto"); });
-  if (j.entregues.length) { h += '<h2>Entregues hoje (' + j.entregues.length + ')</h2>'; j.entregues.forEach(function(p){ h += linhaRet(p, "entregue"); }); }
+  h += '<h2>Disponíveis para o cliente retirar (' + prontos.length + ')</h2>';
+  if (!prontos.length) h += '<div class="vazio">Nenhum.</div>';
+  prontos.forEach(function(p){ h += linhaRet(p, "pronto"); });
+  if (entr.length) { h += '<h2>Entregues hoje (' + entr.length + ')</h2>'; entr.forEach(function(p){ h += linhaRet(p, "entregue"); }); }
   app.innerHTML = h;
   document.getElementById("at").onclick = function(){ this.textContent = "Atualizando..."; carregarRet(false); };
   var vt = document.getElementById("vt"); if (vt) vt.onclick = telaLista;
+  var bq = document.getElementById("bq");
+  bq.oninput = function(){ RET_Q = bq.value; pintarRet(RET_J); };
+  if (foco) { bq.focus(); try { bq.setSelectionRange(pos, pos); } catch(e){} }
   Array.prototype.forEach.call(app.querySelectorAll("button[data-r]"), function(b){
     b.onclick = function(){
       var acao = b.getAttribute("data-r"), ped = b.getAttribute("data-p");
